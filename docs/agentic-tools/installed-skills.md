@@ -3,7 +3,7 @@
 > 1인 개발자를 위한 전체 개발 사이클 커버 스킬셋
 > 설치일: 2026-02-14
 
-## 설치 완료된 핵심 스킬 (5개)
+## 설치 완료된 핵심 스킬 (6개)
 
 ### 1. product-management
 - **출처**: `vasilyu1983/ai-agents-public@product-management`
@@ -35,6 +35,13 @@
 - **용도**: 보안 취약점 점검
 - **활용 시점**: 배포 전 보안 감사, OWASP Top 10 점검, 의존성 취약점 확인
 - **설치 경로**: `~/.agents/skills/security-review`
+
+### 6. design-system-patterns
+- **출처**: `wshobson/agents@design-system-patterns`
+- **용도**: 디자인 시스템 패턴 구조화 및 가이드
+- **활용 시점**: 디자인 토큰 체계 정리, 컴포넌트 패턴 정의, 디자인 시스템 규칙 수립
+- **설치 경로**: `~/.agents/skills/design-system-patterns`
+- **설치 수**: 2,300+
 
 ## 스킬 관리 명령어
 
