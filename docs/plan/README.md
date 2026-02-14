@@ -27,6 +27,7 @@
 | 15  | 2026-02-14_codex_phase2-m1-t5-tooling.md                | 2026-02-14 | codex       | PHASE2   | partial | ESLint/Prettier/.env.example 정비 및 검증                   |
 | 16  | 2026-02-14_codex_phase1-schema-sql-migration.md         | 2026-02-14 | codex       | PHASE1   | done    | S2 스키마 SQL/마이그레이션 및 Docker 인프라 구현            |
 | 17  | 2026-02-14_codex_phase2-m1-t6-sot-hook.md               | 2026-02-14 | codex       | PHASE2   | done    | Husky pre-commit과 SoT 위반 자동 검사 게이트 구축           |
+| 18  | 2026-02-14_claude-code_readme-navigation.md             | 2026-02-14 | claude-code | PHASE2   | done    | 프로젝트 README 네비게이션 문서 생성                        |
 
 ## Archive
 
