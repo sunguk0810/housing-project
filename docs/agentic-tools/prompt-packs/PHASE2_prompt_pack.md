@@ -27,20 +27,41 @@
 
 ```
 1. Claude Code: Milestone Planning Prompt → 태스크 분해 + Codex 태스크 정의
+   └─ 산출물: plan 문서 > "M<N> 태스크 분해" 섹션에 기록
 2. Claude Code: Codex Task Generation Prompt → 구체적 Codex 태스크 생성
-3. Codex: 코드 생성 (체크리스트 포함 프롬프트 기반)
+   └─ 산출물: plan 문서 > "M<N> Codex 태스크" 섹션에 기록
+3. Codex: 코드 생성 (plan 문서의 Codex 태스크 섹션을 복사하여 전달)
 4. Claude Code: Code Review Prompt → diff 리뷰 + SoT 체크리스트 검증
+   └─ 산출물: plan 문서 > "M<N> Code Review" 섹션에 기록
 5. Claude Code: Milestone Verification Prompt → Output Contract pass/fail 판정
+   └─ 산출물: plan 문서 > "Verification 이력" 섹션에 JSON 누적
 6. 개발자: 판단 후 수동 커밋
 ```
 
 > 커밋은 항상 개발자가 직접 실행한다.
 
+### 태스크 영속화 및 전달 규칙
+
+각 프롬프트의 산출물은 **plan 문서에 영속화**한다. 대화 컨텍스트에만 의존하지 않는다.
+
+| 단계 | 산출물 | plan 문서 기록 위치 | 후속 단계 참조 방식 |
+|------|--------|-------------------|-------------------|
+| Milestone Planning | 태스크 분해 표 + OC 매핑 | `### M<N> 태스크 분해` | Codex Task Generation의 입력 |
+| Codex Task Generation | Codex 태스크 프롬프트 | `### M<N> Codex 태스크` | **Codex에 복사-붙여넣기로 전달** |
+| Code Review | Findings + 판정 | `### M<N> Code Review` | Milestone Verification의 입력 |
+| Milestone Verification | Verification JSON | `### Run N (YYYY-MM-DD)` | 다음 마일스톤 진입 조건 |
+
+**Codex 전달 동선**:
+1. Claude Code가 Codex Task Generation Prompt로 태스크 프롬프트를 생성한다
+2. 생성된 프롬프트를 plan 문서의 `### M<N> Codex 태스크` 섹션에 기록한다
+3. 개발자가 해당 섹션의 내용을 Codex에 복사-붙여넣기로 전달한다
+4. Codex 실행 결과(코드 diff)를 Claude Code가 Code Review Prompt로 검증한다
+
 ## Plan Mode 부트스트랩 규칙 (필수)
 
 - 이 Prompt Pack은 `Plan mode`에서 실행한다.
 - 시작 직후 `docs/plan/YYYY-MM-DD_<agent>_<topic>.md`를 먼저 1건 생성하고 상태를 `in_progress`로 둔다.
-- 생성한 plan 문서 1건에 마일스톤별 실행 결과를 순차 누적한다.
+- 생성한 plan 문서 1건에 마일스톤별 실행 결과를 순차 누적한다. 각 프롬프트 산출물의 기록 위치는 "태스크 영속화 및 전달 규칙" 참조.
 - Milestone Verification 완료 후 같은 문서의 `결과/결정`에 `done|partial|blocked`와 후속 액션을 확정한다.
 - `<agent>` 허용값은 `claude-code`, `codex`, `handoff`만 사용한다.
 
@@ -147,6 +168,9 @@ Plan mode로 수행하고, 시작 즉시 docs/plan/YYYY-MM-DD_claude-code_<topic
 6. Output Contract M<N>-O1~O4와 태스크 매핑
 
 ## 출력 형식
+
+> 아래 내용을 plan 문서의 `### M<N> 태스크 분해` 섹션에 기록한다.
+
 ### 마일스톤 개요
 - M<N> 목표 1줄 요약
 
@@ -198,6 +222,10 @@ Milestone Planning에서 정의된 Codex 위임 태스크를 codex-task-template
 4. 실행 명령을 pnpm 기반으로 지정
 
 ## 출력 형식
+
+> 아래 내용을 plan 문서의 `### M<N> Codex 태스크` 섹션에 기록한다.
+> 개발자는 이 섹션의 내용을 Codex에 복사-붙여넣기로 전달한다.
+
 태스크별로 아래 형식 반복:
 
 ---
@@ -255,6 +283,9 @@ Codex 산출물의 diff를 리뷰하고 SoT 준수 체크리스트를 검증한�
 10. **패키지 매니저**: 코드/설정에서 npm/npx 사용 여부 (pnpm만 허용)
 
 ## 출력 형식
+
+> 아래 내용을 plan 문서의 `### M<N> Code Review` 섹션에 기록한다.
+
 ### Findings (severity 순)
 - [Severity] 항목명: 설명 (파일:라인)
 
@@ -399,14 +430,13 @@ PLAN_OPERATION_GUIDE Section 5 최소 스키마의 **상위 호환 확장**이�
 
 1. Plan mode 시작 + plan 문서 생성 (`in_progress`)
 2. 마일스톤 M<N> 선택
-3. **Milestone Planning Prompt** 실행 -- 태스크 분해 + Codex 태스크 정의
-4. **Codex Task Generation Prompt** 실행 -- Codex 태스크 생성
-5. Codex 코드 생성 실행
-6. **Code Review Prompt** 실행 -- diff 리뷰 + SoT 검증
+3. **Milestone Planning Prompt** 실행 → 결과를 plan 문서 `### M<N> 태스크 분해`에 기록
+4. **Codex Task Generation Prompt** 실행 → 결과를 plan 문서 `### M<N> Codex 태스크`에 기록
+5. 개발자가 plan 문서의 Codex 태스크 섹션을 Codex에 복사-붙여넣기로 전달 → Codex 코드 생성
+6. **Code Review Prompt** 실행 → 결과를 plan 문서 `### M<N> Code Review`에 기록
 7. (P0 발견 시) 수정 후 6번 재실행
-8. **Milestone Verification Prompt** 실행 -- Output Contract 판정 + Verification JSON 출력
-9. 동일 plan 문서에 Verification 결과 누적
-10. verdict `go` 시 다음 마일스톤으로 이동, `no-go`/`pending` 시 수정 후 재검증
+8. **Milestone Verification Prompt** 실행 → Verification JSON을 plan 문서 `### Run N`에 누적
+9. verdict `go` 시 다음 마일스톤으로 이동, `no-go`/`pending` 시 수정 후 재검증
 
 ## 검증 통과 기준
 
