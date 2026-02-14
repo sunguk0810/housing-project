@@ -1,0 +1,197 @@
+/**
+ * Showcase Navigation, Dark Mode, and Interactions
+ */
+
+/* ---- Sidebar Data ---- */
+const NAV_SECTIONS = [
+  {
+    title: 'Overview',
+    items: [
+      { label: 'Home', href: 'index.html' }
+    ]
+  },
+  {
+    title: 'Tokens',
+    items: [
+      { label: 'Tokens', href: 'tokens.html' }
+    ]
+  },
+  {
+    title: 'Components',
+    items: [
+      { label: 'Score', href: 'comp-score.html' },
+      { label: 'Cards', href: 'comp-cards.html' },
+      { label: 'Navigation', href: 'comp-nav.html' },
+      { label: 'Input', href: 'comp-input.html' },
+      { label: 'Map', href: 'comp-map.html' },
+      { label: 'Trust', href: 'comp-trust.html' },
+      { label: 'Feedback', href: 'comp-feedback.html' },
+      { label: 'Auxiliary', href: 'comp-auxiliary.html' }
+    ]
+  },
+  {
+    title: 'Pages',
+    items: [
+      { label: 'Landing', href: 'page-landing.html' },
+      { label: 'Onboarding', href: 'page-onboarding.html' },
+      { label: 'Results', href: 'page-results.html' },
+      { label: 'Detail', href: 'page-detail.html' },
+      { label: 'Comparison', href: 'page-comparison.html' },
+      { label: 'Legal', href: 'page-legal.html' }
+    ]
+  }
+];
+
+const SECTION_LABELS = {
+  'Overview': 'Overview',
+  'Tokens': '\uD1A0\uD070',
+  'Components': '\uCEF4\uD3EC\uB10C\uD2B8',
+  'Pages': '\uD398\uC774\uC9C0'
+};
+
+const ITEM_LABELS = {
+  'Home': '\uAC1C\uC694',
+  'Tokens': '\uCEEC\uB7EC \xB7 \uD0C0\uC774\uD3EC \xB7 \uAC04\uACA9 \xB7 \uADF8\uB9BC\uC790',
+  'Score': '\uC2A4\uCF54\uC5B4 \uC2DC\uAC01\uD654',
+  'Cards': '\uCE74\uB4DC',
+  'Navigation': '\uB124\uBE44\uAC8C\uC774\uC158',
+  'Input': '\uC785\uB825',
+  'Map': '\uC9C0\uB3C4',
+  'Trust': '\uC2E0\uB8B0 \xB7 \uCEF4\uD50C\uB77C\uC774\uC5B8\uC2A4',
+  'Feedback': '\uD53C\uB4DC\uBC31',
+  'Auxiliary': '\uBCF4\uC870 UI',
+  'Landing': 'Landing (/)',
+  'Onboarding': 'Onboarding (/search)',
+  'Results': 'Results (/results)',
+  'Detail': 'Detail (/complex/[id])',
+  'Comparison': 'Comparison (/compare)',
+  'Legal': 'Legal (/terms)'
+};
+
+/* ---- Sidebar Rendering ---- */
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+
+  const currentPage = location.pathname.split('/').pop() || 'index.html';
+  let html = '';
+
+  for (const section of NAV_SECTIONS) {
+    html += '<div class="sidebar-group-title">' + (SECTION_LABELS[section.title] || section.title) + '</div>';
+    for (const item of section.items) {
+      const isActive = currentPage === item.href;
+      const label = ITEM_LABELS[item.label] || item.label;
+      html += '<a class="sidebar-link' + (isActive ? ' active' : '') + '" href="' + item.href + '">' + label + '</a>';
+    }
+  }
+
+  sidebar.innerHTML = html;
+}
+
+/* ---- Dark Mode ---- */
+function initDarkMode() {
+  const isDark = localStorage.getItem('showcase-dark') === 'true';
+  if (isDark) {
+    document.documentElement.classList.add('dark');
+  }
+  updateThemeButton();
+}
+
+function toggleDark() {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  localStorage.setItem('showcase-dark', isDark);
+  updateThemeButton();
+}
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  const isDark = document.documentElement.classList.contains('dark');
+  btn.textContent = isDark ? '\u2600\uFE0F Light' : '\uD83C\uDF19 Dark';
+}
+
+/* ---- Mobile Sidebar Toggle ---- */
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+}
+
+/* ---- Toast ---- */
+function showToast(message) {
+  let toast = document.getElementById('liveToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'liveToast';
+    toast.className = 'toast-sample toast-live';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.remove('show');
+  // Force reflow
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 2200);
+}
+
+/* ---- Modal ---- */
+function openModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.add('show');
+}
+function closeModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
+
+/* ---- Bottom Sheet ---- */
+function setBottomSheetState(state) {
+  var sheet = document.getElementById('bottomsheet');
+  if (sheet) sheet.setAttribute('data-state', state);
+  // Update buttons
+  document.querySelectorAll('.bs-btn').forEach(function(btn) {
+    btn.classList.toggle('btn-primary', btn.dataset.state === state);
+    btn.classList.toggle('btn-outline', btn.dataset.state !== state);
+  });
+}
+
+/* ---- Tooltip ---- */
+function toggleTooltip(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('show');
+}
+
+/* ---- Gauge Animation on Scroll ---- */
+function animateOnScroll() {
+  var els = document.querySelectorAll('[data-animate]');
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    if (el.dataset.animated) continue;
+    var rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 50) {
+      el.classList.add('animated');
+      el.dataset.animated = 'true';
+    }
+  }
+}
+
+/* ---- Init ---- */
+document.addEventListener('DOMContentLoaded', function() {
+  initDarkMode();
+  renderSidebar();
+  animateOnScroll();
+  window.addEventListener('scroll', animateOnScroll);
+
+  // Close sidebar on overlay click
+  var overlay = document.getElementById('sidebarOverlay');
+  if (overlay) overlay.addEventListener('click', closeSidebar);
+});

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Detail</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Detail (/complex/[id])</h1>
+      <p class="section-desc">§4.3 — Hero CircularGauge + ScoreBar + 가격 + 통근 + SafetySection + ExternalLinkCTA</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#FFF;position:relative;z-index:2;">
+          <span>9:41</span>
+          <span>📶 🔋</span>
+        </div>
+
+        <!-- Hero -->
+        <div style="background:linear-gradient(135deg,var(--color-brand-700),var(--color-brand-500));padding:0 var(--space-4) var(--space-6);color:#FFF;text-align:center;margin-top:-44px;padding-top:44px;">
+          <div style="padding-top:var(--space-4);">
+            <span style="font-size:20px;position:absolute;left:var(--space-4);top:52px;cursor:pointer;">←</span>
+          </div>
+          <div class="gauge-wrapper" style="width:96px;height:96px;margin:var(--space-4) auto var(--space-3);">
+            <svg width="96" height="96" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="6"/>
+              <circle class="gauge-fill" cx="48" cy="48" r="40" fill="none" stroke="#FFFFFF" stroke-width="6"
+                stroke-dasharray="251.33" style="--gauge-offset:40.21;--gauge-circumference:251.33;transform:rotate(-90deg);transform-origin:center;" data-animate/>
+            </svg>
+            <span class="gauge-text" style="font-size:32px;color:#FFF;">84</span>
+          </div>
+          <div style="font-size:var(--text-title);font-weight:700;">래미안 위브 하남</div>
+          <div style="font-size:var(--text-caption);opacity:0.8;margin-top:4px;">경기도 하남시 미사동 123-4 · 1,200세대 · 2018년</div>
+          <div style="margin-top:var(--space-2);">
+            <span class="badge badge-sm" style="background:rgba(255,255,255,0.2);color:#FFF;">A+ 매우 좋음</span>
+          </div>
+        </div>
+
+        <!-- Score Bars -->
+        <div style="padding:var(--space-6) var(--space-4);">
+          <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-4);">카테고리별 분석</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                <span>💰 예산 적합도</span><span style="font-weight:600;color:#1565C0;">92</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="background:#1565C0;width:92%;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                <span>🚇 통근 편의</span><span style="font-weight:600;color:#42A5F5;">76</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="background:#42A5F5;width:76%;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                <span>👶 보육 환경</span><span style="font-weight:600;color:#42A5F5;">68</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="background:#42A5F5;width:68%;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                <span>🛡️ 안전 편의시설</span><span style="font-weight:600;color:#90A4AE;">55</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="background:#90A4AE;width:55%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price -->
+        <div style="padding:0 var(--space-4) var(--space-6);border-top:1px solid var(--color-border);padding-top:var(--space-4);">
+          <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-3);">실거래가 정보</div>
+          <div style="font-size:var(--text-title);font-weight:700;font-variant-numeric:tabular-nums;">전세 3억 2,000만</div>
+          <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);">
+            <span class="source-tag">📊 국토교통부 실거래가</span>
+            <span class="source-tag">📅 2026.01</span>
+          </div>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-2);">
+            참고용 시뮬레이션이며 실제 거래가를 보장하지 않습니다
+          </div>
+        </div>
+
+        <!-- Commute -->
+        <div style="padding:0 var(--space-4) var(--space-6);">
+          <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-3);">통근 시간</div>
+          <div style="display:flex;gap:var(--space-3);">
+            <div style="flex:1;padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);text-align:center;">
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">직장 1</div>
+              <div style="font-size:var(--text-title);font-weight:700;color:var(--color-brand-500);">42분</div>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">삼성역</div>
+            </div>
+            <div style="flex:1;padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);text-align:center;">
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">직장 2</div>
+              <div style="font-size:var(--text-title);font-weight:700;color:var(--color-brand-500);">58분</div>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">여의도</div>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-2);">
+            <span class="source-tag">🚇 ODsay 대중교통 경로 기준</span>
+          </div>
+        </div>
+
+        <!-- Safety Section -->
+        <div style="padding:0 var(--space-4) var(--space-6);border-top:1px solid var(--color-border);padding-top:var(--space-4);">
+          <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-3);">안전 편의시설 현황</div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-2);font-size:13px;">
+            <div style="display:flex;justify-content:space-between;">
+              <span>CCTV 밀집도</span>
+              <span style="color:#4CAF50;font-weight:600;">서울시 평균 대비 상위</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span>가로등</span>
+              <span style="color:#FF9800;font-weight:600;">보통 수준</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span>경찰서 거리</span>
+              <span style="color:#9E9E9E;font-weight:600;">다소 먼 편</span>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-2);">
+            <span class="source-tag">행정안전부 재난안전데이터 2025.12</span>
+          </div>
+        </div>
+
+        <!-- External CTA -->
+        <div style="padding:0 var(--space-4) var(--space-6);">
+          <button class="btn btn-outline" style="width:100%;padding:var(--space-3);">
+            외부 매물 보러가기 ↗ <span style="color:var(--color-on-surface-muted);font-weight:400;">네이버 부동산</span>
+          </button>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;margin-top:var(--space-2);">
+            외부 사이트로 이동합니다
+          </div>
+        </div>
+
+        <div style="height:20px;"></div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

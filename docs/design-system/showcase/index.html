@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">디자인 시스템 종합 쇼케이스</h1>
+      <p class="section-desc">
+        DESIGN_SYSTEM.md §3 컴포넌트 25종 + §4 페이지 패턴 6종을 시각적으로 확인할 수 있는 프리뷰입니다.<br>
+        좌측 사이드바에서 섹션을 선택하세요. 우측 상단 토글로 Light/Dark 모드를 전환할 수 있습니다.
+      </p>
+
+      <div class="grid-auto" style="margin-bottom:var(--space-8);">
+        <!-- Token Card -->
+        <a href="tokens.html" class="demo-card" style="text-decoration:none; color:inherit; transition: box-shadow 200ms;">
+          <div style="font-size:28px; margin-bottom:var(--space-3);">🎨</div>
+          <div class="demo-card-title">디자인 토큰</div>
+          <p style="font-size:var(--text-body-sm); color:var(--color-on-surface-muted);">
+            컬러 36종 · 타이포 6단계 · 간격 · 그림자 · 애니메이션
+          </p>
+        </a>
+
+        <!-- Components Card -->
+        <a href="comp-score.html" class="demo-card" style="text-decoration:none; color:inherit;">
+          <div style="font-size:28px; margin-bottom:var(--space-3);">🧩</div>
+          <div class="demo-card-title">컴포넌트 <span class="tag">25종</span></div>
+          <p style="font-size:var(--text-body-sm); color:var(--color-on-surface-muted);">
+            스코어 · 카드 · 네비게이션 · 입력 · 지도 · 신뢰 · 피드백
+          </p>
+        </a>
+
+        <!-- Pages Card -->
+        <a href="page-landing.html" class="demo-card" style="text-decoration:none; color:inherit;">
+          <div style="font-size:28px; margin-bottom:var(--space-3);">📱</div>
+          <div class="demo-card-title">페이지 레이아웃 <span class="tag">6종</span></div>
+          <p style="font-size:var(--text-body-sm); color:var(--color-on-surface-muted);">
+            390px 모바일 프레임 · Landing · Onboarding · Results · Detail · Comparison · Legal
+          </p>
+        </a>
+      </div>
+
+      <!-- Component Coverage -->
+      <div class="demo-card">
+        <div class="demo-card-title">§3 SoT 컴포넌트 커버리지 (25/25)</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:var(--space-2); font-size:var(--text-body-sm);">
+          <div>§3.1 <a href="comp-score.html" style="color:var(--color-brand-500);">CircularGauge</a></div>
+          <div>§3.1 <a href="comp-score.html" style="color:var(--color-brand-500);">ScoreBar</a></div>
+          <div>§3.1 <a href="comp-score.html" style="color:var(--color-brand-500);">ScoreBadge</a></div>
+          <div>§3.1 <a href="comp-score.html" style="color:var(--color-brand-500);">RadarChart</a></div>
+          <div>§3.2 <a href="comp-cards.html" style="color:var(--color-brand-500);">PropertyCard</a></div>
+          <div>§3.2 <a href="comp-cards.html" style="color:var(--color-brand-500);">ComparisonCard</a></div>
+          <div>§3.2 <a href="comp-cards.html" style="color:var(--color-brand-500);">MiniPreviewCard</a></div>
+          <div>§3.2 <a href="comp-cards.html" style="color:var(--color-brand-500);">CardSelector</a></div>
+          <div>§3.3 <a href="comp-nav.html" style="color:var(--color-brand-500);">BottomNav</a></div>
+          <div>§3.3 <a href="comp-nav.html" style="color:var(--color-brand-500);">BottomSheet</a></div>
+          <div>§3.3 <a href="comp-nav.html" style="color:var(--color-brand-500);">CompareBar</a></div>
+          <div>§3.4 <a href="comp-input.html" style="color:var(--color-brand-500);">AmountInput</a></div>
+          <div>§3.4 <a href="comp-input.html" style="color:var(--color-brand-500);">AddressSearch</a></div>
+          <div>§3.4 <a href="comp-input.html" style="color:var(--color-brand-500);">StepWizard</a></div>
+          <div>§3.5 <a href="comp-map.html" style="color:var(--color-brand-500);">MapMarker</a></div>
+          <div>§3.5 <a href="comp-map.html" style="color:var(--color-brand-500);">Clustering</a></div>
+          <div>§3.5 <a href="comp-map.html" style="color:var(--color-brand-500);">Legend</a></div>
+          <div>§3.6 <a href="comp-trust.html" style="color:var(--color-brand-500);">TrustBadge</a></div>
+          <div>§3.6 <a href="comp-trust.html" style="color:var(--color-brand-500);">DataSourceTag</a></div>
+          <div>§3.6 <a href="comp-trust.html" style="color:var(--color-brand-500);">ExternalLinkCTA</a></div>
+          <div>§3.6 <a href="comp-trust.html" style="color:var(--color-brand-500);">ConsentForm</a></div>
+          <div>§3.6 <a href="comp-trust.html" style="color:var(--color-brand-500);">SafetySection</a></div>
+          <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">Toast</a></div>
+          <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">Tooltip</a></div>
+          <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">Skeleton</a></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; padding:var(--space-8) 0; font-size:11px; color:var(--color-on-surface-muted);">
+        SoT: docs/design-system/DESIGN_SYSTEM.md · 토큰: docs/design-system/design-tokens.css
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

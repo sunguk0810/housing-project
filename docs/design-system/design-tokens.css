@@ -1,0 +1,268 @@
+/**
+ * 집콕신혼 디자인 토큰
+ * =====================
+ *
+ * 섹션 1: 런타임 CSS Custom Properties (:root)
+ *   → 프리뷰 HTML에서 직접 사용 가능. 빌드 불요.
+ *
+ * 섹션 2: Tailwind v4 @theme
+ *   → 빌드 컨텍스트용 토큰. 프로젝트 생성 시 src/styles/로 이동.
+ *
+ * 섹션 3: Semantic Tokens (Light/Dark)
+ *   → :root + .dark 모드 전환
+ *
+ * 참조: docs/design-system/DESIGN_SYSTEM.md
+ */
+
+/* ============================================================
+ * Pretendard Variable CDN
+ * ============================================================ */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+
+/* ============================================================
+ * 섹션 1: 런타임 CSS Custom Properties
+ * ============================================================
+ * 프리뷰(design-system-preview.html)에서 직접 사용 가능.
+ * Tailwind 빌드 없이도 동작.
+ */
+:root {
+  /* ---- Font ---- */
+  --font-sans: "Pretendard Variable", "Pretendard", "Noto Sans KR", system-ui, -apple-system, sans-serif;
+
+  /* ---- Primary: Warm Teal Blue ---- */
+  --color-brand-50:  #CFFAFE;
+  --color-brand-100: #A5F3FC;
+  --color-brand-200: #67E8F9;
+  --color-brand-300: #22D3EE;
+  --color-brand-400: #06B6D4;
+  --color-brand-500: #0891B2;
+  --color-brand-600: #0E7490;
+  --color-brand-700: #155E75;
+  --color-brand-800: #164E63;
+  --color-brand-900: #0C4A6E;
+
+  /* ---- Accent: Coral Orange ---- */
+  --color-accent:      #F97316;
+  --color-accent-dark: #C2410C;
+
+  /* ---- Neutral: Stone (Warm) ---- */
+  --color-neutral-50:  #FAFAF9;
+  --color-neutral-100: #F5F5F4;
+  --color-neutral-200: #E7E5E4;
+  --color-neutral-300: #D6D3D1;
+  --color-neutral-400: #A8A29E;
+  --color-neutral-500: #78716C;
+  --color-neutral-600: #57534E;
+  --color-neutral-700: #44403C;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1C1917;
+
+  /* ---- Semantic ---- */
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-error:   #DC2626;
+
+  /* ---- Score 5-Grade (Blue-Orange Diverging) ---- */
+  --color-score-excellent: #1565C0;
+  --color-score-good:      #42A5F5;
+  --color-score-average:   #90A4AE;
+  --color-score-below:     #FF8A65;
+  --color-score-poor:      #D84315;
+
+  /* ---- Safety (NO RED) ---- */
+  --color-safety-sufficient: #4CAF50;
+  --color-safety-moderate:   #FF9800;
+  --color-safety-lacking:    #9E9E9E;
+
+  /* ---- Comparison Radar ---- */
+  --color-compare-1: #0891B2;
+  --color-compare-2: #F97316;
+  --color-compare-3: #8B5CF6;
+
+  /* ---- Typography Scale ---- */
+  --text-caption:          0.75rem;    /* 12px */
+  --text-caption-lh:       1.4;
+  --text-caption-weight:   500;
+  --text-caption-ls:       -0.02em;
+
+  --text-body-sm:          0.875rem;   /* 14px */
+  --text-body-sm-lh:       1.5;
+  --text-body-sm-weight:   400;
+  --text-body-sm-ls:       -0.02em;
+
+  --text-body:             1rem;       /* 16px */
+  --text-body-lh:          1.6;
+  --text-body-weight:      400;
+  --text-body-ls:          -0.02em;
+
+  --text-subtitle:         1.0625rem;  /* 17px */
+  --text-subtitle-lh:      1.4;
+  --text-subtitle-weight:  600;
+  --text-subtitle-ls:      -0.02em;
+
+  --text-title:            1.25rem;    /* 20px */
+  --text-title-lh:         1.3;
+  --text-title-weight:     600;
+  --text-title-ls:         -0.03em;
+
+  --text-heading:          1.5rem;     /* 24px */
+  --text-heading-lh:       1.25;
+  --text-heading-weight:   700;
+  --text-heading-ls:       -0.03em;
+
+  /* ---- Spacing (4px base) ---- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ---- Border Radius ---- */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  /* ---- Shadow ---- */
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* ---- Breakpoints (reference only) ---- */
+  --bp-xs: 360px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  /* ---- Animation Timing ---- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-default: cubic-bezier(0.33, 1, 0.68, 1);
+  --duration-fast:   150ms;
+  --duration-normal: 300ms;
+  --duration-slow:   500ms;
+  --duration-countup: 800ms;
+}
+
+
+/* ============================================================
+ * 섹션 2: Tailwind v4 @theme (빌드 컨텍스트)
+ * ============================================================
+ * 프로젝트 생성 시 src/styles/tokens.css 로 이동하고
+ * tailwind entry CSS에서 @import 한다.
+ *
+ * @import "tailwindcss";
+ * @import "./tokens.css";
+ */
+
+/*
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard Variable", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+
+  --color-brand-50:  #CFFAFE;
+  --color-brand-100: #A5F3FC;
+  --color-brand-200: #67E8F9;
+  --color-brand-300: #22D3EE;
+  --color-brand-400: #06B6D4;
+  --color-brand-500: #0891B2;
+  --color-brand-600: #0E7490;
+  --color-brand-700: #155E75;
+  --color-brand-800: #164E63;
+  --color-brand-900: #0C4A6E;
+
+  --color-accent:      #F97316;
+  --color-accent-dark: #C2410C;
+
+  --color-neutral-50:  #FAFAF9;
+  --color-neutral-100: #F5F5F4;
+  --color-neutral-200: #E7E5E4;
+  --color-neutral-300: #D6D3D1;
+  --color-neutral-400: #A8A29E;
+  --color-neutral-500: #78716C;
+  --color-neutral-600: #57534E;
+  --color-neutral-700: #44403C;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1C1917;
+
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-error:   #DC2626;
+
+  --color-score-excellent: #1565C0;
+  --color-score-good:      #42A5F5;
+  --color-score-average:   #90A4AE;
+  --color-score-below:     #FF8A65;
+  --color-score-poor:      #D84315;
+
+  --color-safety-sufficient: #4CAF50;
+  --color-safety-moderate:   #FF9800;
+  --color-safety-lacking:    #9E9E9E;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.05rem;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.3125rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6rem;
+  --text-subtitle: 1.0625rem;
+  --text-subtitle--line-height: 1.4875rem;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.625rem;
+  --text-heading: 1.5rem;
+  --text-heading--line-height: 1.875rem;
+
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+}
+*/
+
+
+/* ============================================================
+ * 섹션 3: Semantic Tokens (Light / Dark)
+ * ============================================================ */
+
+:root {
+  /* ---- Surface ---- */
+  --color-surface:          #FFFFFF;
+  --color-surface-elevated: #FAFAF9;
+
+  /* ---- On Surface ---- */
+  --color-on-surface:       #1C1917;
+  --color-on-surface-muted: #78716C;
+
+  /* ---- Border ---- */
+  --color-border: #E7E5E4;
+
+  /* ---- Primary (semantic alias) ---- */
+  --color-primary:    var(--color-brand-500);
+  --color-on-primary: #FFFFFF;
+}
+
+.dark {
+  /* ---- Surface ---- */
+  --color-surface:          #0F172A;
+  --color-surface-elevated: #1E293B;
+
+  /* ---- On Surface ---- */
+  --color-on-surface:       #F1F5F9;
+  --color-on-surface-muted: #94A3B8;
+
+  /* ---- Border ---- */
+  --color-border: #334155;
+
+  /* ---- Primary (semantic alias) ---- */
+  --color-primary:    var(--color-brand-400);
+  --color-on-primary: #0F172A;
+}

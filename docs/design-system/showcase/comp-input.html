@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — 입력</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">입력</h1>
+      <p class="section-desc">§3.4 — AmountInput, AddressSearch, StepWizard + §3.6 ConsentForm</p>
+
+      <!-- AmountInput -->
+      <div class="demo-card">
+        <div class="demo-card-title">AmountInput <span class="tag">§3.4</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          금액 입력 필드. tabular-nums, 쉼표 구분. 빠른 입력 버튼: +1,000만 / +5,000만 / +1억.
+        </p>
+
+        <div style="max-width:360px;">
+          <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">합산 연봉</div>
+          <div style="position:relative;margin-bottom:var(--space-3);">
+            <input type="text" value="7,500" readonly
+              style="width:100%;padding:var(--space-3) var(--space-4);padding-right:40px;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);font-family:var(--font-sans);font-size:var(--text-title);font-weight:700;font-variant-numeric:tabular-nums;color:var(--color-on-surface);background:var(--color-surface);outline:none;">
+            <span style="position:absolute;right:var(--space-3);top:50%;transform:translateY(-50%);font-size:var(--text-body-sm);color:var(--color-on-surface-muted);font-weight:600;">만원</span>
+          </div>
+          <div style="display:flex;gap:var(--space-2);">
+            <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;flex:1;">+1,000만</button>
+            <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;flex:1;">+5,000만</button>
+            <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;flex:1;">+1억</button>
+          </div>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-2);">
+            🔒 이 금액은 분석 후 즉시 삭제됩니다
+          </div>
+        </div>
+      </div>
+
+      <!-- AddressSearch -->
+      <div class="demo-card">
+        <div class="demo-card-title">AddressSearch <span class="tag">§3.4</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          검색 필드 + 자동완성 드롭다운 시뮬레이션. Kakao 주소 검색 API 기반.
+        </p>
+
+        <div style="max-width:360px;">
+          <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 주소 1 (필수)</div>
+          <div style="position:relative;">
+            <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+              <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);">🔍</span>
+              <input type="text" value="삼성역" readonly
+                style="border:none;outline:none;font-family:var(--font-sans);font-size:var(--text-body);color:var(--color-on-surface);background:transparent;width:100%;">
+            </div>
+            <!-- Autocomplete dropdown -->
+            <div style="position:absolute;top:100%;left:0;right:0;margin-top:4px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;z-index:10;">
+              <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);cursor:pointer;font-size:var(--text-body-sm);">
+                <div style="font-weight:600;">삼성역</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">서울특별시 강남구 삼성동 159</div>
+              </div>
+              <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);cursor:pointer;font-size:var(--text-body-sm);">
+                <div style="font-weight:600;">삼성 서울병원</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">서울특별시 강남구 일원동 81</div>
+              </div>
+              <div style="padding:var(--space-3) var(--space-4);cursor:pointer;font-size:var(--text-body-sm);">
+                <div style="font-weight:600;">삼성SDS 잠실캠퍼스</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">서울특별시 송파구 잠실동 178-4</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:var(--text-body-sm);font-weight:600;margin-top:var(--space-6);margin-bottom:var(--space-2);">직장 주소 2 (선택)</div>
+          <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+            <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);">🔍</span>
+            <input type="text" placeholder="두 번째 직장은 선택사항입니다" readonly
+              style="border:none;outline:none;font-family:var(--font-sans);font-size:var(--text-body);color:var(--color-on-surface-muted);background:transparent;width:100%;">
+          </div>
+        </div>
+      </div>
+
+      <!-- StepWizard -->
+      <div class="demo-card">
+        <div class="demo-card-title">StepWizard <span class="tag">§3.4</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          5스텝 위저드. 프로그레스 인디케이터 + 카드 선택 UI.
+        </p>
+
+        <div style="max-width:360px;">
+          <!-- Progress indicator -->
+          <div style="display:flex;align-items:center;gap:0;margin-bottom:var(--space-6);">
+            <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--color-brand-500);color:#FFF;font-size:12px;font-weight:700;">✓</div>
+            <div style="flex:1;height:2px;background:var(--color-brand-500);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--color-brand-500);color:#FFF;font-size:12px;font-weight:700;">2</div>
+            <div style="flex:1;height:2px;background:var(--color-neutral-200);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--color-neutral-200);color:var(--color-on-surface-muted);font-size:12px;">3</div>
+            <div style="flex:1;height:2px;background:var(--color-neutral-200);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--color-neutral-200);color:var(--color-on-surface-muted);font-size:12px;">4</div>
+          </div>
+
+          <div style="font-size:var(--text-heading);font-weight:var(--text-heading-weight);margin-bottom:var(--space-2);">주거 형태를 선택하세요</div>
+          <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">Step 1 of 4 · 우리 부부는요</div>
+
+          <!-- Card selection -->
+          <div style="display:flex;gap:var(--space-3);margin-bottom:var(--space-6);">
+            <div style="flex:1;padding:var(--space-4);border:2px solid var(--color-brand-500);border-radius:var(--radius-xl);text-align:center;cursor:pointer;background:rgba(8,145,178,0.04);">
+              <div style="font-size:28px;margin-bottom:var(--space-2);">🏠</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">매매</div>
+            </div>
+            <div style="flex:1;padding:var(--space-4);border:2px solid var(--color-border);border-radius:var(--radius-xl);text-align:center;cursor:pointer;">
+              <div style="font-size:28px;margin-bottom:var(--space-2);">🏢</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">전세</div>
+            </div>
+            <div style="flex:1;padding:var(--space-4);border:2px solid var(--color-border);border-radius:var(--radius-xl);text-align:center;cursor:pointer;">
+              <div style="font-size:28px;margin-bottom:var(--space-2);">🔑</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">월세</div>
+            </div>
+          </div>
+
+          <!-- Sticky CTA -->
+          <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">
+            다음
+          </button>
+        </div>
+      </div>
+
+      <!-- ConsentForm -->
+      <div class="demo-card">
+        <div class="demo-card-title">ConsentForm <span class="tag">§3.6</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          동의 체크박스. 필수 미체크 시 CTA 비활성. 세션 종료 시 즉시 삭제.
+        </p>
+
+        <div style="max-width:360px;">
+          <div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-4);">
+            <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+              <input type="checkbox" checked style="margin-top:3px;accent-color:var(--color-brand-500);width:18px;height:18px;">
+              <div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">[필수] 개인정보 수집·이용 동의</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">직장 권역, 예산 범위 · 세션 종료 시 즉시 삭제</div>
+              </div>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+              <input type="checkbox" style="margin-top:3px;accent-color:var(--color-brand-500);width:18px;height:18px;">
+              <div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">[선택] 정밀 분석 추가 동의</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">보유 현금, 상세 소득 · 세션 종료 시 즉시 삭제</div>
+              </div>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+              <input type="checkbox" checked style="margin-top:3px;accent-color:var(--color-brand-500);width:18px;height:18px;">
+              <div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">[필수] 위치정보 이용 동의</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">직장 주소 → 좌표 변환 · 좌표 미저장</div>
+              </div>
+            </label>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;padding:var(--space-3);">동의하고 시작하기</button>
+
+          <div style="margin-top:var(--space-4);padding-top:var(--space-3);border-top:1px dashed var(--color-border);">
+            <div class="component-label">CTA 비활성 상태 (필수 미체크)</div>
+            <button class="btn btn-disabled" style="width:100%;padding:var(--space-3);">동의하고 시작하기</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

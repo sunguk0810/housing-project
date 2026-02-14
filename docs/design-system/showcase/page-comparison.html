@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Comparison</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Comparison (/compare)</h1>
+      <p class="section-desc">§4.3 — 단지 비교 (3/3). RadarChart + ComparisonCard.</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span>📶 🔋</span>
+        </div>
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
+          <span style="font-size:20px;cursor:pointer;">←</span>
+          <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">단지 비교 (3/3)</span>
+        </div>
+
+        <!-- Radar Chart -->
+        <div style="padding:var(--space-4);text-align:center;">
+          <svg width="240" height="240" viewBox="0 0 280 280" style="max-width:100%;">
+            <!-- Grid -->
+            <g transform="translate(140,140)" stroke="var(--color-border)" fill="none" stroke-width="1">
+              <polygon points="0,-100 100,0 0,100 -100,0" opacity="0.3"/>
+              <polygon points="0,-75 75,0 0,75 -75,0" opacity="0.3"/>
+              <polygon points="0,-50 50,0 0,50 -50,0" opacity="0.3"/>
+              <line x1="0" y1="-110" x2="0" y2="110" opacity="0.2"/>
+              <line x1="-110" y1="0" x2="110" y2="0" opacity="0.2"/>
+            </g>
+            <text x="140" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="var(--color-on-surface)">예산</text>
+            <text x="258" y="145" text-anchor="start" font-size="11" font-weight="600" fill="var(--color-on-surface)">통근</text>
+            <text x="140" y="268" text-anchor="middle" font-size="11" font-weight="600" fill="var(--color-on-surface)">보육</text>
+            <text x="22" y="145" text-anchor="end" font-size="11" font-weight="600" fill="var(--color-on-surface)">안전</text>
+            <g transform="translate(140,140)">
+              <polygon points="0,-92 76,0 0,68 -55,0" fill="rgba(8,145,178,0.10)" stroke="#0891B2" stroke-width="2"/>
+              <polygon points="0,-78 85,0 0,62 -48,0" fill="rgba(249,115,22,0.10)" stroke="#F97316" stroke-width="2"/>
+              <polygon points="0,-65 72,0 0,80 -52,0" fill="rgba(139,92,246,0.10)" stroke="#8B5CF6" stroke-width="2"/>
+            </g>
+          </svg>
+          <!-- Legend -->
+          <div style="display:flex;justify-content:center;gap:var(--space-4);font-size:11px;margin-top:var(--space-2);">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:#0891B2;border-radius:1px;"></span>래미안</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:#F97316;border-radius:1px;"></span>힐스테이트</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:#8B5CF6;border-radius:1px;"></span>더샵</span>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div style="padding:0 var(--space-4);">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="border-bottom:2px solid var(--color-border);">
+                <th style="text-align:left;padding:8px 6px;font-weight:600;"></th>
+                <th style="text-align:center;padding:8px 6px;font-weight:700;color:var(--color-brand-500);">래미안<br><span style="font-size:16px;">84</span></th>
+                <th style="text-align:center;padding:8px 6px;font-weight:700;color:var(--color-accent);">힐스테이트<br><span style="font-size:16px;">75</span></th>
+                <th style="text-align:center;padding:8px 6px;font-weight:700;color:#8B5CF6;">더샵<br><span style="font-size:16px;">70</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--color-border);">
+                <td style="padding:8px 6px;font-weight:600;">예산</td>
+                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">92</td>
+                <td style="padding:8px 6px;text-align:center;">78</td>
+                <td style="padding:8px 6px;text-align:center;">65</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border);">
+                <td style="padding:8px 6px;font-weight:600;">통근</td>
+                <td style="padding:8px 6px;text-align:center;">76</td>
+                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">85</td>
+                <td style="padding:8px 6px;text-align:center;">72</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border);">
+                <td style="padding:8px 6px;font-weight:600;">보육</td>
+                <td style="padding:8px 6px;text-align:center;">68</td>
+                <td style="padding:8px 6px;text-align:center;">62</td>
+                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">80</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border);">
+                <td style="padding:8px 6px;font-weight:600;">안전</td>
+                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">55</td>
+                <td style="padding:8px 6px;text-align:center;">48</td>
+                <td style="padding:8px 6px;text-align:center;">52</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 6px;font-weight:600;">가격</td>
+                <td style="padding:8px 6px;text-align:center;font-variant-numeric:tabular-nums;">3.2억</td>
+                <td style="padding:8px 6px;text-align:center;font-variant-numeric:tabular-nums;">2.8억</td>
+                <td style="padding:8px 6px;text-align:center;font-variant-numeric:tabular-nums;">3.5억</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Bottom action -->
+        <div style="padding:var(--space-6) var(--space-4);">
+          <button class="btn btn-outline" style="width:100%;padding:var(--space-3);">
+            분석 결과 목록으로 돌아가기
+          </button>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="phone-bottom-nav">
+          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
+          <a class="nav-item active"><span class="nav-icon">📊</span>비교</a>
+          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

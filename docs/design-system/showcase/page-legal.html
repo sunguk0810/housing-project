@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Legal</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Legal (/terms, /privacy, /location-terms)</h1>
+      <p class="section-desc">§4.3 — 정적 약관 문서. 제2조 서비스 성격 정의 예시 포함.</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span>📶 🔋</span>
+        </div>
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
+          <span style="font-size:20px;cursor:pointer;">←</span>
+          <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">이용약관</span>
+        </div>
+
+        <!-- Content -->
+        <div style="padding:var(--space-4);font-size:var(--text-body-sm);line-height:1.8;color:var(--color-on-surface);">
+          <div style="font-size:var(--text-title);font-weight:700;margin-bottom:var(--space-4);">이용약관</div>
+
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제1조 (목적)</div>
+          <p style="margin-bottom:var(--space-4);color:var(--color-on-surface-muted);">
+            이 약관은 집콕신혼(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임 사항을 규정함을 목적으로 합니다.
+          </p>
+
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제2조 (서비스의 성격)</div>
+          <div style="padding:var(--space-3);background:var(--color-brand-50);border-left:3px solid var(--color-brand-500);border-radius:0 var(--radius-md) var(--radius-md) 0;margin-bottom:var(--space-4);">
+            <p style="color:var(--color-on-surface);">
+              ① 본 서비스는 <strong>공공데이터 기반 정보 분석 플랫폼</strong>으로서, 「공인중개사법」 제2조에 따른 중개업·중개행위를 하지 않습니다.
+            </p>
+            <p style="color:var(--color-on-surface);margin-top:var(--space-2);">
+              ② 서비스에서 제공하는 분석 결과, 점수, 순위 등은 <strong>참고용 정보</strong>이며, 부동산 거래에 관한 최종 의사결정의 근거로 사용될 수 없습니다.
+            </p>
+            <p style="color:var(--color-on-surface);margin-top:var(--space-2);">
+              ③ 서비스는 부동산 <strong>알선, 자문, 감정평가</strong>를 하지 않으며, 이용자와 제3자 간의 거래에 관여하지 않습니다.
+            </p>
+          </div>
+
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제3조 (개인정보 처리)</div>
+          <p style="margin-bottom:var(--space-4);color:var(--color-on-surface-muted);">
+            이용자가 입력한 소득, 자산, 직장 주소 등의 정보는 분석 목적으로만 사용되며, 세션 종료 시 즉시 삭제됩니다. 서버에 영구 저장되지 않습니다.
+          </p>
+
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제4조 (데이터 출처)</div>
+          <p style="margin-bottom:var(--space-4);color:var(--color-on-surface-muted);">
+            분석에 사용되는 데이터는 국토교통부, 행정안전부, 사회보장정보원 등 공공기관의 공개 데이터 및 정식 API를 통해 수집됩니다.
+          </p>
+
+          <!-- Document links -->
+          <div style="border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4);">
+            <div style="font-weight:600;margin-bottom:var(--space-3);">관련 문서</div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+              <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">개인정보처리방침 →</a>
+              <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">위치정보 이용약관 →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="phone-bottom-nav">
+          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
+          <a class="nav-item"><span class="nav-icon">📊</span>비교</a>
+          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

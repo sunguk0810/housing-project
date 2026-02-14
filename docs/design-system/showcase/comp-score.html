@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — 스코어 시각화</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">스코어 시각화</h1>
+      <p class="section-desc">§3.1 — CircularGauge, ScoreBar, ScoreBadge, RadarChart</p>
+
+      <!-- CircularGauge -->
+      <div class="demo-card">
+        <div class="demo-card-title">CircularGauge <span class="tag">§3.1</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          종합 점수 1개를 강조하는 SVG 게이지. 3가지 크기: Card(64px), Hero(96px), Mini(48px)
+        </p>
+        <div class="demo-row">
+          <!-- Mini 48px -->
+          <div class="demo-item">
+            <div class="gauge-wrapper" style="width:48px;height:48px;">
+              <svg width="48" height="48" viewBox="0 0 48 48">
+                <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3"
+                  stroke="var(--color-score-excellent)"
+                  stroke-dasharray="125.66"
+                  style="--gauge-offset:20.11;--gauge-circumference:125.66;"
+                  data-animate/>
+              </svg>
+              <span class="gauge-text" style="font-size:14px;font-weight:600;">84</span>
+            </div>
+            <div class="demo-item-label">Mini (48px)</div>
+          </div>
+          <!-- Card 64px -->
+          <div class="demo-item">
+            <div class="gauge-wrapper" style="width:64px;height:64px;">
+              <svg width="64" height="64" viewBox="0 0 64 64">
+                <circle class="gauge-track" cx="32" cy="32" r="27" stroke-width="4"/>
+                <circle class="gauge-fill" cx="32" cy="32" r="27" stroke-width="4"
+                  stroke="var(--color-score-good)"
+                  stroke-dasharray="169.65"
+                  style="--gauge-offset:40.72;--gauge-circumference:169.65;"
+                  data-animate/>
+              </svg>
+              <span class="gauge-text" style="font-size:20px;">76</span>
+            </div>
+            <div class="demo-item-label">Card (64px)</div>
+          </div>
+          <!-- Hero 96px -->
+          <div class="demo-item">
+            <div class="gauge-wrapper" style="width:96px;height:96px;">
+              <svg width="96" height="96" viewBox="0 0 96 96">
+                <circle class="gauge-track" cx="48" cy="48" r="40" stroke-width="6"/>
+                <circle class="gauge-fill" cx="48" cy="48" r="40" stroke-width="6"
+                  stroke="var(--color-score-excellent)"
+                  stroke-dasharray="251.33"
+                  style="--gauge-offset:27.65;--gauge-circumference:251.33;"
+                  data-animate/>
+              </svg>
+              <span class="gauge-text" style="font-size:32px;">89</span>
+            </div>
+            <div class="demo-item-label">Hero (96px)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:var(--space-4);">
+          <div class="component-label">Score Grade Colors</div>
+          <div class="demo-row" style="gap:var(--space-6);">
+            <div class="demo-item">
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#1565C0"
+                    stroke-dasharray="125.66" style="--gauge-offset:12.57;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;font-weight:600;">90</span>
+              </div>
+              <div class="demo-item-label">A+ (90+)</div>
+            </div>
+            <div class="demo-item">
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#42A5F5"
+                    stroke-dasharray="125.66" style="--gauge-offset:31.42;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;font-weight:600;">75</span>
+              </div>
+              <div class="demo-item-label">A (75-89)</div>
+            </div>
+            <div class="demo-item">
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#90A4AE"
+                    stroke-dasharray="125.66" style="--gauge-offset:56.55;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;font-weight:600;">55</span>
+              </div>
+              <div class="demo-item-label">B (55-74)</div>
+            </div>
+            <div class="demo-item">
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#FF8A65"
+                    stroke-dasharray="125.66" style="--gauge-offset:75.40;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;font-weight:600;">40</span>
+              </div>
+              <div class="demo-item-label">C (40-54)</div>
+            </div>
+            <div class="demo-item">
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#D84315"
+                    stroke-dasharray="125.66" style="--gauge-offset:100.53;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;font-weight:600;">20</span>
+              </div>
+              <div class="demo-item-label">D (&lt;40)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ScoreBar -->
+      <div class="demo-card">
+        <div class="demo-card-title">ScoreBar <span class="tag">§3.1</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          카테고리별 점수를 수평 바로 표현. 높이 8px / compact 6px, pill shape.
+        </p>
+
+        <div class="component-label">기본 (8px)</div>
+        <div style="max-width:400px;display:flex;flex-direction:column;gap:14px;margin-bottom:var(--space-6);">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>예산 적합도</span><span style="font-weight:600;color:#1565C0;">92</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="background:#1565C0;--bar-width:92%;" data-animate></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>통근 편의</span><span style="font-weight:600;color:#42A5F5;">76</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="background:#42A5F5;--bar-width:76%;" data-animate></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>보육 환경</span><span style="font-weight:600;color:#42A5F5;">68</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="background:#42A5F5;--bar-width:68%;" data-animate></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>안전 편의시설</span><span style="font-weight:600;color:#90A4AE;">55</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="background:#90A4AE;--bar-width:55%;" data-animate></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="component-label">Compact (6px)</div>
+        <div style="max-width:400px;display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;">
+              <span>예산</span><span style="font-weight:600;color:#1565C0;">92</span>
+            </div>
+            <div class="score-bar-track compact">
+              <div class="score-bar-fill" style="background:#1565C0;--bar-width:92%;" data-animate></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;">
+              <span>통근</span><span style="font-weight:600;color:#FF8A65;">38</span>
+            </div>
+            <div class="score-bar-track compact">
+              <div class="score-bar-fill" style="background:#FF8A65;--bar-width:38%;" data-animate></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ScoreBadge -->
+      <div class="demo-card">
+        <div class="demo-card-title">ScoreBadge <span class="tag">§3.1</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          sm(24px) / md(32px) / lg(48px). 배경: 등급색 10% opacity, 텍스트: 등급색.
+        </p>
+
+        <div class="component-label">Small (24px)</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4);">
+          <span class="badge badge-sm" style="background:rgba(21,101,192,0.1);color:#1565C0;">A+ 매우 좋음</span>
+          <span class="badge badge-sm" style="background:rgba(66,165,245,0.1);color:#42A5F5;">A 좋음</span>
+          <span class="badge badge-sm" style="background:rgba(144,164,174,0.1);color:#90A4AE;">B 보통</span>
+          <span class="badge badge-sm" style="background:rgba(255,138,101,0.1);color:#FF8A65;">C 미흡</span>
+          <span class="badge badge-sm" style="background:rgba(216,67,21,0.1);color:#D84315;">D 부족</span>
+        </div>
+
+        <div class="component-label">Medium (32px)</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4);">
+          <span class="badge badge-md" style="background:rgba(21,101,192,0.1);color:#1565C0;">A+ 매우 좋음</span>
+          <span class="badge badge-md" style="background:rgba(66,165,245,0.1);color:#42A5F5;">A 좋음</span>
+          <span class="badge badge-md" style="background:rgba(144,164,174,0.1);color:#90A4AE;">B 보통</span>
+        </div>
+
+        <div class="component-label">Large (48px)</div>
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+          <span class="badge badge-lg" style="background:rgba(21,101,192,0.1);color:#1565C0;">A+ 매우 좋음</span>
+          <span class="badge badge-lg" style="background:rgba(66,165,245,0.1);color:#42A5F5;">A 좋음</span>
+        </div>
+      </div>
+
+      <!-- RadarChart -->
+      <div class="demo-card">
+        <div class="demo-card-title">RadarChart <span class="tag">§3.1</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          2~3개 단지 비교 전용. 4축: 예산/통근/보육/안전. 최소 200x200px. 라이브러리 없이 순수 SVG.
+        </p>
+
+        <div style="display:flex;justify-content:center;">
+          <svg width="280" height="280" viewBox="0 0 280 280" style="overflow:visible;">
+            <!-- Grid lines -->
+            <g transform="translate(140,140)" stroke="var(--color-border)" fill="none" stroke-width="1">
+              <!-- Concentric squares (simplified radar grid) -->
+              <polygon points="0,-100 100,0 0,100 -100,0" opacity="0.3"/>
+              <polygon points="0,-75 75,0 0,75 -75,0" opacity="0.3"/>
+              <polygon points="0,-50 50,0 0,50 -50,0" opacity="0.3"/>
+              <polygon points="0,-25 25,0 0,25 -25,0" opacity="0.3"/>
+              <!-- Axes -->
+              <line x1="0" y1="-110" x2="0" y2="110" opacity="0.2"/>
+              <line x1="-110" y1="0" x2="110" y2="0" opacity="0.2"/>
+            </g>
+            <!-- Axis Labels -->
+            <text x="140" y="20" text-anchor="middle" font-size="12" font-weight="600" fill="var(--color-on-surface)">예산</text>
+            <text x="265" y="145" text-anchor="start" font-size="12" font-weight="600" fill="var(--color-on-surface)">통근</text>
+            <text x="140" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="var(--color-on-surface)">보육</text>
+            <text x="15" y="145" text-anchor="end" font-size="12" font-weight="600" fill="var(--color-on-surface)">안전</text>
+            <!-- Data: Complex A (brand) -->
+            <g transform="translate(140,140)">
+              <polygon points="0,-92 76,0 0,68 -55,0" fill="rgba(8,145,178,0.10)" stroke="#0891B2" stroke-width="2"/>
+              <!-- Data: Complex B (accent) -->
+              <polygon points="0,-68 85,0 0,42 -78,0" fill="rgba(249,115,22,0.10)" stroke="#F97316" stroke-width="2"/>
+              <!-- Data: Complex C (purple) -->
+              <polygon points="0,-75 50,0 0,90 -65,0" fill="rgba(139,92,246,0.10)" stroke="#8B5CF6" stroke-width="2"/>
+            </g>
+            <!-- Legend -->
+            <g transform="translate(10,10)">
+              <rect x="0" y="0" width="10" height="10" rx="2" fill="#0891B2"/>
+              <text x="14" y="9" font-size="11" fill="var(--color-on-surface)">래미안 위브</text>
+              <rect x="0" y="16" width="10" height="10" rx="2" fill="#F97316"/>
+              <text x="14" y="25" font-size="11" fill="var(--color-on-surface)">힐스테이트</text>
+              <rect x="0" y="32" width="10" height="10" rx="2" fill="#8B5CF6"/>
+              <text x="14" y="41" font-size="11" fill="var(--color-on-surface)">더샵 센트럴</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>
