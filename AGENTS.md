@@ -9,7 +9,7 @@ Plan Execute 작업 수행 시 반드시 `docs/plan/PLAN_OPERATION_GUIDE.md`를 
 1. Prompt Pack 기반 실행은 **Plan mode**에서 시작한다
 2. 실행 시작 시점에 plan 문서를 먼저 생성한다 (초기 상태: `in_progress`)
 3. Execution → Review → Verification 결과를 같은 문서에 누적 기록한다
-4. 종료 시 `결과/결정` 섹션에서 상태를 `done | partial | blocked`로 확정한다
+4. 종료 시 `결과/결정` 섹션에서 상태를 `done | partial | blocked | cancelled | superseded`로 확정한다
 
 ### 핵심 규칙 요약
 
@@ -17,7 +17,7 @@ Plan Execute 작업 수행 시 반드시 `docs/plan/PLAN_OPERATION_GUIDE.md`를 
 2. **파일명**: `YYYY-MM-DD_codex_<topic>.md` (핸드오프 시 `handoff`)
 3. **필수 섹션 5개**: 목표, 범위, 작업 단계, 검증 기준, 결과/결정 — 누락 금지
 4. **커밋**: feature 단위로 커밋 메시지를 **제안**하고, 사용자 승인 후에만 커밋 실행
-5. **상태**: `in_progress`(초기) → `done | partial | blocked`(종료) 확정. `blocked`/`partial`이면 후속 액션 필수
+5. **상태**: `in_progress`(초기) → `done | partial | blocked | cancelled | superseded`(종료) 확정. `blocked`/`partial`이면 후속 액션 필수
 
 ### Git 커밋 규칙
 
@@ -47,6 +47,8 @@ Plan Execute 작업 수행 시 반드시 `docs/plan/PLAN_OPERATION_GUIDE.md`를 
 - [ ] 필수 섹션 5개 존재
 - [ ] SoT 참조 문구 포함
 - [ ] 결과/결정에 상태와 후속 액션 포함
+- [ ] YAML frontmatter 포함 (plan-id, status, phase) — template-version >= 1.1에 한함
+- [ ] depends-on 참조 plan의 condition 평가 충족 확인 (해당 시)
 
 ---
 
