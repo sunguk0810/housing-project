@@ -1,6 +1,6 @@
 ---
 plan-id: "2026-02-14_codex_phase2-m1-s7-token-implementation"
-status: "partial"
+status: "done"
 phase: "PHASE2"
 template-version: "1.1"
 work-type: "feature"
@@ -49,6 +49,8 @@ PHASE1 S7 디자인 토큰을 Tailwind v4 CSS-first 구조에 반영하되, shad
 
 ## 결과/결정
 
+### Run 1 (2026-02-14)
+
 - 상태: `partial`
 - 핵심 결과:
   - `src/styles/tokens.css`를 생성하고 S7 토큰(섹션 1 + 섹션 3)을 runtime 변수로 반영했다.
@@ -63,5 +65,13 @@ PHASE1 S7 디자인 토큰을 Tailwind v4 CSS-first 구조에 반영하되, shad
     - `pnpm lint`: 실패 (기존 `docs/legacy_docs` JSX 규칙 위반 23 errors, 21 warnings)
 - 미해결 이슈:
   - 저장소 전역 lint 기준과 레거시 문서(`docs/legacy_docs`) 간 충돌로 `pnpm lint`를 이번 범위에서 통과시키지 못함
-- 다음 액션:
-  - `pnpm lint` 범위를 애플리케이션 코드로 제한하거나, `docs/legacy_docs`를 ESLint ignore 대상으로 분리하는 별도 plan 수행
+
+### Run 2 (2026-02-14)
+
+- 상태: `done`
+- 검증 결과:
+  - `pnpm build`: 통과
+  - `pnpm lint`: 통과
+- 근거: plan #15에서 `eslint.config.mjs`에 `docs/**` globalIgnores 추가로 legacy_docs JSX 에러 해소
+- verdict: go → status done 확정
+- 미해결 이슈: 없음

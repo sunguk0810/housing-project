@@ -34,14 +34,17 @@ npm test
 ## 결과 보고 형식
 
 ### 변경점
+
 - 파일별 핵심 변경 1줄 요약
 
 ### 검증 결과
+
 - build: pass|fail
 - lint: pass|fail
 - test: pass|fail
 
 ### 리스크/후속
+
 - 남은 리스크:
 - 후속 작업:
 

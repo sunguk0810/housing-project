@@ -4,14 +4,14 @@
 
 ## 현재 상태
 
-| Phase | 상태 | Pack 경로 | 비고 |
-|------|------|-----------|------|
-| PHASE0 | Active | `docs/agentic-tools/prompt-packs/PHASE0_prompt_pack.md` | 즉시 사용 가능 |
-| PHASE1 | Active | `docs/agentic-tools/prompt-packs/PHASE1_prompt_pack.md` | 왕복 동작 확인 완료 |
+| Phase      | 상태   | Pack 경로                                                   | 비고                          |
+| ---------- | ------ | ----------------------------------------------------------- | ----------------------------- |
+| PHASE0     | Active | `docs/agentic-tools/prompt-packs/PHASE0_prompt_pack.md`     | 즉시 사용 가능                |
+| PHASE1     | Active | `docs/agentic-tools/prompt-packs/PHASE1_prompt_pack.md`     | 왕복 동작 확인 완료           |
 | PHASE1 Fix | Active | `docs/agentic-tools/prompt-packs/PHASE1_fix_prompt_pack.md` | P0 수정 + Run 2 재검증 트리거 |
-| PHASE2 | Active | `docs/agentic-tools/prompt-packs/PHASE2_prompt_pack.md` | 마일스톤별 실행+검증 (M1~M4) |
-| PHASE3 | TBD | - | 정본 충족 시 생성 |
-| PHASE4 | TBD | - | 정본 충족 시 생성 |
+| PHASE2     | Active | `docs/agentic-tools/prompt-packs/PHASE2_prompt_pack.md`     | 마일스톤별 실행+검증 (M1~M4)  |
+| PHASE3     | TBD    | -                                                           | 정본 충족 시 생성             |
+| PHASE4     | TBD    | -                                                           | 정본 충족 시 생성             |
 
 ## 공통 템플릿
 

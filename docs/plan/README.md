@@ -23,11 +23,12 @@
 | 11  | 2026-02-14_claude-code_showcase-visual-modernization.md | 2026-02-14 | claude-code | PHASE1   | done    | 쇼케이스 시각 품질 현대화                                   |
 | 12  | 2026-02-14_claude-code_phase2-m1-foundation.md          | 2026-02-14 | claude-code | PHASE2   | done    | M1 Foundation 마일스톤 계획 + Codex 태스크 생성             |
 | 13  | 2026-02-14_claude-code_phase2-m1-execution.md           | 2026-02-14 | claude-code | PHASE2   | done    | Phase A 실행: Next.js 16.x + Tailwind v4 + shadcn/ui 초기화 |
-| 14  | 2026-02-14_codex_phase2-m1-s7-token-implementation.md   | 2026-02-14 | codex       | PHASE2   | partial | S7 디자인 토큰 v4 매핑 및 shadcn 충돌 분리                  |
-| 15  | 2026-02-14_codex_phase2-m1-t5-tooling.md                | 2026-02-14 | codex       | PHASE2   | partial | ESLint/Prettier/.env.example 정비 및 검증                   |
+| 14  | 2026-02-14_codex_phase2-m1-s7-token-implementation.md   | 2026-02-14 | codex       | PHASE2   | done    | S7 디자인 토큰 v4 매핑 및 shadcn 충돌 분리                  |
+| 15  | 2026-02-14_codex_phase2-m1-t5-tooling.md                | 2026-02-14 | codex       | PHASE2   | done    | ESLint/Prettier/.env.example 정비 및 검증                   |
 | 16  | 2026-02-14_codex_phase1-schema-sql-migration.md         | 2026-02-14 | codex       | PHASE1   | done    | S2 스키마 SQL/마이그레이션 및 Docker 인프라 구현            |
 | 17  | 2026-02-14_codex_phase2-m1-t6-sot-hook.md               | 2026-02-14 | codex       | PHASE2   | done    | Husky pre-commit과 SoT 위반 자동 검사 게이트 구축           |
 | 18  | 2026-02-14_claude-code_readme-navigation.md             | 2026-02-14 | claude-code | PHASE2   | done    | 프로젝트 README 네비게이션 문서 생성                        |
+| 19  | 2026-02-14_claude-code_m1-partial-cleanup.md            | 2026-02-14 | claude-code | PHASE2   | done    | M1 partial 2건 정리 (#14 S7 토큰, #15 도구 정비)           |
 
 ## Archive
 

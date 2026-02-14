@@ -1,6 +1,6 @@
 ---
 plan-id: '2026-02-14_codex_phase2-m1-t5-tooling'
-status: 'partial'
+status: 'done'
 phase: 'PHASE2'
 template-version: '1.1'
 work-type: 'feature'
@@ -47,12 +47,14 @@ PHASE2 M1 T5 요구사항에 따라 ESLint/Prettier/.env.example를 정비하고
 1. ESLint 설정에 `@typescript-eslint/no-explicit-any: error`, `@typescript-eslint/no-unused-vars: error`가 존재한다.
 2. `globalIgnores([...])` 함수 호출 목록에 `docs/**`가 포함된다.
 3. `.prettierrc`가 요구 옵션과 `prettier-plugin-tailwindcss`를 포함한다.
-4. `.prettierignore`가 `docs/legacy_docs/**/*.md`를 포함하고 Markdown 전체 제외(`*.md`)를 사용하지 않는다.
+4. `.prettierignore`가 `docs/plan/**`, `docs/legacy_docs/**`, `docs/design-system/**`를 포함하고 Markdown 전체 제외(`*.md`)를 사용하지 않는다.
 5. `.env.example`가 Section 4 기준 10개 키+주석을 포함한다.
 6. `package.json`에 `format`, `format:check` 스크립트가 존재한다.
 7. `pnpm build`, `pnpm lint`, `pnpm format:check`가 통과한다.
 
 ## 결과/결정
+
+### Run 1 (2026-02-14)
 
 - 상태: `partial`
 - 핵심 결과:
@@ -69,5 +71,14 @@ PHASE2 M1 T5 요구사항에 따라 ESLint/Prettier/.env.example를 정비하고
     - `pnpm format:check`: 실패 (기존 저장소 전반 61개 파일 미포맷)
 - 미해결 이슈:
   - 저장소 기존 파일 다수가 Prettier 포맷 규칙과 불일치하여 `format:check` 전체 통과 불가
-- 다음 액션:
-  - 별도 plan에서 저장소 포맷 정비(`pnpm format`) 범위와 영향도를 확정 후 일괄 적용
+
+### Run 2 (2026-02-14)
+
+- 상태: `done`
+- 검증 결과:
+  - `pnpm build`: 통과
+  - `pnpm lint`: 통과
+  - `pnpm format:check`: 통과
+- 근거: `.prettierignore` 선별 제외(`docs/plan/**`, `docs/legacy_docs/**`, `docs/design-system/**`) + `pnpm format` 일괄 적용
+- verdict: go → status done 확정
+- 미해결 이슈: 없음
