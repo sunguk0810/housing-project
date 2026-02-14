@@ -53,12 +53,32 @@ flowchart TD
 ```
 
 **기술 스택**:
-- Frontend: Next.js + React + TypeScript + Tailwind CSS + shadcn/ui
+- Frontend: Next.js + React + TypeScript (strict 모드) + Tailwind CSS + shadcn/ui
 - Backend: Next.js API Routes
 - DB: PostgreSQL + PostGIS
 - Cache: Redis
 - Map: Kakao Maps JS SDK
 - Deploy: Vercel + Supabase/AWS RDS
+
+### 보안 설계 (NFR-3)
+
+| 영역 | 설계 | 구현 기준 |
+|------|------|----------|
+| 전송 암호화 | HTTPS/TLS 1.2+ 강제 | CDN/호스팅 레벨 HTTPS + HSTS 헤더 |
+| 저장 암호화 | DB 저장 데이터 AES-256 이상 암호화 | 관리형 DB의 encryption at rest 활성화 |
+| 접근 제어 | 최소 권한 원칙 | DB 서비스 계정 분리 (read-only ETL / read-write API), API 키 환경변수 관리 |
+| API 보안 | 레이트 리미팅 + 입력 검증 | Next.js middleware + S5 입력 검증 규칙 연계 |
+| 환경변수 | 시크릿 관리 | `.env.local` (로컬) + 호스팅 플랫폼 시크릿 관리 (배포) |
+| CORS | 허용 오리진 제한 | Next.js CORS 설정 (자사 도메인만 허용) |
+
+### 모니터링/APM 정책 (NFR-1 연계)
+
+- APM: PII 미수집 정책. 성능 메트릭만 수집
+- 에러 트래킹: 사용자 입력값(cash/income/loans/job1/job2) 미포함
+  - 스택 트레이스/에러 메타데이터에 PII가 포함될 수 있는 경우 마스킹 처리 필수
+  - 에러 컨텍스트에 요청 파라미터 자동 첨부 비활성화
+- 로그: 민감 정보 로그 미기록 (-> S5 입력 검증 규칙 참조)
+- 전체 파이프라인(DB/로그/APM) PII 비저장 원칙: PHASE0 NFR-1 참조
 
 ## 2. DB Schema (유일한 스키마 정본)
 
@@ -333,36 +353,58 @@ final_score = round(100 * (
 - `DisclaimerBanner` — 면책/포지셔닝 고지
 - `OutlinkButton` — 외부 매물 이동 (이동 고지 포함)
 
-## 7. Design Tokens
+## 7. Design Tokens (요약)
 
-### Tailwind 테마 확장
+> **상세 명세**: `docs/design-system/DESIGN_SYSTEM.md` 참조
+> **구현 파일**: `docs/design-system/design-tokens.css` (런타임 변수 + Tailwind v4 `@theme`)
+
+### 핵심 토큰 (리서치 기반 확정)
 
 ```
 colors:
-  primary:    '#1E40AF'  (Blue 800 — 신뢰)
-  secondary:  '#059669'  (Emerald 600 — 성장)
-  accent:     '#F59E0B'  (Amber 500 — 주의)
-  background: '#F8FAFC'  (Slate 50)
+  primary:    '#0891B2'  (Warm Teal Blue 500 — 신뢰+따뜻함)
+  accent:     '#F97316'  (Coral Orange — CTA·하이라이트)
+  accent-dark:'#C2410C'  (텍스트용 AA 준수)
+  background: '#FAFAF9'  (Stone 50 — 웜 뉴트럴)
   surface:    '#FFFFFF'
-  text:       '#1E293B'  (Slate 800)
-  muted:      '#64748B'  (Slate 500)
-  danger:     '#DC2626'  (Red 600)
+  text:       '#1C1917'  (웜 다크)
+  muted:      '#78716C'  (Stone 500)
+  success:    '#059669'  (Emerald 600)
+  warning:    '#D97706'  (Amber 600)
+  error:      '#DC2626'  (Red 600)
 
 spacing:
-  container-max: '1280px'
-  card-padding:  '24px'
+  base-unit:     '4px'
+  card-padding:  '16px'   (p-4)
   section-gap:   '48px'
+  container-max: '1280px'
 
 typography:
-  font-family: 'Pretendard, -apple-system, sans-serif'
-  heading:     '700 weight'
-  body:        '400 weight'
+  font-family: '"Pretendard Variable", "Noto Sans KR", system-ui, sans-serif'
+  heading:     '24px / 700 weight / lh 1.25'
+  title:       '20px / 600 weight / lh 1.3'
+  body:        '16px / 400 weight / lh 1.6'
 
 breakpoints:
-  mobile:  '< 640px'
-  tablet:  '640px ~ 1024px'
-  desktop: '>= 1024px'
+  design-base: '390px'   (360–430px 가변 대응)
+  split-view:  '1024px'  (바텀시트 → 사이드 패널)
+  desktop:     '>= 1280px'
+
+border-radius:
+  card:   '16px'  (rounded-2xl)
+  button: '12px'  (rounded-xl)
+  bar:    '9999px' (pill)
 ```
+
+### 변경 이력
+
+| 항목 | 변경 전 | 변경 후 | 근거 |
+|------|---------|---------|------|
+| Primary | `#1E40AF` (Blue 800) | `#0891B2` (Warm Teal Blue) | 디자인 리서치 step3/design_brief 확정 |
+| Secondary | `#059669` (Emerald) | `#F97316` (Coral Orange) | 리서치 결과 — accent로 역할 변경 |
+| Background | `#F8FAFC` (Slate 50) | `#FAFAF9` (Stone 50) | 웜 뉴트럴 톤 채택 |
+| Text | `#1E293B` (Slate 800) | `#1C1917` (웜 다크) | 순흑 대체, 따뜻한 톤 |
+| card-padding | 24px | 16px (p-4) | 리서치 결과 우선 (step3/design_brief) |
 
 ## 8. Portfolio Strategy
 

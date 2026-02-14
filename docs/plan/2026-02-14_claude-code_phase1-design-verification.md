@@ -1,6 +1,6 @@
 ---
 plan-id: "2026-02-14_claude-code_phase1-design-verification"
-status: "blocked"
+status: "done"
 phase: "PHASE1"
 template-version: "1.1"
 work-type: "governance"
@@ -381,16 +381,17 @@ verdict-status 동기화 (PLAN_OPERATION_GUIDE Section 5): `no-go` + blockers >=
 
 ## 결과/결정
 
-- **상태**: `blocked`
-- **핵심 결과**: PHASE1 설계 검증 Run 1 완료. verdict `no-go`. O1 fail(NFR-3 보안 설계 완전 부재), O2~O5 pass.
-- **미해결 이슈**:
-  - Blocker 1건: S1에 보안 설계(NFR-3) 완전 부재
-  - P0 non-blocker 2건: NFR-1 APM 비저장 미명시, NFR-6 TypeScript strict 미명시
-  - P1 4건: S4 엣지케이스, S1 Mermaid ConsentForm, crime_rate 네이밍, 토큰 매핑 표
-- **다음 액션**:
-  1. 별도 plan(`YYYY-MM-DD_claude-code_phase1-design-fix`) 생성하여 S1 SoT 수정 (P0 3건)
-  2. SoT 수정 완료 후 본 plan에 Run 2 재검증 추가 (blocked 상태에서 Run 누적 가능)
-  3. Run 2에서 verdict `go` 확인 시 status `done`으로 전환 + README 갱신
+- **상태**: `done`
+- **핵심 결과**: PHASE1 설계 검증 완료. Run 1 verdict `no-go` → Fix plan(`2026-02-14_claude-code_phase1-design-fix`)으로 P0 3건 수정 → Run 2 verdict `go`. completeness 1.00, consistency 1.00, compliance 1.00. PHASE2 진입 가능.
+- **해결된 이슈**:
+  - (Run 1 Blocker) S1에 보안 설계(NFR-3) 추가 완료
+  - (Run 1 P0) NFR-1 APM 비저장 정책 추가 완료
+  - (Run 1 P0) NFR-6 TypeScript strict 모드 명시 완료
+- **잔여 P1 항목** (별도 후속 plan에서 처리):
+  - S4 엣지케이스 미처리 (F4)
+  - S1 Mermaid ConsentForm 미포함 (F5)
+  - crime_rate/crime_level 네이밍 불일치 (F6)
+  - 토큰-컴포넌트 매핑 표 부재 (F7)
 
 ### 후속 fix plan 서술 참조 (고정 포맷)
 
@@ -424,6 +425,52 @@ verdict-status 동기화 (PLAN_OPERATION_GUIDE Section 5): `no-go` + blockers >=
     "S1 기술 스택에 'TypeScript strict 모드' 명시 (NFR-6 완전 충족)",
     "S4 정규화 엣지케이스 처리 규칙 추가 (P1 권장)",
     "별도 plan(phase1-design-fix) 생성 후 SoT 수정, 이후 Run 2 재검증"
+  ],
+  "timestamp": "2026-02-14"
+}
+```
+
+### Run 2 (2026-02-14)
+
+Fix plan `2026-02-14_claude-code_phase1-design-fix`에서 P0 3건 수정 완료 후 재검증.
+
+**수정 내역**:
+- FC-1 (NFR-3): S1에 "보안 설계" 서브섹션 추가 (HTTPS/TLS, 저장 암호화, 접근 제어, API 보안, 환경변수, CORS)
+- FC-2 (NFR-1): S1에 "모니터링/APM 정책" 서브섹션 추가 (APM PII 미수집, 에러 트래킹 PII 미포함, 전체 파이프라인 비저장)
+- FC-3 (NFR-6): S1 기술 스택에 "TypeScript (strict 모드)" 명시
+
+**O1~O5 재검증**:
+- O1: **pass** (FR-1~7 수용 + NFR-1~6 모두 충족으로 전환)
+- O2: **pass** (S2 무변경, Run 1과 동일)
+- O3: **pass** (S4 무변경, Run 1과 동일)
+- O4: **pass** (S5 무변경, Run 1과 동일)
+- O5: **pass** (S6/S7 무변경, Run 1과 동일)
+
+**NFR 매핑표 판정 결과**:
+
+| NFR | Run 1 판정 | Run 2 판정 | 변경 근거 |
+|------|-----------|-----------|----------|
+| NFR-1 | 부분 충족 (0.5) | 충족 (1.0) | S1 모니터링/APM 정책 추가 |
+| NFR-2 | 충족 (1.0) | 충족 (1.0) | 변경 없음 |
+| NFR-3 | 미충족 (0.0) | 충족 (1.0) | S1 보안 설계 서브섹션 추가 |
+| NFR-4 | 충족 (1.0) | 충족 (1.0) | 변경 없음 |
+| NFR-5 | 충족 (1.0) | 충족 (1.0) | 변경 없음 |
+| NFR-6 | 부분 충족 (0.5) | 충족 (1.0) | TypeScript (strict 모드) 명시 |
+
+```json
+{
+  "phase": "PHASE1",
+  "verdict": "go",
+  "run": 2,
+  "score": {
+    "completeness": 1.00,
+    "consistency": 1.00,
+    "compliance": 1.00
+  },
+  "blockers": [],
+  "next_actions": [
+    "PHASE2 Build 진입 가능",
+    "P1 4건은 별도 후속 plan에서 처리 (S4 엣지케이스, S1 Mermaid, crime_rate 네이밍, 토큰 매핑 표)"
   ],
   "timestamp": "2026-02-14"
 }

@@ -16,7 +16,8 @@
 | 4 | 2026-02-14_codex_prompt-pack-v1-2-implementation.md | 2026-02-14 | codex | PHASE0 | done | Prompt Pack 인프라 구현 |
 | 5 | 2026-02-14_claude-code_plan-operation-guide-v1-1.md | 2026-02-14 | claude-code | META | done | PLAN_OPERATION_GUIDE v1.1 개선 |
 | 6 | 2026-02-14_claude-code_design-system.md | 2026-02-14 | claude-code | PHASE1 | done | 디자인 시스템 통합 명세서 생성 |
-| 7 | 2026-02-14_claude-code_phase1-design-verification.md | 2026-02-14 | claude-code | PHASE1 | blocked | PHASE1 설계 검증 Run 1 (verdict: no-go) |
+| 7 | 2026-02-14_claude-code_phase1-design-verification.md | 2026-02-14 | claude-code | PHASE1 | done | PHASE1 설계 검증 Run 1 (no-go) → Run 2 (go) |
+| 8 | 2026-02-14_claude-code_phase1-design-fix.md | 2026-02-14 | claude-code | PHASE1 | done | PHASE1 설계 P0 3건 수정 + Run 2 재검증 (verdict: go) |
 
 ## Archive
 
