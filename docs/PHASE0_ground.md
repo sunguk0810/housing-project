@@ -16,27 +16,27 @@
 
 **판정 기간**: 7일 [가정] | **최소 표본**: 분모별 >= 100건 [가정]
 
-| KPI | 이벤트 | 분자 | 분모 | 기준 | 최소 표본 |
-|-----|--------|------|------|------|----------|
-| 컨시어지 CTR | `concierge_contact_click` | 클릭 수 | `concierge_unique_view` | >= 20% | concierge_unique_view >= 100 |
-| 입력 완료율 | `min_input_complete` | 완료 수 | `min_input_start` | >= 50% | min_input_start >= 100 |
-| 결과-문의 전환율 | `inquiry_click` | 클릭 수 | `result_view` | go >= 8%, pending 5-8%, no-go < 5% | result_view >= 100 |
-| 결과 노출률 (가드레일) | `result_view` | 노출 수 | `min_input_complete` | >= 70% | min_input_complete >= 100 |
+| KPI                    | 이벤트                    | 분자    | 분모                    | 기준                               | 최소 표본                    |
+| ---------------------- | ------------------------- | ------- | ----------------------- | ---------------------------------- | ---------------------------- |
+| 컨시어지 CTR           | `concierge_contact_click` | 클릭 수 | `concierge_unique_view` | >= 20%                             | concierge_unique_view >= 100 |
+| 입력 완료율            | `min_input_complete`      | 완료 수 | `min_input_start`       | >= 50%                             | min_input_start >= 100       |
+| 결과-문의 전환율       | `inquiry_click`           | 클릭 수 | `result_view`           | go >= 8%, pending 5-8%, no-go < 5% | result_view >= 100           |
+| 결과 노출률 (가드레일) | `result_view`             | 노출 수 | `min_input_complete`    | >= 70%                             | min_input_complete >= 100    |
 
 ### 추적 이벤트 전체 목록 (10개)
 
-| # | 이벤트명 | 설명 |
-|---|---------|------|
-| 1 | `landing_unique_view` | 랜딩 페이지 고유 방문 |
-| 2 | `min_input_start` | 최소 입력 시작 |
-| 3 | `min_input_complete` | 최소 입력 완료 |
-| 4 | `result_view` | 추천 결과 페이지 노출 |
-| 5 | `concierge_unique_view` | 컨시어지 리포트 고유 조회 |
-| 6 | `concierge_contact_click` | 컨시어지 문의 클릭 |
-| 7 | `inquiry_click` | 컨시어지 리포트 내 문의 CTA 클릭 |
-| 8 | `outlink_click` | 결과 카드의 외부 매물 상세 페이지 링크 클릭 |
-| 9 | `consent_shown` | 동의 UI 노출 |
-| 10 | `consent_accepted` | 동의 완료 |
+| #   | 이벤트명                  | 설명                                        |
+| --- | ------------------------- | ------------------------------------------- |
+| 1   | `landing_unique_view`     | 랜딩 페이지 고유 방문                       |
+| 2   | `min_input_start`         | 최소 입력 시작                              |
+| 3   | `min_input_complete`      | 최소 입력 완료                              |
+| 4   | `result_view`             | 추천 결과 페이지 노출                       |
+| 5   | `concierge_unique_view`   | 컨시어지 리포트 고유 조회                   |
+| 6   | `concierge_contact_click` | 컨시어지 문의 클릭                          |
+| 7   | `inquiry_click`           | 컨시어지 리포트 내 문의 CTA 클릭            |
+| 8   | `outlink_click`           | 결과 카드의 외부 매물 상세 페이지 링크 클릭 |
+| 9   | `consent_shown`           | 동의 UI 노출                                |
+| 10  | `consent_accepted`        | 동의 완료                                   |
 
 > ※ `policy_version`은 `consent_accepted` 이벤트의 속성(property)으로 기록한다 [가정] (docs/legacy_docs/step4_mvp_plan.md:61 참조, 독립 이벤트 vs 속성은 설계 해석)
 
@@ -62,55 +62,58 @@
 
 ### 기능 요구사항 (FR)
 
-| ID | 기능 | 설명 |
-|----|------|------|
-| FR-1 | 사용자 입력 폼 | 보유현금, 예산 범위, 직장1/2 주소, 가중치 프로필 입력. 서버 비저장 |
-| FR-2 | 예산 계산 | LTV/DTI 단순화 모델로 가용 예산 + 월 고정비 산출 |
-| FR-3 | 통근시간 계산 | 2직장 대중교통 통근시간 계산 (사전계산 그리드 + API + 캐시) |
-| FR-4 | 스코어링 엔진 | 예산/통근/보육/학군/치안 정규화 후 가중치 종합점수 산출 (→ PHASE1 S4 참조) |
-| FR-5 | 결과 페이지 | 지도 + Top10 카드. 외부 매물 아웃링크. 점수 분해/출처/기준일/Why-Not 표시 |
-| FR-6 | 가중치 프로필 | 예산 중심 / 통근 중심 / 균형형 선택 |
-| FR-7 | 동의 분리 UI | 필수/선택 동의 분리, 정책 버전 기록, 철회/삭제 경로 제공 |
+| ID   | 기능           | 설명                                                                       |
+| ---- | -------------- | -------------------------------------------------------------------------- |
+| FR-1 | 사용자 입력 폼 | 보유현금, 예산 범위, 직장1/2 주소, 가중치 프로필 입력. 서버 비저장         |
+| FR-2 | 예산 계산      | LTV/DTI 단순화 모델로 가용 예산 + 월 고정비 산출                           |
+| FR-3 | 통근시간 계산  | 2직장 대중교통 통근시간 계산 (사전계산 그리드 + API + 캐시)                |
+| FR-4 | 스코어링 엔진  | 예산/통근/보육/학군/치안 정규화 후 가중치 종합점수 산출 (→ PHASE1 S4 참조) |
+| FR-5 | 결과 페이지    | 지도 + Top10 카드. 외부 매물 아웃링크. 점수 분해/출처/기준일/Why-Not 표시  |
+| FR-6 | 가중치 프로필  | 예산 중심 / 통근 중심 / 균형형 선택                                        |
+| FR-7 | 동의 분리 UI   | 필수/선택 동의 분리, 정책 버전 기록, 철회/삭제 경로 제공                   |
 
 ### 비기능 요구사항 (NFR)
 
-| ID | 항목 | 설명 |
-|----|------|------|
+| ID    | 항목            | 설명                                                         |
+| ----- | --------------- | ------------------------------------------------------------ |
 | NFR-1 | 개인정보 비저장 | DB/로그/APM 전체 파이프라인에 개인정보 저장 금지. PII 마스킹 |
-| NFR-2 | 성능 | API 응답 p95 < 2초. Redis 캐시 활용 |
-| NFR-3 | 보안 | HTTPS/TLS, 저장 암호화, 최소 권한 접근 제어 |
-| NFR-4 | 데이터 거버넌스 | 크롤링 금지. 공공/API/제휴 데이터만 허용. 출처 표기 필수 |
-| NFR-5 | 반응형 | 모바일/태블릿/데스크톱 반응형 웹 |
-| NFR-6 | 유지보수 | Next.js + TypeScript strict 모드. 모듈화 |
+| NFR-2 | 성능            | API 응답 p95 < 2초. Redis 캐시 활용                          |
+| NFR-3 | 보안            | HTTPS/TLS, 저장 암호화, 최소 권한 접근 제어                  |
+| NFR-4 | 데이터 거버넌스 | 크롤링 금지. 공공/API/제휴 데이터만 허용. 출처 표기 필수     |
+| NFR-5 | 반응형          | 모바일/태블릿/데스크톱 반응형 웹                             |
+| NFR-6 | 유지보수        | Next.js + TypeScript strict 모드. 모듈화                     |
 
 ## 4. 법무 체크리스트
 
 **상태 정의**:
+
 - `defined`: 정책/규칙이 문서로 확정됨
 - `implemented`: 코드에 반영 완료됨
 - `pending`: 정책 미확정
 
-| # | 항목 | 수준 | 상태 | 구현 시점 |
-|---|------|------|------|----------|
-| 1 | 정보 제공 포지셔닝 (중개/알선 금지) | Must | defined | Phase 2 M3 |
-| 2 | 거래성사형 CPA 금지 | Must | defined | 구현 불필요 (기능 미개발) |
-| 3 | 개인정보 비저장 (DB/로그/APM) | Must | defined | Phase 2 M2 |
-| 4 | 크롤링 금지, 공공/API/제휴만 허용 | Must | defined | Phase 2 M2 ETL |
-| 5 | 동의 분리/정책 버전/파기 정책 | Must | defined | Phase 2 M3 |
-| 6 | 금지 문구 통제 (중개 오인 방지) | Must | defined | Phase 2 M3 |
-| 7 | 공공데이터 출처 표기 | Must | defined | Phase 2 M3 |
-| 8 | 공인중개사법 외부 자문 | Should | pending | 포트폴리오 예외 승인 |
-| 9 | 위치정보 신고/약관/동의/보호조치 | Should | pending | GPS 비활성 유지 |
-| 10 | 2025 표시광고 표기 스키마 | Should | pending | Phase 2 M3에서 반영 |
+| #   | 항목                                | 수준   | 상태    | 구현 시점                 |
+| --- | ----------------------------------- | ------ | ------- | ------------------------- |
+| 1   | 정보 제공 포지셔닝 (중개/알선 금지) | Must   | defined | Phase 2 M3                |
+| 2   | 거래성사형 CPA 금지                 | Must   | defined | 구현 불필요 (기능 미개발) |
+| 3   | 개인정보 비저장 (DB/로그/APM)       | Must   | defined | Phase 2 M2                |
+| 4   | 크롤링 금지, 공공/API/제휴만 허용   | Must   | defined | Phase 2 M2 ETL            |
+| 5   | 동의 분리/정책 버전/파기 정책       | Must   | defined | Phase 2 M3                |
+| 6   | 금지 문구 통제 (중개 오인 방지)     | Must   | defined | Phase 2 M3                |
+| 7   | 공공데이터 출처 표기                | Must   | defined | Phase 2 M3                |
+| 8   | 공인중개사법 외부 자문              | Should | pending | 포트폴리오 예외 승인      |
+| 9   | 위치정보 신고/약관/동의/보호조치    | Should | pending | GPS 비활성 유지           |
+| 10  | 2025 표시광고 표기 스키마           | Should | pending | Phase 2 M3에서 반영       |
 
 ### 문구 통제 정책
 
 **권장 문구**:
+
 - "추천 근거/출처/기준일" 동시 표시
 - "본 결과는 참고용 정보 제공이며 거래/승인을 보장하지 않음"
 - "외부 매물 링크로 이동" 명시
 
 **금지 문구**:
+
 - "대출 가능 보장", "거래 성사 보장", "투자 수익 보장"
 - "가장 안전한 지역 확정", "최적 투자 확정" 등 단정형 표현
 - 출처 없는 치안/학군 단정
@@ -118,17 +121,18 @@
 
 ## 5. Open Issues
 
-| # | 항목 | 오너 | 상태 | 비고 |
-|---|------|------|------|------|
-| 1 | 공인중개사법 자문 | sungwookhwang | pending | 포트폴리오는 예외 승인 |
-| 2 | 위치정보 신고 | sungwookhwang | pending | GPS 비활성 유지로 대응 |
-| 3 | 표시광고 스키마 | sungwookhwang | pending | Phase 2 M3에서 반영 |
-| 4 | 유료화 시점/정산모델 확정 | TBD | pending | MVP 범위 외 |
-| 5 | 광고성 정보 전송 규정 | TBD | pending | P0 기능 범위 외, 유료화/알림 도입 시 선행 |
+| #   | 항목                      | 오너          | 상태    | 비고                                      |
+| --- | ------------------------- | ------------- | ------- | ----------------------------------------- |
+| 1   | 공인중개사법 자문         | sungwookhwang | pending | 포트폴리오는 예외 승인                    |
+| 2   | 위치정보 신고             | sungwookhwang | pending | GPS 비활성 유지로 대응                    |
+| 3   | 표시광고 스키마           | sungwookhwang | pending | Phase 2 M3에서 반영                       |
+| 4   | 유료화 시점/정산모델 확정 | TBD           | pending | MVP 범위 외                               |
+| 5   | 광고성 정보 전송 규정     | TBD           | pending | P0 기능 범위 외, 유료화/알림 도입 시 선행 |
 
 ---
 
 **입력 소스** (병합 완료):
+
 - `legacy_docs/step0_legal_compliance.md`
 - `legacy_docs/step1_define_discovery.md`
 - `legacy_docs/step3_opportunity_priority.md`

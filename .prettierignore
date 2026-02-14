@@ -4,4 +4,6 @@ out
 build
 dist
 pnpm-lock.yaml
-docs/legacy_docs/**/*.md
+docs/plan/**
+docs/legacy_docs/**
+docs/design-system/**

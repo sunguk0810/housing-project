@@ -1,7 +1,7 @@
 <!-- template v1.1 -->
 ---
 plan-id: "2026-02-14_claude-code_phase2-m1-foundation"
-status: "in_progress"
+status: "done"
 phase: "PHASE2"
 template-version: "1.1"
 work-type: "feature"
@@ -472,6 +472,7 @@ pnpm lint
   - M1 Output Contract 4건 (M1-O1~O4) 정의, OC 매핑으로 전체 커버 확인
   - 의존성 그래프 + 3단계 실행 순서 (Phase A/B/C) 문서화 완료
 - **미해결 이슈**: 없음
+- **보정 사항**: frontmatter status를 본문/인덱스와 정합시킴 (상태 전이 누락 보정, 2026-02-14)
 - **다음 액션**:
   1. Phase A: Claude Code 세션에서 T1(Next.js 초기화) + T2(Tailwind+shadcn) 실행
   2. Phase B: Codex에 T3~T6 태스크 전달 (T4는 Phase A와 병렬 가능)

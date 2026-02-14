@@ -5,10 +5,10 @@
 
 ## 1. 에이전트 페어 운영 모델
 
-| 역할 | 에이전트 | 담당 |
-|------|---------|------|
-| Planning / Creative | **Claude Code** | 설계 판단, 코드 리뷰, 보안 감사, 문서 통합 |
-| Domain-Specific / Detail | **Codex** | ETL 스크립트, 스코어링 엔진, API 구현, 컴포넌트 구현 |
+| 역할                     | 에이전트        | 담당                                                 |
+| ------------------------ | --------------- | ---------------------------------------------------- |
+| Planning / Creative      | **Claude Code** | 설계 판단, 코드 리뷰, 보안 감사, 문서 통합           |
+| Domain-Specific / Detail | **Codex**       | ETL 스크립트, 스코어링 엔진, API 구현, 컴포넌트 구현 |
 
 ### 개발 루프
 
@@ -36,12 +36,12 @@
 
 ## 2. 마일스톤
 
-| 마일스톤 | 기간 | 작업 | 에이전트 |
-|---------|------|------|---------|
-| **M1 Foundation** | Week 1 | Next.js 초기화, DB+PostGIS, 디자인 토큰, 스키마 마이그레이션 | Claude Code |
-| **M2 Data+Engine** | Week 2-3 | ETL, 스코어링 엔진, 통근 모듈, API Routes, Redis 캐시 | Codex |
-| **M3 Frontend** | Week 4-5 | 3단 퍼널, 결과 페이지, 신뢰 UI, 컴플라이언스 페이지 | Codex |
-| **M4 Polish** | Week 6 | 반응형, 성능, 이벤트 트래킹 구현, README | Claude Code |
+| 마일스톤           | 기간     | 작업                                                         | 에이전트    |
+| ------------------ | -------- | ------------------------------------------------------------ | ----------- |
+| **M1 Foundation**  | Week 1   | Next.js 초기화, DB+PostGIS, 디자인 토큰, 스키마 마이그레이션 | Claude Code |
+| **M2 Data+Engine** | Week 2-3 | ETL, 스코어링 엔진, 통근 모듈, API Routes, Redis 캐시        | Codex       |
+| **M3 Frontend**    | Week 4-5 | 3단 퍼널, 결과 페이지, 신뢰 UI, 컴플라이언스 페이지          | Codex       |
+| **M4 Polish**      | Week 6   | 반응형, 성능, 이벤트 트래킹 구현, README                     | Claude Code |
 
 ### M1 Foundation (Week 1)
 

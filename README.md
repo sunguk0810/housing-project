@@ -2,7 +2,7 @@
 
 > 서울/경기/인천 맞벌이 신혼부부를 위한 데이터 기반 주거지 분석 안내 서비스
 
-**현재 상태** — 기준일 2026-02-14: M1(Foundation) 핵심 항목 다수 완료, 일부 품질 태스크 진행 중
+**현재 상태** — 기준일 2026-02-14: M1(Foundation) 완료, M2(Data + Engine) 진입 준비
 
 ---
 
@@ -31,16 +31,16 @@
 
 ## 기술 스택
 
-| 영역 | 기술 |
-|------|------|
-| 프레임워크 | Next.js 16.x (App Router) |
-| 언어 | TypeScript (strict 모드) |
-| UI | React 19 + Tailwind CSS v4 + shadcn/ui |
-| DB | PostgreSQL 16 + PostGIS 3.4 |
-| 캐시 | Redis 7 |
-| 인프라 | Docker Compose |
-| 패키지 매니저 | pnpm |
-| 코드 품질 | ESLint 9 + Prettier + Husky |
+| 영역          | 기술                                   |
+| ------------- | -------------------------------------- |
+| 프레임워크    | Next.js 16.x (App Router)              |
+| 언어          | TypeScript (strict 모드)               |
+| UI            | React 19 + Tailwind CSS v4 + shadcn/ui |
+| DB            | PostgreSQL 16 + PostGIS 3.4            |
+| 캐시          | Redis 7                                |
+| 인프라        | Docker Compose                         |
+| 패키지 매니저 | pnpm                                   |
+| 코드 품질     | ESLint 9 + Prettier + Husky            |
 
 ---
 
@@ -102,18 +102,18 @@ housing-project/
 
 ## 주요 명령어
 
-| 명령어 | 설명 |
-|--------|------|
-| `pnpm dev` | 개발 서버 실행 |
-| `pnpm build` | 프로덕션 빌드 |
-| `pnpm start` | 프로덕션 서버 실행 |
-| `pnpm lint` | ESLint 검사 |
-| `pnpm format` | Prettier 포맷팅 적용 |
-| `pnpm format:check` | Prettier 포맷팅 검사 |
-| `docker compose up -d` | Docker 컨테이너 실행 |
-| `docker compose down` | Docker 컨테이너 중지 |
+| 명령어                   | 설명                          |
+| ------------------------ | ----------------------------- |
+| `pnpm dev`               | 개발 서버 실행                |
+| `pnpm build`             | 프로덕션 빌드                 |
+| `pnpm start`             | 프로덕션 서버 실행            |
+| `pnpm lint`              | ESLint 검사                   |
+| `pnpm format`            | Prettier 포맷팅 적용          |
+| `pnpm format:check`      | Prettier 포맷팅 검사          |
+| `docker compose up -d`   | Docker 컨테이너 실행          |
+| `docker compose down`    | Docker 컨테이너 중지          |
 | `docker compose down -v` | Docker 컨테이너 + 볼륨 초기화 |
-| `bash db/migrate.sh` | DB 마이그레이션 실행 |
+| `bash db/migrate.sh`     | DB 마이그레이션 실행          |
 
 ---
 
@@ -121,12 +121,12 @@ housing-project/
 
 ### 언어 규칙
 
-| 대상 | 언어 |
-|------|------|
-| 문서 (`.md`) | 한국어 |
-| 커밋 메시지 | 한국어 |
-| 코드 (변수명, 함수명) | 영어 |
-| 주석 | 영어 |
+| 대상                  | 언어   |
+| --------------------- | ------ |
+| 문서 (`.md`)          | 한국어 |
+| 커밋 메시지           | 한국어 |
+| 코드 (변수명, 함수명) | 영어   |
+| 주석                  | 영어   |
 
 ### 커밋 메시지 형식
 
@@ -145,10 +145,10 @@ housing-project/
 
 ### SoT 보호 원칙
 
-| SoT 범위 | 유일한 수정 지점 |
-|----------|-----------------|
+| SoT 범위                                 | 유일한 수정 지점        |
+| ---------------------------------------- | ----------------------- |
 | FR/NFR, KPI 정의/게이트, 법무 체크리스트 | `docs/PHASE0_ground.md` |
-| DB 스키마(S2), 스코어링 로직(S4) | `docs/PHASE1_design.md` |
+| DB 스키마(S2), 스코어링 로직(S4)         | `docs/PHASE1_design.md` |
 
 다른 문서에서는 해당 PHASE 문서를 **참조만** 합니다 (중복 정의 금지).
 
@@ -156,17 +156,17 @@ housing-project/
 
 ## 문서 안내
 
-| 문서 | 설명 |
-|------|------|
-| [`docs/PHASE0_ground.md`](docs/PHASE0_ground.md) | 요구사항, KPI, 법무 체크리스트 |
-| [`docs/PHASE1_design.md`](docs/PHASE1_design.md) | DB 스키마, 스코어링 로직, 디자인 시스템 |
-| [`docs/PHASE2_build.md`](docs/PHASE2_build.md) | 구현 마일스톤 (M1~M4) |
-| [`docs/PHASE3_verify.md`](docs/PHASE3_verify.md) | 테스트, 성능, 보안 검증 |
-| [`docs/PHASE4_ship_learn.md`](docs/PHASE4_ship_learn.md) | 배포, 운영, 회고 |
-| [`docs/plan/`](docs/plan/) | Plan Execute 기록 (인덱스: [`docs/plan/README.md`](docs/plan/README.md)) |
-| [`docs/design-system/`](docs/design-system/) | 디자인 시스템 명세 + 쇼케이스 |
-| [`CLAUDE.md`](CLAUDE.md) | Claude Code 에이전트 지침 |
-| [`AGENTS.md`](AGENTS.md) | Codex 에이전트 지침 |
+| 문서                                                     | 설명                                                                     |
+| -------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [`docs/PHASE0_ground.md`](docs/PHASE0_ground.md)         | 요구사항, KPI, 법무 체크리스트                                           |
+| [`docs/PHASE1_design.md`](docs/PHASE1_design.md)         | DB 스키마, 스코어링 로직, 디자인 시스템                                  |
+| [`docs/PHASE2_build.md`](docs/PHASE2_build.md)           | 구현 마일스톤 (M1~M4)                                                    |
+| [`docs/PHASE3_verify.md`](docs/PHASE3_verify.md)         | 테스트, 성능, 보안 검증                                                  |
+| [`docs/PHASE4_ship_learn.md`](docs/PHASE4_ship_learn.md) | 배포, 운영, 회고                                                         |
+| [`docs/plan/`](docs/plan/)                               | Plan Execute 기록 (인덱스: [`docs/plan/README.md`](docs/plan/README.md)) |
+| [`docs/design-system/`](docs/design-system/)             | 디자인 시스템 명세 + 쇼케이스                                            |
+| [`CLAUDE.md`](CLAUDE.md)                                 | Claude Code 에이전트 지침                                                |
+| [`AGENTS.md`](AGENTS.md)                                 | Codex 에이전트 지침                                                      |
 
 ---
 
@@ -184,17 +184,14 @@ housing-project/
 
 > 기준일 2026-02-14 기준
 
-**M1 (Foundation) 완료 항목**
+**M1 (Foundation) 완료**
 
 - Next.js 16.x + TypeScript strict 모드 초기 설정
 - PostgreSQL 16 + PostGIS 3.4 Docker 인프라 구축
 - DB 스키마 마이그레이션 (`db/schema.sql` + `db/migrate.sh`)
+- S7 디자인 토큰 Tailwind v4 매핑 + shadcn 충돌 분리
+- ESLint 9 + Prettier + `.env.example` 정비
 - Husky pre-commit + SoT 위반 자동 검사 게이트
-
-**진행 중**
-
-- S7 디자인 토큰 세부 조정 (plan #14 partial)
-- ESLint/Prettier 정비 (plan #15 partial)
 
 **다음 단계**: M2 (Data + Engine)
 

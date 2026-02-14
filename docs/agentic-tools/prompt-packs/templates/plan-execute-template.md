@@ -1,14 +1,20 @@
-<!-- template v1.1 -->
----
-plan-id: "YYYY-MM-DD_<agent>_<topic>"  # 실제 파일 basename(확장자 제외)
+## <!-- template v1.1 -->
+
+plan-id: "YYYY-MM-DD*<agent>*<topic>" # 실제 파일 basename(확장자 제외)
 status: "in_progress"
-phase: ""  # 허용값: PHASE0 | PHASE1 | PHASE2 | PHASE3 | PHASE4 | PHASE0-4 | META
+phase: "" # 허용값: PHASE0 | PHASE1 | PHASE2 | PHASE3 | PHASE4 | PHASE0-4 | META
 template-version: "1.1"
-# work-type: ""  # 선택. 허용값: feature | ops | governance | infra
+
+# work-type: "" # 선택. 허용값: feature | ops | governance | infra
+
 # depends-on:
-#   - plan-id: ""
-#     condition: ""  # 허용값: "verdict == go" | "status == done" | "status == done AND verdict == go"
-# superseded-by: ""  # 단일 plan-id 값
+
+# - plan-id: ""
+
+# condition: "" # 허용값: "verdict == go" | "status == done" | "status == done AND verdict == go"
+
+# superseded-by: "" # 단일 plan-id 값
+
 ---
 
 # Plan Execute: <topic>
