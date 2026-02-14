@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — 토큰</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">디자인 토큰</h1>
+      <p class="section-desc">SoT: docs/design-system/design-tokens.css</p>
+
+      <!-- ===== Colors ===== -->
+      <div class="subsection">
+        <h2 class="subsection-title">컬러 시스템</h2>
+
+        <div class="component-label">Primary — Warm Teal Blue</div>
+        <div class="swatch-grid" style="margin-bottom:var(--space-6);">
+          <div class="swatch"><div class="swatch-color" style="background:#CFFAFE"></div><div class="swatch-info"><span class="label">50</span><span class="hex">#CFFAFE</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#A5F3FC"></div><div class="swatch-info"><span class="label">100</span><span class="hex">#A5F3FC</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#67E8F9"></div><div class="swatch-info"><span class="label">200</span><span class="hex">#67E8F9</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#22D3EE"></div><div class="swatch-info"><span class="label">300</span><span class="hex">#22D3EE</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#06B6D4"></div><div class="swatch-info"><span class="label">400</span><span class="hex">#06B6D4</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#0891B2"></div><div class="swatch-info"><span class="label">500 Brand</span><span class="hex">#0891B2</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#0E7490"></div><div class="swatch-info"><span class="label">600</span><span class="hex">#0E7490</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#155E75"></div><div class="swatch-info"><span class="label">700</span><span class="hex">#155E75</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#164E63"></div><div class="swatch-info"><span class="label">800</span><span class="hex">#164E63</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#0C4A6E"></div><div class="swatch-info"><span class="label">900</span><span class="hex">#0C4A6E</span></div></div>
+        </div>
+
+        <div class="component-label">Accent — Coral Orange</div>
+        <div class="swatch-grid" style="margin-bottom:var(--space-6);">
+          <div class="swatch"><div class="swatch-color" style="background:#F97316"></div><div class="swatch-info"><span class="label">Accent</span><span class="hex">#F97316</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#C2410C"></div><div class="swatch-info"><span class="label">Dark</span><span class="hex">#C2410C</span></div></div>
+        </div>
+
+        <div class="component-label">Neutral — Stone (Warm)</div>
+        <div class="swatch-grid" style="margin-bottom:var(--space-6);">
+          <div class="swatch"><div class="swatch-color" style="background:#FAFAF9"></div><div class="swatch-info"><span class="label">50</span><span class="hex">#FAFAF9</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#F5F5F4"></div><div class="swatch-info"><span class="label">100</span><span class="hex">#F5F5F4</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#E7E5E4"></div><div class="swatch-info"><span class="label">200</span><span class="hex">#E7E5E4</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#D6D3D1"></div><div class="swatch-info"><span class="label">300</span><span class="hex">#D6D3D1</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#A8A29E"></div><div class="swatch-info"><span class="label">400</span><span class="hex">#A8A29E</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#78716C"></div><div class="swatch-info"><span class="label">500</span><span class="hex">#78716C</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#57534E"></div><div class="swatch-info"><span class="label">600</span><span class="hex">#57534E</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#44403C"></div><div class="swatch-info"><span class="label">700</span><span class="hex">#44403C</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#292524"></div><div class="swatch-info"><span class="label">800</span><span class="hex">#292524</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#1C1917"></div><div class="swatch-info"><span class="label">900</span><span class="hex">#1C1917</span></div></div>
+        </div>
+
+        <div class="component-label">Semantic</div>
+        <div class="swatch-grid" style="margin-bottom:var(--space-6);">
+          <div class="swatch"><div class="swatch-color" style="background:#059669"></div><div class="swatch-info"><span class="label">Success</span><span class="hex">#059669</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#D97706"></div><div class="swatch-info"><span class="label">Warning</span><span class="hex">#D97706</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#DC2626"></div><div class="swatch-info"><span class="label">Error</span><span class="hex">#DC2626</span></div></div>
+        </div>
+
+        <div class="component-label">Score 5-Grade (Blue-Orange Diverging)</div>
+        <div class="swatch-grid" style="margin-bottom:var(--space-6);">
+          <div class="swatch"><div class="swatch-color" style="background:#1565C0"></div><div class="swatch-info"><span class="label">A+ Excellent</span><span class="hex">#1565C0</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#42A5F5"></div><div class="swatch-info"><span class="label">A Good</span><span class="hex">#42A5F5</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#90A4AE"></div><div class="swatch-info"><span class="label">B Average</span><span class="hex">#90A4AE</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FF8A65"></div><div class="swatch-info"><span class="label">C Below</span><span class="hex">#FF8A65</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#D84315"></div><div class="swatch-info"><span class="label">D Poor</span><span class="hex">#D84315</span></div></div>
+        </div>
+
+        <div class="component-label">Safety (NO RED)</div>
+        <div class="swatch-grid" style="margin-bottom:var(--space-6);">
+          <div class="swatch"><div class="swatch-color" style="background:#4CAF50"></div><div class="swatch-info"><span class="label">충분 80%+</span><span class="hex">#4CAF50</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FF9800"></div><div class="swatch-info"><span class="label">보통 60-79%</span><span class="hex">#FF9800</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#9E9E9E"></div><div class="swatch-info"><span class="label">부족 &lt;60%</span><span class="hex">#9E9E9E</span></div></div>
+        </div>
+
+        <div class="component-label">Comparison Radar</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#0891B2"></div><div class="swatch-info"><span class="label">Compare 1</span><span class="hex">#0891B2</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#F97316"></div><div class="swatch-info"><span class="label">Compare 2</span><span class="hex">#F97316</span></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#8B5CF6"></div><div class="swatch-info"><span class="label">Compare 3</span><span class="hex">#8B5CF6</span></div></div>
+        </div>
+      </div>
+
+      <!-- ===== Typography ===== -->
+      <div class="subsection">
+        <h2 class="subsection-title">타이포그래피 스케일</h2>
+
+        <div class="type-sample">
+          <div style="font-size:var(--text-heading);font-weight:var(--text-heading-weight);line-height:var(--text-heading-lh);letter-spacing:var(--text-heading-ls);">
+            Heading — 수도권 신혼부부 주거 분석
+          </div>
+          <div class="meta">24px / Bold (700) / lh 1.25 / ls -0.03em</div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);line-height:var(--text-title-lh);letter-spacing:var(--text-title-ls);">
+            Title — 분석 결과 안내
+          </div>
+          <div class="meta">20px / SemiBold (600) / lh 1.3 / ls -0.03em</div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-size:var(--text-subtitle);font-weight:var(--text-subtitle-weight);line-height:var(--text-subtitle-lh);letter-spacing:var(--text-subtitle-ls);">
+            Subtitle — 예산·통근·보육·안전 종합 점수
+          </div>
+          <div class="meta">17px / SemiBold (600) / lh 1.4 / ls -0.02em</div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-size:var(--text-body);font-weight:var(--text-body-weight);line-height:var(--text-body-lh);letter-spacing:var(--text-body-ls);">
+            Body — 본 서비스는 공공데이터 기반 정보 분석 플랫폼이며, 부동산 중개·알선 서비스가 아닙니다. 분석 결과는 참고용 정보입니다.
+          </div>
+          <div class="meta">16px / Regular (400) / lh 1.6 / ls -0.02em</div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-size:var(--text-body-sm);font-weight:var(--text-body-sm-weight);line-height:var(--text-body-sm-lh);letter-spacing:var(--text-body-sm-ls);">
+            Body Small — 데이터 출처: 국토교통부 실거래가 공개시스템 (기준일: 2026.01)
+          </div>
+          <div class="meta">14px / Regular (400) / lh 1.5 / ls -0.02em</div>
+        </div>
+
+        <div class="type-sample">
+          <div style="font-size:var(--text-caption);font-weight:var(--text-caption-weight);line-height:var(--text-caption-lh);letter-spacing:var(--text-caption-ls);">
+            Caption — 세대수 1,200 · 2018년 준공 · 84㎡
+          </div>
+          <div class="meta">12px / Medium (500) / lh 1.4 / ls -0.02em</div>
+        </div>
+
+        <div class="type-sample" style="margin-top:var(--space-6);">
+          <div style="font-size:var(--text-title);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.03em;">
+            ₩ 3억 2,000만 <span style="font-size:var(--text-body-sm);font-weight:600;color:var(--color-on-surface-muted);">(전세)</span>
+          </div>
+          <div class="meta">가격 표시: tabular-nums, weight +1단계</div>
+        </div>
+      </div>
+
+      <!-- ===== Spacing & Radius ===== -->
+      <div class="subsection">
+        <h2 class="subsection-title">간격 · 라운딩</h2>
+
+        <div class="component-label">Spacing (4px base)</div>
+        <div style="margin-bottom:var(--space-6);">
+          <div class="spacing-row"><span class="spacing-label">4px (space-1)</span><div class="spacing-box" style="width:4px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">8px (space-2)</span><div class="spacing-box" style="width:8px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">12px (space-3)</span><div class="spacing-box" style="width:12px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">16px (space-4) Card</span><div class="spacing-box" style="width:16px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">20px (space-5)</span><div class="spacing-box" style="width:20px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">24px (space-6)</span><div class="spacing-box" style="width:24px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">32px (space-8)</span><div class="spacing-box" style="width:32px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">40px (space-10)</span><div class="spacing-box" style="width:40px;height:24px;"></div></div>
+          <div class="spacing-row"><span class="spacing-label">48px (space-12)</span><div class="spacing-box" style="width:48px;height:24px;"></div></div>
+        </div>
+
+        <div class="component-label">Border Radius</div>
+        <div class="radius-grid">
+          <div class="radius-demo" style="border-radius:var(--radius-sm);">6px<br>Badge</div>
+          <div class="radius-demo" style="border-radius:var(--radius-md);">8px<br>md</div>
+          <div class="radius-demo" style="border-radius:var(--radius-lg);">12px<br>Button</div>
+          <div class="radius-demo" style="border-radius:var(--radius-xl);">16px<br>Card</div>
+          <div class="radius-demo" style="border-radius:var(--radius-full);">Pill<br>Bar</div>
+        </div>
+      </div>
+
+      <!-- ===== Shadow & Motion ===== -->
+      <div class="subsection">
+        <h2 class="subsection-title">그림자 · 애니메이션</h2>
+
+        <div class="component-label">Shadow</div>
+        <div class="shadow-grid" style="margin-bottom:var(--space-6);">
+          <div class="shadow-demo" style="box-shadow:var(--shadow-sm);">sm</div>
+          <div class="shadow-demo" style="box-shadow:var(--shadow-base);">base (Card)</div>
+          <div class="shadow-demo" style="box-shadow:var(--shadow-md);">md (Hover)</div>
+          <div class="shadow-demo" style="box-shadow:var(--shadow-lg);">lg (Modal)</div>
+        </div>
+
+        <div class="component-label">Animation Timing</div>
+        <div class="demo-card">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-4);font-size:var(--text-body-sm);">
+            <div><strong>Fast:</strong> 150ms</div>
+            <div><strong>Normal:</strong> 300ms</div>
+            <div><strong>Slow:</strong> 500ms</div>
+            <div><strong>Count-up:</strong> 800ms</div>
+            <div><strong>Ease-out-expo:</strong> cubic-bezier(0.16,1,0.3,1)</div>
+            <div><strong>Ease-out-default:</strong> cubic-bezier(0.33,1,0.68,1)</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

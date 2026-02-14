@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Onboarding</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Onboarding (/search)</h1>
+      <p class="section-desc">§4.3 — Step 2/4 상태. 직장 입력 화면 + TrustBadge Mini + Sticky CTA.</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span>📶 🔋</span>
+        </div>
+
+        <!-- Header with back -->
+        <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);">
+          <span style="font-size:20px;cursor:pointer;">←</span>
+          <span style="font-size:var(--text-body-sm);font-weight:600;flex:1;">조건 입력</span>
+        </div>
+
+        <!-- Progress bar -->
+        <div style="padding:0 var(--space-4);margin-bottom:var(--space-6);">
+          <div style="display:flex;align-items:center;gap:0;margin-bottom:var(--space-2);">
+            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-brand-500);color:#FFF;font-size:11px;font-weight:700;">✓</div>
+            <div style="flex:1;height:2px;background:var(--color-brand-500);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-brand-500);color:#FFF;font-size:11px;font-weight:700;">2</div>
+            <div style="flex:1;height:2px;background:var(--color-neutral-200);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-neutral-200);color:var(--color-on-surface-muted);font-size:11px;">3</div>
+            <div style="flex:1;height:2px;background:var(--color-neutral-200);"></div>
+            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-neutral-200);color:var(--color-on-surface-muted);font-size:11px;">4</div>
+          </div>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;">Step 2 of 4 · 출퇴근 정보</div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding:0 var(--space-4);flex:1;">
+          <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">
+            직장 주소를 입력해주세요
+          </div>
+          <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">
+            대중교통 통근 시간을 분석합니다
+          </div>
+
+          <!-- Input 1 -->
+          <div style="margin-bottom:var(--space-4);">
+            <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 1 (필수)</div>
+            <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+              <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);">🔍</span>
+              <span style="font-size:var(--text-body);color:var(--color-on-surface);">삼성역</span>
+            </div>
+          </div>
+
+          <!-- Input 2 -->
+          <div style="margin-bottom:var(--space-6);">
+            <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 2 (선택)</div>
+            <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+              <span style="margin-right:var(--space-2);color:var(--color-neutral-300);">🔍</span>
+              <span style="font-size:var(--text-body);color:var(--color-neutral-400);">두 번째 직장은 선택사항입니다</span>
+            </div>
+          </div>
+
+          <!-- Trust badge mini -->
+          <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;margin-bottom:var(--space-6);">
+            🔒 입력 정보는 분석 후 즉시 삭제됩니다
+          </div>
+        </div>
+
+        <!-- Sticky CTA -->
+        <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
+          <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">
+            다음
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

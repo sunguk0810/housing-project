@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Results</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Results (/results)</h1>
+      <p class="section-desc">§4.3 — 메타 태그 + CardSelector + PropertyCard 리스트 + CompareBar + BottomNav</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span>📶 🔋</span>
+        </div>
+
+        <!-- Meta tags -->
+        <div style="padding:var(--space-3) var(--space-4);">
+          <div style="display:flex;gap:var(--space-1);flex-wrap:wrap;margin-bottom:var(--space-3);">
+            <span class="source-tag">📊 공공데이터 기반 분석 결과</span>
+            <span class="source-tag">📅 기준일 2026.02.01</span>
+            <span class="source-tag">참고용 정보</span>
+          </div>
+        </div>
+
+        <!-- Sort chips (CardSelector) -->
+        <div style="padding:0 var(--space-4);margin-bottom:var(--space-3);">
+          <div style="display:flex;gap:var(--space-2);overflow-x:auto;">
+            <button style="padding:6px 14px;border-radius:var(--radius-full);background:var(--color-brand-500);color:#FFF;border:none;font-size:12px;font-weight:600;font-family:var(--font-sans);white-space:nowrap;">종합 점수순</button>
+            <button style="padding:6px 14px;border-radius:var(--radius-full);background:transparent;color:var(--color-on-surface);border:1.5px solid var(--color-border);font-size:12px;font-family:var(--font-sans);white-space:nowrap;">예산 적합도순</button>
+            <button style="padding:6px 14px;border-radius:var(--radius-full);background:transparent;color:var(--color-on-surface);border:1.5px solid var(--color-border);font-size:12px;font-family:var(--font-sans);white-space:nowrap;">통근 시간순</button>
+          </div>
+        </div>
+
+        <!-- Property Cards -->
+        <div style="padding:0 var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);">
+          <!-- Card 1 -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:var(--radius-sm);background:var(--color-accent);color:#FFF;font-size:12px;font-weight:700;">1</span>
+                <span style="font-size:15px;font-weight:700;">래미안 위브 하남</span>
+              </div>
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#1565C0"
+                    stroke-dasharray="125.66" style="--gauge-offset:20.11;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;">84</span>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-1);">경기도 하남시 미사동 · 1,200세대 · 84㎡</div>
+            <div style="font-size:13px;font-weight:700;margin-top:var(--space-2);font-variant-numeric:tabular-nums;">
+              전세 3억 2,000만 <span class="source-tag" style="font-weight:400;">2026.01</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:var(--space-2);font-size:11px;">
+              <span>💰 예산 <b style="color:#1565C0;">92</b></span>
+              <span>🚇 통근 <b style="color:#42A5F5;">76</b></span>
+              <span>👶 보육 <b style="color:#42A5F5;">68</b></span>
+              <span>🛡️ 안전 <b style="color:#90A4AE;">55</b></span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:var(--radius-sm);background:var(--color-accent);color:#FFF;font-size:12px;font-weight:700;">2</span>
+                <span style="font-size:15px;font-weight:700;">힐스테이트 미사역</span>
+              </div>
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#42A5F5"
+                    stroke-dasharray="125.66" style="--gauge-offset:31.42;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;">75</span>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-1);">경기도 하남시 미사동 · 980세대 · 59㎡</div>
+            <div style="font-size:13px;font-weight:700;margin-top:var(--space-2);font-variant-numeric:tabular-nums;">
+              전세 2억 5,000만 <span class="source-tag" style="font-weight:400;">2026.01</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:var(--space-2);font-size:11px;">
+              <span>💰 예산 <b style="color:#42A5F5;">78</b></span>
+              <span>🚇 통근 <b style="color:#1565C0;">85</b></span>
+              <span>👶 보육 <b style="color:#90A4AE;">62</b></span>
+              <span>🛡️ 안전 <b style="color:#FF8A65;">48</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spacer for compare bar -->
+        <div style="height:80px;"></div>
+
+        <!-- Compare Bar -->
+        <div style="position:sticky;bottom:56px;padding:var(--space-2) var(--space-4);background:var(--color-surface);border-top:1px solid var(--color-border);z-index:5;">
+          <div style="display:flex;align-items:center;gap:var(--space-2);">
+            <div style="display:flex;gap:var(--space-1);flex:1;overflow-x:auto;">
+              <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--color-brand-50);border:1px solid var(--color-brand-200);border-radius:var(--radius-full);font-size:11px;font-weight:600;white-space:nowrap;">
+                래미안 84 <span style="cursor:pointer;color:var(--color-on-surface-muted);">&times;</span>
+              </span>
+            </div>
+            <button class="btn btn-primary" style="font-size:12px;padding:8px 14px;white-space:nowrap;">비교하기 (1/3)</button>
+          </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="phone-bottom-nav">
+          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+          <a class="nav-item active"><span class="nav-icon">🗺️</span>지도</a>
+          <a class="nav-item"><span class="nav-icon">📊</span>비교</a>
+          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

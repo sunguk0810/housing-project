@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — 보조 UI</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">보조 UI 패턴</h1>
+      <p class="section-desc">§3 SoT 외 — 25개 컴포넌트 카운트에 미포함. 전 컴포넌트에서 사용하는 기본 패턴.</p>
+
+      <!-- Button -->
+      <div class="demo-card">
+        <div class="demo-card-title">Button <span class="tag">보조 패턴</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          4가지 변형: Primary / Accent CTA / Outline / Disabled. 호버/액티브 상태 시연.
+        </p>
+
+        <div class="component-label">기본 크기</div>
+        <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-6);">
+          <button class="btn btn-primary">Primary 버튼</button>
+          <button class="btn btn-accent">Accent CTA</button>
+          <button class="btn btn-outline">Outline 버튼</button>
+          <button class="btn btn-disabled">Disabled 버튼</button>
+        </div>
+
+        <div class="component-label">전체 너비 (CTA)</div>
+        <div style="max-width:360px;display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-6);">
+          <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);">
+            분석 결과 확인하기
+          </button>
+          <button class="btn btn-accent" style="width:100%;padding:var(--space-4);font-size:var(--text-body);">
+            3가지만 입력하면 바로 분석 결과
+          </button>
+          <button class="btn btn-outline" style="width:100%;padding:var(--space-4);font-size:var(--text-body);">
+            분석 결과 목록으로 돌아가기
+          </button>
+          <button class="btn btn-disabled" style="width:100%;padding:var(--space-4);font-size:var(--text-body);">
+            필수 항목을 입력해주세요
+          </button>
+        </div>
+
+        <div class="component-label">소형 (칩/태그 내)</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+          <button class="btn btn-primary" style="font-size:12px;padding:4px 12px;">비교하기</button>
+          <button class="btn btn-outline" style="font-size:12px;padding:4px 12px;">비교 추가</button>
+          <button class="btn btn-accent" style="font-size:12px;padding:4px 12px;">다음</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

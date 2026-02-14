@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — 지도</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">지도</h1>
+      <p class="section-desc">§3.5 — MapMarker, Clustering, Legend + 지도-리스트 양방향 싱크</p>
+
+      <!-- MapMarker -->
+      <div class="demo-card">
+        <div class="demo-card-title">MapMarker <span class="tag">§3.5</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          3상태: Default / Selected / Visited. 선택 시 등급색 배경 + 1.15x 스케일.
+        </p>
+
+        <div class="component-label">Default 상태</div>
+        <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-6);">
+          <!-- Default markers with different scores -->
+          <div class="demo-item">
+            <svg width="44" height="56" viewBox="0 0 44 56">
+              <filter id="markerShadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/></filter>
+              <g filter="url(#markerShadow)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#1565C0">84</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">A+ Default</div>
+          </div>
+          <div class="demo-item">
+            <svg width="44" height="56" viewBox="0 0 44 56">
+              <g filter="url(#markerShadow)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#42A5F5">75</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">A Default</div>
+          </div>
+          <div class="demo-item">
+            <svg width="44" height="56" viewBox="0 0 44 56">
+              <g filter="url(#markerShadow)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#90A4AE">55</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">B Default</div>
+          </div>
+          <div class="demo-item">
+            <svg width="44" height="56" viewBox="0 0 44 56">
+              <g filter="url(#markerShadow)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FF8A65">42</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">C Default</div>
+          </div>
+        </div>
+
+        <div class="component-label">Selected 상태 (1.15x, 등급색 배경)</div>
+        <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-6);">
+          <div class="demo-item">
+            <svg width="50" height="64" viewBox="0 0 50 64">
+              <filter id="markerGlow"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1565C0" flood-opacity="0.25"/></filter>
+              <g filter="url(#markerGlow)" transform="scale(1.15) translate(-2,-2)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#1565C0"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">84</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">A+ Selected</div>
+          </div>
+          <div class="demo-item">
+            <svg width="50" height="64" viewBox="0 0 50 64">
+              <filter id="markerGlow2"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#42A5F5" flood-opacity="0.25"/></filter>
+              <g filter="url(#markerGlow2)" transform="scale(1.15) translate(-2,-2)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#42A5F5"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">75</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">A Selected</div>
+          </div>
+        </div>
+
+        <div class="component-label">Visited 상태 (70% opacity)</div>
+        <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-6);">
+          <div class="demo-item">
+            <svg width="44" height="56" viewBox="0 0 44 56" opacity="0.7">
+              <g filter="url(#markerShadow)">
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#1565C0">84</text>
+              </g>
+            </svg>
+            <div class="demo-item-label">Visited</div>
+          </div>
+        </div>
+
+        <div class="component-label">직장 마커</div>
+        <div style="display:flex;gap:var(--space-4);">
+          <div style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--color-neutral-800);color:#FFF;font-size:12px;font-weight:600;border-radius:var(--radius-md);box-shadow:var(--shadow-md);">
+            📍 직장 1
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--color-neutral-700);color:#FFF;font-size:12px;font-weight:600;border-radius:var(--radius-md);box-shadow:var(--shadow-md);">
+            📍 직장 2
+          </div>
+        </div>
+      </div>
+
+      <!-- Clustering -->
+      <div class="demo-card">
+        <div class="demo-card-title">Clustering <span class="tag">§3.5</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          줌 레벨별 클러스터링. 대형 원(40-60px) → 중간 클러스터 → 개별 마커.
+        </p>
+
+        <div style="display:flex;gap:var(--space-8);flex-wrap:wrap;align-items:flex-end;">
+          <!-- Large cluster -->
+          <div class="demo-item">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(8,145,178,0.15);border:2px solid var(--color-brand-500);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:16px;font-weight:700;color:var(--color-brand-600);">48</span>
+            </div>
+            <div class="demo-item-label">줌 7-10<br>(도/시)</div>
+          </div>
+          <!-- Medium cluster -->
+          <div class="demo-item">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(8,145,178,0.15);border:2px solid var(--color-brand-400);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:14px;font-weight:700;color:var(--color-brand-500);">12</span>
+            </div>
+            <div class="demo-item-label">줌 11-13<br>(구/동)</div>
+          </div>
+          <!-- Individual markers -->
+          <div class="demo-item">
+            <div style="display:flex;gap:var(--space-2);">
+              <div style="padding:4px 10px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:11px;font-weight:700;box-shadow:var(--shadow-sm);">
+                3.2억
+              </div>
+              <div style="padding:4px 10px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:11px;font-weight:700;box-shadow:var(--shadow-sm);">
+                2.8억
+              </div>
+            </div>
+            <div class="demo-item-label">줌 14+<br>(개별 가격 핀)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="demo-card">
+        <div class="demo-card-title">Legend <span class="tag">§3.5</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          Score 5등급 색상 범례. 지도 우하단, 반투명 배경.
+        </p>
+
+        <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;">
+          <!-- Horizontal -->
+          <div>
+            <div class="component-label">수평 배치</div>
+            <div style="display:inline-flex;gap:var(--space-3);padding:var(--space-2) var(--space-3);background:rgba(255,255,255,0.9);border-radius:var(--radius-md);border:1px solid var(--color-border);font-size:11px;">
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#1565C0;"></span>A+</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#42A5F5;"></span>A</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#90A4AE;"></span>B</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#FF8A65;"></span>C</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#D84315;"></span>D</span>
+            </div>
+          </div>
+          <!-- Vertical -->
+          <div>
+            <div class="component-label">수직 배치</div>
+            <div style="display:inline-flex;flex-direction:column;gap:var(--space-1);padding:var(--space-2) var(--space-3);background:rgba(255,255,255,0.9);border-radius:var(--radius-md);border:1px solid var(--color-border);font-size:11px;">
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#1565C0;"></span>A+ 매우 좋음</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#42A5F5;"></span>A 좋음</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#90A4AE;"></span>B 보통</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#FF8A65;"></span>C 미흡</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#D84315;"></span>D 부족</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map-List Sync -->
+      <div class="demo-card">
+        <div class="demo-card-title">지도-리스트 양방향 싱크 <span class="tag">§3.5 인터랙션 패턴</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          카드 hover → 마커 하이라이트 / 마커 클릭 → 카드 하이라이트. 정적 시뮬레이션: 2개 상태 병렬 표시.
+        </p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+          <!-- State 1: Card hovered -->
+          <div>
+            <div class="component-label">카드 Hover → 마커 하이라이트</div>
+            <div style="display:flex;gap:var(--space-3);">
+              <div style="padding:var(--space-3);background:rgba(8,145,178,0.06);border:2px solid var(--color-brand-400);border-radius:var(--radius-lg);font-size:12px;font-weight:600;flex:1;">
+                래미안 위브 84점
+              </div>
+              <svg width="44" height="50" viewBox="0 0 44 56">
+                <g transform="scale(1.15) translate(-2,-2)">
+                  <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#1565C0"/>
+                  <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FFF">84</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <!-- State 2: Marker clicked -->
+          <div>
+            <div class="component-label">마커 클릭 → 카드 하이라이트</div>
+            <div style="display:flex;gap:var(--space-3);">
+              <svg width="44" height="50" viewBox="0 0 44 56">
+                <g transform="scale(1.15) translate(-2,-2)">
+                  <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#42A5F5"/>
+                  <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FFF">75</text>
+                </g>
+              </svg>
+              <div style="padding:var(--space-3);background:rgba(66,165,245,0.06);border:2px solid var(--color-brand-300);border-radius:var(--radius-lg);font-size:12px;font-weight:600;flex:1;">
+                힐스테이트 75점
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

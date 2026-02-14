@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — 신뢰 · 컴플라이언스</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">신뢰 · 컴플라이언스</h1>
+      <p class="section-desc">§3.6 — TrustBadge, DataSourceTag, ExternalLinkCTA, SafetySection + 금지 문구 매핑</p>
+
+      <!-- TrustBadge -->
+      <div class="demo-card">
+        <div class="demo-card-title">TrustBadge <span class="tag">§3.6</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          Full: 금융 입력 폼 상단 배너. Mini: 각 입력 화면 하단 1줄.
+        </p>
+
+        <div style="max-width:400px;">
+          <div class="component-label">Full</div>
+          <div class="trust-badge" style="margin-bottom:var(--space-4);">
+            <span class="icon">🔒</span>
+            <div>
+              <div class="title">입력 정보는 분석 후 즉시 삭제됩니다</div>
+              <div class="desc">입력하신 소득, 자산 정보는 서버에 저장되지 않으며 분석 완료 후 세션과 함께 삭제됩니다.</div>
+            </div>
+          </div>
+
+          <div class="component-label">Mini</div>
+          <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
+            🔒 이 금액은 분석 후 즉시 삭제됩니다
+          </div>
+        </div>
+      </div>
+
+      <!-- DataSourceTag -->
+      <div class="demo-card">
+        <div class="demo-card-title">DataSourceTag <span class="tag">§3.6</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          출처 태그. 결과 상단 메타 영역 + 개별 데이터 항목 인라인.
+        </p>
+
+        <div class="component-label">결과 상단 메타 태그</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4);">
+          <span class="source-tag">📊 공공데이터 기반 분석 결과</span>
+          <span class="source-tag">📅 기준일 2026.02.01</span>
+          <span class="source-tag">참고용 정보</span>
+        </div>
+
+        <div class="component-label">개별 출처 태그</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+          <span class="source-tag">📊 국토교통부 실거래가</span>
+          <span class="source-tag">🚇 ODsay 대중교통 경로</span>
+          <span class="source-tag">🏫 사회보장정보원 보육시설</span>
+          <span class="source-tag">📅 기준일 2026.01</span>
+        </div>
+      </div>
+
+      <!-- ExternalLinkCTA -->
+      <div class="demo-card">
+        <div class="demo-card-title">ExternalLinkCTA <span class="tag">§3.6</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          외부 링크 버튼 + 클릭 시 면책 모달. "바로 문의" / "바로 연결" 대신 "외부 페이지로 이동".
+        </p>
+
+        <button class="btn btn-outline" onclick="openModal('externalModal')" style="margin-bottom:var(--space-2);">
+          외부 매물 보러가기 ↗ <span style="color:var(--color-on-surface-muted);font-weight:400;margin-left:4px;">네이버 부동산</span>
+        </button>
+        <div style="font-size:11px;color:var(--color-on-surface-muted);">외부 사이트로 이동합니다</div>
+      </div>
+
+      <!-- External Link Modal -->
+      <div class="modal-overlay" id="externalModal">
+        <div class="modal-card">
+          <h3>외부 사이트로 이동</h3>
+          <p>
+            <strong>네이버 부동산</strong>으로 이동합니다.<br><br>
+            매물 정보는 해당 외부 사이트에서 제공하며, 본 서비스는 정보 분석 플랫폼이며 부동산 중개 서비스가 아닙니다.<br><br>
+            매물 정보의 정확성은 해당 외부 사이트에서 확인해주세요.
+          </p>
+          <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal('externalModal')">취소</button>
+            <button class="btn btn-primary" onclick="closeModal('externalModal')">확인 후 이동</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SafetySection -->
+      <div class="demo-card">
+        <div class="demo-card-title">SafetySection <span class="tag">§3.6</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          안전 편의시설 현황. 색상: 충분=녹색, 보통=주황, 부족=회색 (빨강 금지).
+        </p>
+
+        <div style="max-width:400px;">
+          <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-3);">안전 편의시설 현황</div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span>CCTV 밀집도</span>
+              <span style="color:#4CAF50;font-weight:600;">서울시 평균 대비 상위</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span>가로등</span>
+              <span style="color:#FF9800;font-weight:600;">보통 수준</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span>경찰서 거리</span>
+              <span style="color:#9E9E9E;font-weight:600;">다소 먼 편</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span>비상벨</span>
+              <span style="color:#4CAF50;font-weight:600;">수도권 상위 20%</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-3);">
+            <span class="source-tag">출처: 행정안전부 재난안전데이터</span>
+            <span class="source-tag" style="margin-left:4px;">📅 기준일 2025.12</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compliance Mapping -->
+      <div class="demo-card">
+        <div class="demo-card-title">금지 문구 매핑 <span class="tag">§5 가드레일</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          컴플라이언스 가드레일 참조표. UI 카피에서 금지 → 대체 문구 매핑.
+        </p>
+
+        <div class="compliance-block">
+          <div style="font-size:var(--text-caption);font-weight:600;color:var(--color-error);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2);">공인중개사법 관련</div>
+          <div class="compliance-row">
+            <span style="flex:1;text-decoration:line-through;color:var(--color-error);">이 단지를 추천합니다</span>
+            <span style="flex:1;color:var(--color-success);">조건 부합 단지로 분석되었습니다</span>
+          </div>
+          <div class="compliance-row">
+            <span style="flex:1;text-decoration:line-through;color:var(--color-error);">매물 추천</span>
+            <span style="flex:1;color:var(--color-success);">조건 맞춤 단지 탐색</span>
+          </div>
+          <div class="compliance-row">
+            <span style="flex:1;text-decoration:line-through;color:var(--color-error);">매물 문의하기</span>
+            <span style="flex:1;color:var(--color-success);">외부 매물 보러가기 ↗</span>
+          </div>
+        </div>
+
+        <div class="compliance-block" style="margin-top:var(--space-4);">
+          <div style="font-size:var(--text-caption);font-weight:600;color:var(--color-error);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2);">금융 · 치안</div>
+          <div class="compliance-row">
+            <span style="flex:1;text-decoration:line-through;color:var(--color-error);">대출 가능 보장</span>
+            <span style="flex:1;color:var(--color-success);">예상 대출 범위 (참고용 시뮬레이션)</span>
+          </div>
+          <div class="compliance-row">
+            <span style="flex:1;text-decoration:line-through;color:var(--color-error);">가장 안전한 지역</span>
+            <span style="flex:1;color:var(--color-success);">안전 인프라 상위 (수도권 기준)</span>
+          </div>
+          <div class="compliance-row">
+            <span style="flex:1;text-decoration:line-through;color:var(--color-error);">범죄율 높음 / 위험 지역</span>
+            <span style="flex:1;color:var(--color-success);">안전 편의시설 현황 · CCTV·가로등 보강 여지</span>
+          </div>
+        </div>
+
+        <div class="compliance-block" style="margin-top:var(--space-4);">
+          <div style="font-size:var(--text-caption);font-weight:600;color:var(--color-success);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2);">출처 표기 예시</div>
+          <div style="font-size:var(--text-body-sm);line-height:1.6;">
+            <p>전세 실거래가: <strong>3억 2,000만원</strong></p>
+            <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
+              <span class="source-tag">📊 국토교통부 실거래가 공개시스템</span>
+              <span class="source-tag">📅 기준일 2026.01</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>
