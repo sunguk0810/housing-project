@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+bash scripts/check-sot.sh
+pnpm lint

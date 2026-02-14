@@ -1,0 +1,132 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+/* Source of truth: docs/design-system/design-tokens.css (section 1 + section 3) */
+:root {
+  --font-sans: 'Pretendard Variable', 'Pretendard', 'Noto Sans KR', system-ui, -apple-system,
+    sans-serif;
+
+  --color-brand-50: #cffafe;
+  --color-brand-100: #a5f3fc;
+  --color-brand-200: #67e8f9;
+  --color-brand-300: #22d3ee;
+  --color-brand-400: #06b6d4;
+  --color-brand-500: #0891b2;
+  --color-brand-600: #0e7490;
+  --color-brand-700: #155e75;
+  --color-brand-800: #164e63;
+  --color-brand-900: #0c4a6e;
+
+  --color-s7-accent: #f97316;
+  --color-s7-accent-dark: #c2410c;
+
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1c1917;
+
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+
+  --color-score-excellent: #1565c0;
+  --color-score-good: #42a5f5;
+  --color-score-average: #90a4ae;
+  --color-score-below: #ff8a65;
+  --color-score-poor: #d84315;
+
+  --color-safety-sufficient: #4caf50;
+  --color-safety-moderate: #ff9800;
+  --color-safety-lacking: #9e9e9e;
+
+  --color-compare-1: #0891b2;
+  --color-compare-2: #f97316;
+  --color-compare-3: #8b5cf6;
+
+  --text-caption: 0.75rem;
+  --text-caption-lh: 1.4;
+  --text-caption-weight: 500;
+  --text-caption-ls: -0.02em;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm-lh: 1.5;
+  --text-body-sm-weight: 400;
+  --text-body-sm-ls: -0.02em;
+
+  --text-body: 1rem;
+  --text-body-lh: 1.6;
+  --text-body-weight: 400;
+  --text-body-ls: -0.02em;
+
+  --text-subtitle: 1.0625rem;
+  --text-subtitle-lh: 1.4;
+  --text-subtitle-weight: 600;
+  --text-subtitle-ls: -0.02em;
+
+  --text-title: 1.25rem;
+  --text-title-lh: 1.3;
+  --text-title-weight: 600;
+  --text-title-ls: -0.03em;
+
+  --text-heading: 1.5rem;
+  --text-heading-lh: 1.25;
+  --text-heading-weight: 700;
+  --text-heading-ls: -0.03em;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-s7-sm: 6px;
+  --radius-s7-md: 8px;
+  --radius-s7-lg: 12px;
+  --radius-s7-xl: 16px;
+  --radius-s7-full: 9999px;
+
+  --shadow-s7-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-s7-base: 0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-s7-md: 0 4px 12px rgb(0 0 0 / 0.1);
+  --shadow-s7-lg: 0 8px 24px rgb(0 0 0 / 0.12);
+
+  --bp-xs: 360px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-default: cubic-bezier(0.33, 1, 0.68, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-countup: 800ms;
+
+  --color-surface: #ffffff;
+  --color-surface-elevated: #fafaf9;
+  --color-on-surface: #1c1917;
+  --color-on-surface-muted: #78716c;
+  --color-s7-border: #e7e5e4;
+  --color-s7-primary: var(--color-brand-500);
+  --color-on-s7-primary: #ffffff;
+}
+
+.dark {
+  --color-surface: #0f172a;
+  --color-surface-elevated: #1e293b;
+  --color-on-surface: #f1f5f9;
+  --color-on-surface-muted: #94a3b8;
+  --color-s7-border: #334155;
+  --color-s7-primary: var(--color-brand-400);
+  --color-on-s7-primary: #0f172a;
+}
