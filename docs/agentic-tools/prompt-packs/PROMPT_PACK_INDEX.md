@@ -7,7 +7,7 @@
 | Phase | 상태 | Pack 경로 | 비고 |
 |------|------|-----------|------|
 | PHASE0 | Active | `docs/agentic-tools/prompt-packs/PHASE0_prompt_pack.md` | 즉시 사용 가능 |
-| PHASE1 | TBD | - | 정본 충족 시 생성 |
+| PHASE1 | Active | `docs/agentic-tools/prompt-packs/PHASE1_prompt_pack.md` | 왕복 동작 확인 완료 |
 | PHASE2 | TBD | - | 정본 충족 시 생성 |
 | PHASE3 | TBD | - | 정본 충족 시 생성 |
 | PHASE4 | TBD | - | 정본 충족 시 생성 |

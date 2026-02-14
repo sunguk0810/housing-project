@@ -3,6 +3,22 @@
 > 정본(SoT): DB 스키마(S2)와 스코어링 로직(S4)은 이 문서가 유일한 수정 지점입니다.
 > 다른 Phase 문서에서는 "PHASE1 S2/S4 참조"로 링크만 합니다.
 
+### 목표
+
+PHASE0에서 확정된 FR/NFR/KPI를 기술 설계로 구체화한다.
+
+### 범위
+
+시스템 아키텍처(S1), DB 스키마(S2 SoT), 데이터 파이프라인(S3), 스코어링 엔진(S4 SoT), API 설계(S5), UI/UX(S6), 디자인 토큰(S7), 포트폴리오 전략(S8)
+
+### 산출물
+
+S1~S8 각 섹션의 설계 명세. db/schema.sql은 S2에서 파생.
+
+### 게이트 기준
+
+PHASE1 Prompt Pack Verification `verdict == "go"` 또는 `verdict == "pending" AND blockers.length == 0` 시 PHASE2(Build) 진입 가능. (PROMPT_PACK_INDEX 확장 규칙과 동일)
+
 ## 1. System Architecture
 
 ```mermaid
