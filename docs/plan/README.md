@@ -23,6 +23,7 @@
 | 11 | 2026-02-14_claude-code_showcase-visual-modernization.md | 2026-02-14 | claude-code | PHASE1 | done | 쇼케이스 시각 품질 현대화 |
 | 12 | 2026-02-14_claude-code_phase2-m1-foundation.md | 2026-02-14 | claude-code | PHASE2 | done | M1 Foundation 마일스톤 계획 + Codex 태스크 생성 |
 | 13 | 2026-02-14_claude-code_phase2-m1-execution.md | 2026-02-14 | claude-code | PHASE2 | done | Phase A 실행: Next.js 16.x + Tailwind v4 + shadcn/ui 초기화 |
+| 14 | 2026-02-14_codex_phase2-m1-s7-token-implementation.md | 2026-02-14 | codex | PHASE2 | partial | S7 디자인 토큰 v4 매핑 및 shadcn 충돌 분리 |
 
 ## Archive
 
