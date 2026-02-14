@@ -42,7 +42,7 @@ PHASE1 설계 검증 verdict `go` (Run 2) 확정에 따라 PHASE2 Build Prompt P
 3. Code Review Prompt (Claude Code)
 4. Milestone Verification Prompt
 
-**결과**: 생성 완료. 제어문자 검증 대기.
+**결과**: 생성 완료. 이후 태스크 영속화 규칙 보강 (태스크 분해 결과의 plan 문서 기록 위치 + Codex 전달 동선 명시).
 
 ### Step 2: PROMPT_PACK_INDEX.md 갱신
 
@@ -100,7 +100,7 @@ PHASE2 행: `TBD` -> `Active`, Pack 경로 추가.
 ## 결과/결정
 
 - **상태**: `done`
-- **핵심 결과**: PHASE2 Prompt Pack 생성 완료. 4종 프롬프트(Milestone Planning, Codex Task Generation, Code Review, Milestone Verification) + M1~M4 Output Contract 16개 + SoT 준수 체크리스트 11개 + Verification JSON 상위 호환 스키마 정의.
+- **핵심 결과**: PHASE2 Prompt Pack 생성 완료. 4종 프롬프트(Milestone Planning, Codex Task Generation, Code Review, Milestone Verification) + M1~M4 Output Contract 16개 + SoT 준수 체크리스트 11개 + Verification JSON 상위 호환 스키마 정의 + 태스크 영속화 규칙(plan 문서 기록 위치 + Codex 전달 동선).
 - **미해결 이슈**: 없음
 - **다음 액션**: PHASE2 M1 Foundation 마일스톤 실행 (별도 plan에서 수행)
 
