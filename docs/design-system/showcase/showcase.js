@@ -3,7 +3,7 @@
  */
 
 /* ---- Sidebar Data ---- */
-const NAV_SECTIONS = [
+var NAV_SECTIONS = [
   {
     title: 'Overview',
     items: [
@@ -42,14 +42,14 @@ const NAV_SECTIONS = [
   }
 ];
 
-const SECTION_LABELS = {
+var SECTION_LABELS = {
   'Overview': 'Overview',
   'Tokens': '\uD1A0\uD070',
   'Components': '\uCEF4\uD3EC\uB10C\uD2B8',
   'Pages': '\uD398\uC774\uC9C0'
 };
 
-const ITEM_LABELS = {
+var ITEM_LABELS = {
   'Home': '\uAC1C\uC694',
   'Tokens': '\uCEEC\uB7EC \xB7 \uD0C0\uC774\uD3EC \xB7 \uAC04\uACA9 \xB7 \uADF8\uB9BC\uC790',
   'Score': '\uC2A4\uCF54\uC5B4 \uC2DC\uAC01\uD654',
@@ -70,27 +70,39 @@ const ITEM_LABELS = {
 
 /* ---- Sidebar Rendering ---- */
 function renderSidebar() {
-  const sidebar = document.getElementById('sidebar');
+  var sidebar = document.getElementById('sidebar');
   if (!sidebar) return;
 
-  const currentPage = location.pathname.split('/').pop() || 'index.html';
-  let html = '';
+  var currentPage = location.pathname.split('/').pop() || 'index.html';
+  var html = '';
 
-  for (const section of NAV_SECTIONS) {
+  for (var s = 0; s < NAV_SECTIONS.length; s++) {
+    var section = NAV_SECTIONS[s];
     html += '<div class="sidebar-group-title">' + (SECTION_LABELS[section.title] || section.title) + '</div>';
-    for (const item of section.items) {
-      const isActive = currentPage === item.href;
-      const label = ITEM_LABELS[item.label] || item.label;
+    for (var i = 0; i < section.items.length; i++) {
+      var item = section.items[i];
+      var isActive = currentPage === item.href;
+      var label = ITEM_LABELS[item.label] || item.label;
       html += '<a class="sidebar-link' + (isActive ? ' active' : '') + '" href="' + item.href + '">' + label + '</a>';
     }
   }
 
   sidebar.innerHTML = html;
+
+  // Auto-close sidebar on mobile when a link is clicked
+  var links = sidebar.querySelectorAll('.sidebar-link');
+  for (var j = 0; j < links.length; j++) {
+    links[j].addEventListener('click', function() {
+      if (window.innerWidth <= 768) {
+        closeSidebar();
+      }
+    });
+  }
 }
 
 /* ---- Dark Mode ---- */
 function initDarkMode() {
-  const isDark = localStorage.getItem('showcase-dark') === 'true';
+  var isDark = localStorage.getItem('showcase-dark') === 'true';
   if (isDark) {
     document.documentElement.classList.add('dark');
   }
@@ -99,36 +111,36 @@ function initDarkMode() {
 
 function toggleDark() {
   document.documentElement.classList.toggle('dark');
-  const isDark = document.documentElement.classList.contains('dark');
+  var isDark = document.documentElement.classList.contains('dark');
   localStorage.setItem('showcase-dark', isDark);
   updateThemeButton();
 }
 
 function updateThemeButton() {
-  const btn = document.getElementById('themeBtn');
+  var btn = document.getElementById('themeBtn');
   if (!btn) return;
-  const isDark = document.documentElement.classList.contains('dark');
+  var isDark = document.documentElement.classList.contains('dark');
   btn.textContent = isDark ? '\u2600\uFE0F Light' : '\uD83C\uDF19 Dark';
 }
 
 /* ---- Mobile Sidebar Toggle ---- */
 function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
   if (sidebar) sidebar.classList.toggle('open');
   if (overlay) overlay.classList.toggle('open');
 }
 
 function closeSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
   if (sidebar) sidebar.classList.remove('open');
   if (overlay) overlay.classList.remove('open');
 }
 
 /* ---- Toast ---- */
 function showToast(message) {
-  let toast = document.getElementById('liveToast');
+  var toast = document.getElementById('liveToast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'liveToast';
@@ -170,8 +182,33 @@ function toggleTooltip(id) {
   if (el) el.classList.toggle('show');
 }
 
-/* ---- Gauge Animation on Scroll ---- */
-function animateOnScroll() {
+/* ---- Scroll Animation with IntersectionObserver ---- */
+function initScrollAnimation() {
+  var els = document.querySelectorAll('[data-animate]');
+  if (!els.length) return;
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          entries[i].target.classList.add('animated');
+          entries[i].target.dataset.animated = 'true';
+          observer.unobserve(entries[i].target);
+        }
+      }
+    }, { rootMargin: '0px 0px -50px 0px' });
+
+    for (var i = 0; i < els.length; i++) {
+      observer.observe(els[i]);
+    }
+  } else {
+    // Fallback for older browsers
+    animateOnScrollFallback();
+    window.addEventListener('scroll', animateOnScrollFallback);
+  }
+}
+
+function animateOnScrollFallback() {
   var els = document.querySelectorAll('[data-animate]');
   for (var i = 0; i < els.length; i++) {
     var el = els[i];
@@ -188,8 +225,7 @@ function animateOnScroll() {
 document.addEventListener('DOMContentLoaded', function() {
   initDarkMode();
   renderSidebar();
-  animateOnScroll();
-  window.addEventListener('scroll', animateOnScroll);
+  initScrollAnimation();
 
   // Close sidebar on overlay click
   var overlay = document.getElementById('sidebarOverlay');
