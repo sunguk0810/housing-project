@@ -19,6 +19,7 @@
 | 7 | 2026-02-14_claude-code_phase1-design-verification.md | 2026-02-14 | claude-code | PHASE1 | done | PHASE1 설계 검증 Run 1 (no-go) → Run 2 (go) |
 | 8 | 2026-02-14_claude-code_phase1-design-fix.md | 2026-02-14 | claude-code | PHASE1 | done | PHASE1 설계 P0 3건 수정 + Run 2 재검증 (verdict: go) |
 | 9 | 2026-02-14_claude-code_design-preview-showcase.md | 2026-02-14 | claude-code | PHASE1 | done | 디자인 시스템 종합 프리뷰 쇼케이스 구현 |
+| 10 | 2026-02-14_claude-code_phase2-prompt-pack.md | 2026-02-14 | claude-code | PHASE2 | done | PHASE2 Prompt Pack 생성 (4종 프롬프트) |
 
 ## Archive
 
