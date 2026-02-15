@@ -40,6 +40,7 @@
 | 28  | 2026-02-15_claude-code_showcase-enhancement.md | 2026-02-15 | claude-code | PHASE2 | done | Showcase HTML 고도화 — 4변형 토큰·다크모드·Semantic 시각화 |
 | 29  | 2026-02-15_claude-code_showcase-fullscreen-pages.md | 2026-02-15 | claude-code | PHASE2 | done | 풀스크린 프리뷰 + 전체 16개 페이지 쇼케이스 완성 |
 | 30  | 2026-02-15_claude-code_m2-implementation-spec.md | 2026-02-15 | claude-code | PHASE2 | done | M2 Data+Engine 구현 상세 설계 (10개 섹션, 52파일 맵) |
+| 31  | 2026-02-15_claude-code_m2-ralph-loop-sessions.md | 2026-02-15 | claude-code | PHASE2 | in_progress | M2 Ralph Loop 5세션 실행 (54파일 자율 구현) |
 
 ## Archive
 
