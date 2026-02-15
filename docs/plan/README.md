@@ -37,6 +37,7 @@
 | 25  | 2026-02-15_claude-code_phase1-typography-research.md | 2026-02-15 | claude-code | PHASE1 | done    | 한글 웹폰트 3종 비교 및 타이포그래피 시스템 대안 분석       |
 | 26  | 2026-02-15_claude-code_phase1-design-system-scorecard.md | 2026-02-15 | claude-code | PHASE1 | done    | 디자인 시스템 4축 종합 스코어카드 (100점 만점 가중 평가)    |
 | 27  | 2026-02-15_claude-code_p0-design-token-implementation.md | 2026-02-15 | claude-code | PHASE2 | done | P0 디자인 토큰 개선 + 다크모드 기반 구축                    |
+| 28  | 2026-02-15_claude-code_showcase-enhancement.md | 2026-02-15 | claude-code | PHASE2 | done | Showcase HTML 고도화 — 4변형 토큰·다크모드·Semantic 시각화 |
 
 ## Archive
 

@@ -336,6 +336,121 @@ a.demo-card:active,
 .swatch-info .label { font-weight: 600; display: block; }
 .swatch-info .hex { color: var(--color-on-surface-muted); }
 
+/* ---- 4-Variant Token Cards ---- */
+.variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.variant-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.variant-card-header {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-body-sm);
+  font-weight: 700;
+  color: #FFF;
+}
+.variant-card-body {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.variant-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+}
+.variant-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+.variant-label {
+  font-weight: 600;
+  min-width: 48px;
+}
+.variant-hex {
+  color: var(--color-on-surface-muted);
+  font-family: monospace;
+  font-size: 10px;
+}
+.variant-preview {
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---- Semantic Token Table ---- */
+.semantic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body-sm);
+  margin-bottom: var(--space-6);
+}
+.semantic-table th {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-on-surface-muted);
+  border-bottom: 2px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.semantic-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-neutral-100);
+  vertical-align: middle;
+}
+.dark .semantic-table td {
+  border-bottom-color: var(--color-neutral-800);
+}
+.semantic-table .token-name {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 500;
+}
+.semantic-table .color-pair {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.semantic-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* ---- Surface Token Demo ---- */
+.surface-stack {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+.surface-chip {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  text-align: center;
+  min-width: 140px;
+  border: 1px solid var(--color-border);
+}
+
 /* ---- Typography Sample ---- */
 .type-sample { margin-bottom: var(--space-4); }
 .type-sample .meta {
