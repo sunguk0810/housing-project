@@ -39,6 +39,7 @@
 | 27  | 2026-02-15_claude-code_p0-design-token-implementation.md | 2026-02-15 | claude-code | PHASE2 | done | P0 디자인 토큰 개선 + 다크모드 기반 구축                    |
 | 28  | 2026-02-15_claude-code_showcase-enhancement.md | 2026-02-15 | claude-code | PHASE2 | done | Showcase HTML 고도화 — 4변형 토큰·다크모드·Semantic 시각화 |
 | 29  | 2026-02-15_claude-code_showcase-fullscreen-pages.md | 2026-02-15 | claude-code | PHASE2 | done | 풀스크린 프리뷰 + 전체 16개 페이지 쇼케이스 완성 |
+| 30  | 2026-02-15_claude-code_m2-implementation-spec.md | 2026-02-15 | claude-code | PHASE2 | done | M2 Data+Engine 구현 상세 설계 (10개 섹션, 52파일 맵) |
 
 ## Archive
 
