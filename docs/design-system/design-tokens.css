@@ -63,24 +63,65 @@
   --color-warning: #D97706;
   --color-error:   #DC2626;
 
-  /* ---- Score 5-Grade (Blue-Orange Diverging) ---- */
-  --color-score-excellent: #1565C0;
-  --color-score-good:      #42A5F5;
-  --color-score-average:   #90A4AE;
-  --color-score-below:     #FF8A65;
-  --color-score-poor:      #D84315;
+  /* ---- Score 5-Grade: Excellent ---- */
+  --color-score-excellent:        #1565C0;
+  --color-score-excellent-subtle: #E3F2FD;
+  --color-score-excellent-border: #1976D2;
+  --color-score-excellent-fg:     #0D47A1;
 
-  /* ---- Safety (NO RED) ---- */
-  --color-safety-sufficient: #4CAF50;
-  --color-safety-moderate:   #FF9800;
-  --color-safety-lacking:    #9E9E9E;
+  /* ---- Score 5-Grade: Good ---- */
+  --color-score-good:        #2196F3;
+  --color-score-good-subtle: #E3F2FD;
+  --color-score-good-border: #42A5F5;
+  --color-score-good-fg:     #1565C0;
+
+  /* ---- Score 5-Grade: Average ---- */
+  --color-score-average:        #B0BEC5;
+  --color-score-average-subtle: #ECEFF1;
+  --color-score-average-border: #90A4AE;
+  --color-score-average-fg:     #546E7A;
+
+  /* ---- Score 5-Grade: Below ---- */
+  --color-score-below:        #EF6C00;
+  --color-score-below-subtle: #FFF3E0;
+  --color-score-below-border: #FF9800;
+  --color-score-below-fg:     #9A3412;
+
+  /* ---- Score 5-Grade: Poor ---- */
+  --color-score-poor:        #D84315;
+  --color-score-poor-subtle: #FBE9E7;
+  --color-score-poor-border: #FF5722;
+  --color-score-poor-fg:     #BF360C;
+
+  /* ---- Safety: Sufficient (Blue) ---- */
+  --color-safety-sufficient:        #1976D2;
+  --color-safety-sufficient-subtle: #E3F2FD;
+  --color-safety-sufficient-border: #2196F3;
+  --color-safety-sufficient-fg:     #0D47A1;
+
+  /* ---- Safety: Moderate (Amber) ---- */
+  --color-safety-moderate:        #FFC107;
+  --color-safety-moderate-subtle: #FFF8E1;
+  --color-safety-moderate-border: #FFD54F;
+  --color-safety-moderate-fg:     #8D6E00;
+
+  /* ---- Safety: Lacking (Gray) ---- */
+  --color-safety-lacking:         #757575;
+  --color-safety-lacking-subtle:  #F5F5F5;
+  --color-safety-lacking-border:  #9E9E9E;
+  --color-safety-lacking-fg:      #424242;
 
   /* ---- Comparison Radar ---- */
   --color-compare-1: #0891B2;
   --color-compare-2: #F97316;
   --color-compare-3: #8B5CF6;
 
-  /* ---- Typography Scale ---- */
+  /* ---- Typography Scale (7단계) ---- */
+  --text-display:          2rem;       /* 32px */
+  --text-display-lh:       1.25;
+  --text-display-weight:   700;
+  --text-display-ls:       -0.04em;
+
   --text-caption:          0.75rem;    /* 12px */
   --text-caption-lh:       1.4;
   --text-caption-weight:   500;
@@ -96,7 +137,7 @@
   --text-body-weight:      400;
   --text-body-ls:          -0.02em;
 
-  --text-subtitle:         1.0625rem;  /* 17px */
+  --text-subtitle:         1.125rem;   /* 18px */
   --text-subtitle-lh:      1.4;
   --text-subtitle-weight:  600;
   --text-subtitle-ls:      -0.02em;
@@ -198,23 +239,25 @@
   --color-error:   #DC2626;
 
   --color-score-excellent: #1565C0;
-  --color-score-good:      #42A5F5;
-  --color-score-average:   #90A4AE;
-  --color-score-below:     #FF8A65;
+  --color-score-good:      #2196F3;
+  --color-score-average:   #B0BEC5;
+  --color-score-below:     #EF6C00;
   --color-score-poor:      #D84315;
 
-  --color-safety-sufficient: #4CAF50;
-  --color-safety-moderate:   #FF9800;
-  --color-safety-lacking:    #9E9E9E;
+  --color-safety-sufficient: #1976D2;
+  --color-safety-moderate:   #FFC107;
+  --color-safety-lacking:    #757575;
 
+  --text-display: 2rem;
+  --text-display--line-height: 2.5rem;
   --text-caption: 0.75rem;
   --text-caption--line-height: 1.05rem;
   --text-body-sm: 0.875rem;
   --text-body-sm--line-height: 1.3125rem;
   --text-body: 1rem;
   --text-body--line-height: 1.6rem;
-  --text-subtitle: 1.0625rem;
-  --text-subtitle--line-height: 1.4875rem;
+  --text-subtitle: 1.125rem;
+  --text-subtitle--line-height: 1.575rem;
   --text-title: 1.25rem;
   --text-title--line-height: 1.625rem;
   --text-heading: 1.5rem;
@@ -237,6 +280,7 @@
   /* ---- Surface ---- */
   --color-surface:          #FFFFFF;
   --color-surface-elevated: #FAFAF9;
+  --color-surface-sunken:   #F5F5F4;
 
   /* ---- On Surface ---- */
   --color-on-surface:       #1C1917;
@@ -246,14 +290,16 @@
   --color-border: #E7E5E4;
 
   /* ---- Primary (semantic alias) ---- */
-  --color-primary:    var(--color-brand-500);
-  --color-on-primary: #FFFFFF;
+  --color-primary:       var(--color-brand-500);
+  --color-primary-hover: #0E7490;
+  --color-on-primary:    #FFFFFF;
 }
 
 .dark {
   /* ---- Surface ---- */
   --color-surface:          #0F172A;
   --color-surface-elevated: #1E293B;
+  --color-surface-sunken:   #0C1222;
 
   /* ---- On Surface ---- */
   --color-on-surface:       #F1F5F9;
@@ -263,6 +309,7 @@
   --color-border: #334155;
 
   /* ---- Primary (semantic alias) ---- */
-  --color-primary:    var(--color-brand-400);
-  --color-on-primary: #0F172A;
+  --color-primary:       var(--color-brand-400);
+  --color-primary-hover: #22D3EE;
+  --color-on-primary:    #0F172A;
 }

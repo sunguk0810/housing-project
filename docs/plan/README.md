@@ -36,6 +36,7 @@
 | 24  | 2026-02-15_claude-code_phase2-component-library-research.md | 2026-02-15 | claude-code | PHASE2 | done    | React 컴포넌트 라이브러리 및 구현 전략 비교 리서치          |
 | 25  | 2026-02-15_claude-code_phase1-typography-research.md | 2026-02-15 | claude-code | PHASE1 | done    | 한글 웹폰트 3종 비교 및 타이포그래피 시스템 대안 분석       |
 | 26  | 2026-02-15_claude-code_phase1-design-system-scorecard.md | 2026-02-15 | claude-code | PHASE1 | done    | 디자인 시스템 4축 종합 스코어카드 (100점 만점 가중 평가)    |
+| 27  | 2026-02-15_claude-code_p0-design-token-implementation.md | 2026-02-15 | claude-code | PHASE2 | done | P0 디자인 토큰 개선 + 다크모드 기반 구축                    |
 
 ## Archive
 
