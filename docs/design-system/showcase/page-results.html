@@ -49,7 +49,7 @@
         <!-- Property Cards -->
         <div style="padding:0 var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);">
           <!-- Card 1 -->
-          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+          <div class="card-compare-active" style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div style="display:flex;align-items:center;gap:var(--space-2);">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:var(--radius-sm);background:var(--color-accent);color:#FFF;font-size:12px;font-weight:700;">1</span>
@@ -73,6 +73,10 @@
               <span>🚇 통근 <b style="color:#2196F3;">76</b></span>
               <span>👶 보육 <b style="color:#2196F3;">68</b></span>
               <span>🛡️ 안전 <b style="color:#B0BEC5;">55</b></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border);">
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">🚇 직장1 42분 · 직장2 58분</div>
+              <button class="btn btn-primary" style="font-size:11px;padding:4px 12px;">✓ 비교중</button>
             </div>
           </div>
 
@@ -102,11 +106,59 @@
               <span>👶 보육 <b style="color:#B0BEC5;">62</b></span>
               <span>🛡️ 안전 <b style="color:#EF6C00;">48</b></span>
             </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border);">
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">🚇 직장1 35분 · 직장2 48분</div>
+              <button class="btn btn-outline" style="font-size:11px;padding:4px 12px;">비교 추가</button>
+            </div>
+          </div>
+
+          <!-- Card 3 (new) -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:var(--radius-sm);background:var(--color-accent);color:#FFF;font-size:12px;font-weight:700;">3</span>
+                <span style="font-size:15px;font-weight:700;">더샵 센트럴파크</span>
+              </div>
+              <div class="gauge-wrapper" style="width:48px;height:48px;">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle class="gauge-track" cx="24" cy="24" r="20" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-width="3" stroke="#B0BEC5"
+                    stroke-dasharray="125.66" style="--gauge-offset:37.70;--gauge-circumference:125.66;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:14px;">70</span>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-1);">경기도 하남시 감일동 · 1,500세대 · 74㎡</div>
+            <div style="font-size:13px;font-weight:700;margin-top:var(--space-2);font-variant-numeric:tabular-nums;">
+              전세 3억 5,000만 <span class="source-tag" style="font-weight:400;">2026.01</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:var(--space-2);font-size:11px;">
+              <span>💰 예산 <b style="color:#B0BEC5;">65</b></span>
+              <span>🚇 통근 <b style="color:#2196F3;">72</b></span>
+              <span>👶 보육 <b style="color:#1565C0;">80</b></span>
+              <span>🛡️ 안전 <b style="color:#B0BEC5;">52</b></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border);">
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">🚇 직장1 50분 · 직장2 62분</div>
+              <button class="btn btn-outline" style="font-size:11px;padding:4px 12px;">비교 추가</button>
+            </div>
+          </div>
+
+          <!-- More indicator -->
+          <div style="text-align:center;padding:var(--space-2);font-size:12px;color:var(--color-on-surface-muted);">
+            ↓ 더 많은 단지 보기
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div style="padding:var(--space-3) var(--space-4);">
+          <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.5;text-align:center;">
+            공공데이터 기반 참고용 분석이며 실거래를 보장하지 않습니다
           </div>
         </div>
 
         <!-- Spacer for compare bar -->
-        <div style="height:80px;"></div>
+        <div style="height:60px;"></div>
 
         <!-- Compare Bar -->
         <div style="position:sticky;bottom:56px;padding:var(--space-2) var(--space-4);background:var(--color-surface);border-top:1px solid var(--color-border);z-index:5;">

@@ -37,7 +37,8 @@
 
       <!-- Step selector tabs -->
       <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-4);flex-wrap:wrap;">
-        <button class="ob-tab active" onclick="showObStep(1)">Step 1</button>
+        <button class="ob-tab active" onclick="showObStep(0)">Step 0</button>
+        <button class="ob-tab" onclick="showObStep(1)">Step 1</button>
         <button class="ob-tab" onclick="showObStep(2)">Step 2</button>
         <button class="ob-tab" onclick="showObStep(3)">Step 3</button>
         <button class="ob-tab" onclick="showObStep(4)">Step 4</button>
@@ -62,8 +63,53 @@
           <!-- JS fills this -->
         </div>
 
+        <!-- ===== Step 0: 동의 ===== -->
+        <div class="ob-step active" id="obStep0">
+          <div style="padding:0 var(--space-4);flex:1;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">시작하기 전에</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">분석에 필요한 정보 수집 동의가 필요합니다</div>
+
+            <div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-4);">
+              <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+                <input type="checkbox" checked style="margin-top:3px;accent-color:var(--color-brand-500);width:18px;height:18px;">
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">[필수] 개인정보 수집·이용 동의</div>
+                  <div style="font-size:11px;color:var(--color-on-surface-muted);">직장 권역, 예산 범위 · 세션 종료 시 즉시 삭제</div>
+                </div>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+                <input type="checkbox" checked style="margin-top:3px;accent-color:var(--color-brand-500);width:18px;height:18px;">
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">[필수] 위치정보 이용 동의</div>
+                  <div style="font-size:11px;color:var(--color-on-surface-muted);">직장 주소 → 좌표 변환 · 좌표 미저장</div>
+                </div>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:var(--space-3);cursor:pointer;">
+                <input type="checkbox" style="margin-top:3px;accent-color:var(--color-brand-500);width:18px;height:18px;">
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">[선택] 정밀 분석 추가 동의</div>
+                  <div style="font-size:11px;color:var(--color-on-surface-muted);">보유 현금, 상세 소득 · 세션 종료 시 즉시 삭제</div>
+                </div>
+              </label>
+            </div>
+
+            <div style="padding:var(--space-3);background:var(--color-brand-50);border-radius:var(--radius-lg);border:1px solid var(--color-brand-200);margin-bottom:var(--space-4);">
+              <div style="font-size:var(--text-body-sm);display:flex;align-items:center;gap:var(--space-2);">
+                <span>🔒</span>
+                <div>
+                  <div style="font-weight:600;color:var(--color-brand-700);">입력 정보는 분석 후 즉시 삭제됩니다</div>
+                  <div style="font-size:11px;color:var(--color-brand-600);margin-top:2px;">서버에 저장되지 않으며 세션 종료 시 완전 삭제</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
+            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">동의하고 시작하기</button>
+          </div>
+        </div>
+
         <!-- ===== Step 1: 주거형태 + 자녀계획 ===== -->
-        <div class="ob-step active" id="obStep1">
+        <div class="ob-step" id="obStep1">
           <div style="padding:0 var(--space-4);flex:1;">
             <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">어떤 형태를 찾고 계세요?</div>
             <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">선호하는 주거 형태를 선택해주세요</div>
@@ -119,13 +165,18 @@
               </div>
             </div>
 
-            <div style="margin-bottom:var(--space-6);">
+            <div style="margin-bottom:var(--space-4);">
               <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 2 (선택)</div>
               <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
                 <span style="margin-right:var(--space-2);color:var(--color-neutral-300);">🔍</span>
                 <span style="font-size:var(--text-body);color:var(--color-neutral-400);">두 번째 직장은 선택사항입니다</span>
               </div>
             </div>
+
+            <label style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4);cursor:pointer;">
+              <input type="checkbox" style="accent-color:var(--color-brand-500);width:16px;height:16px;">
+              <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);">외벌이예요 (배우자 직장 없음)</span>
+            </label>
 
             <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
               🔒 입력 정보는 분석 후 즉시 삭제됩니다
@@ -143,11 +194,18 @@
             <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">적정 예산 범위를 분석합니다</div>
 
             <div style="margin-bottom:var(--space-5);">
-              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">부부 합산 연봉</div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);">
+                <span style="font-size:var(--text-body-sm);font-weight:600;">부부 합산 연봉</span>
+                <button class="why-tooltip-trigger" onclick="toggleTooltip('obWhyIncome')">? 왜 필요한가요?</button>
+              </div>
+              <div class="tooltip-popup" id="obWhyIncome" style="margin-bottom:var(--space-2);">
+                소득 정보는 PIR(가격소득비)와 DTI 계산에 사용됩니다. 세션 종료 시 즉시 삭제됩니다.
+              </div>
               <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
                 <span style="font-size:var(--text-body);font-weight:600;color:var(--color-on-surface);">7,000</span>
                 <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-left:auto;">만원</span>
               </div>
+              <div class="korean-amount">7,000만원</div>
               <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
                 <button class="ob-quick-btn">5,000만</button>
                 <button class="ob-quick-btn">7,000만</button>
@@ -162,6 +220,7 @@
                 <span style="font-size:var(--text-body);font-weight:600;color:var(--color-on-surface);">15,000</span>
                 <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-left:auto;">만원</span>
               </div>
+              <div class="korean-amount">1억 5,000만원</div>
               <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
                 <button class="ob-quick-btn">5,000만</button>
                 <button class="ob-quick-btn">1억</button>
@@ -222,36 +281,47 @@
           </div>
         </div>
 
-        <!-- ===== Step 5: 분석 중 시퀀스 ===== -->
+        <!-- ===== Step 5: 분석 중 시퀀스 (고도화) ===== -->
         <div class="ob-step" id="obStep5">
-          <div style="padding:var(--space-8) var(--space-4);text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:500px;">
-            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">분석 중입니다</div>
-            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-8);">입력하신 조건으로 최적의 단지를 찾고 있어요</div>
+          <div style="padding:var(--space-6) var(--space-4);text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:500px;">
+            <!-- Circular Progress Ring -->
+            <div class="analysis-progress-ring" style="margin-bottom:var(--space-4);">
+              <svg width="120" height="120" viewBox="0 0 120 120">
+                <circle class="ring-track" cx="60" cy="60" r="52"/>
+                <circle class="ring-fill" cx="60" cy="60" r="52" id="analysisRing"
+                  stroke-dasharray="326.73"
+                  style="stroke-dashoffset:326.73;"/>
+              </svg>
+              <div class="ring-text" id="analysisPercent">0%</div>
+            </div>
 
-            <div style="display:flex;flex-direction:column;gap:var(--space-5);text-align:left;width:100%;max-width:280px;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">분석 중입니다</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">입력하신 조건으로 맞춤 단지를 찾고 있어요</div>
+
+            <div style="display:flex;flex-direction:column;gap:var(--space-4);text-align:left;width:100%;max-width:280px;">
               <div class="analysis-step" id="aStep1" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:24px;">💰</span>
+                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon1">💰</span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">예산 범위 분석</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">DSR, 자기자본 기반 한도 계산</div>
                 </div>
               </div>
               <div class="analysis-step" id="aStep2" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:24px;">🚇</span>
+                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon2">🚇</span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">통근 경로 분석</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">대중교통 최적 경로 탐색</div>
                 </div>
               </div>
               <div class="analysis-step" id="aStep3" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:24px;">🛡️</span>
+                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon3">🛡️</span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">생활 환경 평가</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">보육 / 안전 시설 반경 분석</div>
                 </div>
               </div>
               <div class="analysis-step" id="aStep4" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:24px;">✨</span>
+                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon4">✨</span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">종합 점수 산출</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">4개 카테고리 가중 평균</div>
@@ -259,11 +329,8 @@
               </div>
             </div>
 
-            <div style="margin-top:var(--space-8);">
-              <div style="width:200px;height:4px;background:var(--color-neutral-200);border-radius:var(--radius-full);overflow:hidden;">
-                <div id="analysisBar" style="width:0%;height:100%;background:var(--color-brand-500);border-radius:var(--radius-full);transition:width 0.5s var(--ease-out-expo);"></div>
-              </div>
-              <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);margin-top:var(--space-2);" id="analysisPercent">0%</div>
+            <div id="analysisDoneBtn" style="margin-top:var(--space-6);display:none;">
+              <button class="btn btn-primary" style="padding:var(--space-3) var(--space-6);font-size:var(--text-body);font-weight:700;">결과 보기</button>
             </div>
           </div>
         </div>
@@ -274,18 +341,18 @@
   </div>
   <script src="showcase.js"></script>
   <script>
-    var currentObStep = 1;
+    var currentObStep = 0;
 
     function showObStep(step) {
       currentObStep = step;
-      for (var i = 1; i <= 5; i++) {
+      for (var i = 0; i <= 5; i++) {
         var el = document.getElementById('obStep' + i);
         if (el) el.classList.toggle('active', i === step);
       }
-      // Update tabs
+      // Update tabs (tab index matches step number directly)
       var tabs = document.querySelectorAll('.ob-tab');
       for (var j = 0; j < tabs.length; j++) {
-        tabs[j].classList.toggle('active', j === step - 1);
+        tabs[j].classList.toggle('active', j === step);
       }
       updateProgress(step);
 
@@ -294,10 +361,15 @@
     }
 
     function updateProgress(step) {
+      // Step 0 is consent — hide progress bar
+      if (step === 0) {
+        document.getElementById('obProgress').innerHTML = '<div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;">서비스 이용 동의</div>';
+        return;
+      }
       var html = '<div style="display:flex;align-items:center;gap:0;margin-bottom:var(--space-2);">';
       for (var i = 1; i <= 4; i++) {
         var bg, color, text;
-        if (i < step || step === 5) { bg = 'var(--color-brand-500)'; color = '#FFF'; text = '✓'; }
+        if (i < step || step === 5) { bg = 'var(--color-brand-500)'; color = '#FFF'; text = '\u2713'; }
         else if (i === step) { bg = 'var(--color-brand-500)'; color = '#FFF'; text = i; }
         else { bg = 'var(--color-neutral-200)'; color = 'var(--color-on-surface-muted)'; text = i; }
         html += '<div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:' + bg + ';color:' + color + ';font-size:11px;font-weight:700;">' + text + '</div>';
@@ -307,30 +379,56 @@
         }
       }
       html += '</div>';
-      var stepLabel = step <= 4 ? 'Step ' + step + ' of 4' : '분석 중...';
-      var stepNames = ['', '주거 형태', '출퇴근 정보', '예산 정보', '대출 정보', '분석 중'];
+      var stepLabel = step <= 4 ? 'Step ' + step + ' of 4' : '\uBD84\uC11D \uC911...';
+      var stepNames = ['', '\uC8FC\uAC70 \uD615\uD0DC', '\uCD9C\uD1F4\uADFC \uC815\uBCF4', '\uC608\uC0B0 \uC815\uBCF4', '\uB300\uCD9C \uC815\uBCF4', '\uBD84\uC11D \uC911'];
       html += '<div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;">' + stepLabel + ' \xB7 ' + stepNames[step] + '</div>';
       document.getElementById('obProgress').innerHTML = html;
     }
 
     function startAnalysisSequence() {
       var steps = ['aStep1', 'aStep2', 'aStep3', 'aStep4'];
-      var bar = document.getElementById('analysisBar');
+      var icons = ['aIcon1', 'aIcon2', 'aIcon3', 'aIcon4'];
+      var ring = document.getElementById('analysisRing');
       var pct = document.getElementById('analysisPercent');
+      var doneBtn = document.getElementById('analysisDoneBtn');
+      var circumference = 326.73;
+
       // Reset
       for (var i = 0; i < steps.length; i++) {
         document.getElementById(steps[i]).classList.remove('show');
+        // Reset icons
+        var iconEl = document.getElementById(icons[i]);
+        if (i === 0 && iconEl) iconEl.textContent = '\uD83D\uDCB0';
+        if (i === 1 && iconEl) iconEl.textContent = '\uD83D\uDE87';
+        if (i === 2 && iconEl) iconEl.textContent = '\uD83D\uDEE1\uFE0F';
+        if (i === 3 && iconEl) iconEl.textContent = '\u2728';
       }
-      if (bar) bar.style.width = '0%';
+      if (ring) ring.style.strokeDashoffset = circumference;
       if (pct) pct.textContent = '0%';
+      if (doneBtn) doneBtn.style.display = 'none';
 
       var percents = [25, 50, 75, 100];
       for (var j = 0; j < steps.length; j++) {
         (function(idx) {
           setTimeout(function() {
             document.getElementById(steps[idx]).classList.add('show');
-            if (bar) bar.style.width = percents[idx] + '%';
+            // Update ring progress
+            var offset = circumference - (circumference * percents[idx] / 100);
+            if (ring) ring.style.strokeDashoffset = offset;
             if (pct) pct.textContent = percents[idx] + '%';
+            // Mark previous steps as done
+            for (var k = 0; k < idx; k++) {
+              var prevIcon = document.getElementById(icons[k]);
+              if (prevIcon) prevIcon.textContent = '\u2713';
+            }
+            // On last step, show done button
+            if (idx === steps.length - 1) {
+              setTimeout(function() {
+                var lastIcon = document.getElementById(icons[steps.length - 1]);
+                if (lastIcon) lastIcon.textContent = '\u2713';
+                if (doneBtn) doneBtn.style.display = 'block';
+              }, 600);
+            }
           }, (idx + 1) * 800);
         })(j);
       }
@@ -338,7 +436,7 @@
 
     // Initial progress render
     document.addEventListener('DOMContentLoaded', function() {
-      updateProgress(1);
+      updateProgress(0);
     });
   </script>
 </body>

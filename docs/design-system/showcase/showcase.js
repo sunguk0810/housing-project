@@ -48,6 +48,12 @@ var NAV_SECTIONS = [
     ]
   },
   {
+    title: 'Patterns',
+    items: [
+      { label: 'Patterns', href: 'patterns.html' }
+    ]
+  },
+  {
     title: 'States',
     items: [
       { label: 'Loading', href: 'page-loading.html' },
@@ -62,6 +68,7 @@ var SECTION_LABELS = {
   'Tokens': '\uD1A0\uD070',
   'Components': '\uCEF4\uD3EC\uB10C\uD2B8',
   'Pages': '\uD398\uC774\uC9C0',
+  'Patterns': '\uD328\uD134',
   'States': '\uC0C1\uD0DC'
 };
 
@@ -91,7 +98,8 @@ var ITEM_LABELS = {
   'Location': 'Location (/location-terms)',
   'Loading': 'Loading',
   'Error': 'Error',
-  'Empty': 'Empty States'
+  'Empty': 'Empty States',
+  'Patterns': '\uB3D9\uC758 \xB7 \uBA74\uCC45 \xB7 \uC124\uACC4 \uADFC\uAC70'
 };
 
 /* ---- Sidebar Rendering ---- */
@@ -215,6 +223,12 @@ function setBottomSheetState(state) {
 function toggleTooltip(id) {
   var el = document.getElementById(id);
   if (el) el.classList.toggle('show');
+}
+
+/* ---- Factor Accordion ---- */
+function toggleFactorAccordion(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
 }
 
 /* ---- Scroll Animation with IntersectionObserver ---- */

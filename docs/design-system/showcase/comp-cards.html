@@ -64,20 +64,21 @@
             </div>
           </div>
 
-          <!-- Card 2: Rank 4 (gray badge) -->
-          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+          <!-- Card 2: Compare-active state -->
+          <div class="component-label" style="margin-bottom:var(--space-2);">비교 활성 상태 (compare-active)</div>
+          <div class="card-compare-active" style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div style="display:flex;align-items:center;gap:var(--space-2);">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--radius-sm);background:var(--color-neutral-300);color:var(--color-neutral-700);font-size:13px;font-weight:700;">4</span>
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--radius-sm);background:var(--color-accent);color:#FFF;font-size:13px;font-weight:700;">2</span>
                 <span style="font-size:16px;font-weight:700;">힐스테이트 미사역</span>
               </div>
               <div class="gauge-wrapper" style="width:64px;height:64px;">
                 <svg width="64" height="64" viewBox="0 0 64 64">
                   <circle class="gauge-track" cx="32" cy="32" r="27" stroke-width="4"/>
-                  <circle class="gauge-fill" cx="32" cy="32" r="27" stroke-width="4" stroke="#B0BEC5"
-                    stroke-dasharray="169.65" style="--gauge-offset:67.86;--gauge-circumference:169.65;" data-animate/>
+                  <circle class="gauge-fill" cx="32" cy="32" r="27" stroke-width="4" stroke="#2196F3"
+                    stroke-dasharray="169.65" style="--gauge-offset:42.41;--gauge-circumference:169.65;" data-animate/>
                 </svg>
-                <span class="gauge-text" style="font-size:20px;">60</span>
+                <span class="gauge-text" style="font-size:20px;">75</span>
               </div>
             </div>
             <div style="font-size:12px;color:var(--color-on-surface-muted);margin-top:var(--space-2);">경기도 하남시 미사동 456-7</div>
@@ -86,6 +87,76 @@
               전세 2억 5,000만
               <span class="source-tag" style="margin-left:4px;">국토교통부 2026.01</span>
             </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:var(--space-3);">
+              <div style="font-size:11px;display:flex;align-items:center;gap:4px;">💰 예산 <span style="font-weight:600;color:#2196F3;">78</span></div>
+              <div style="font-size:11px;display:flex;align-items:center;gap:4px;">🚇 통근 <span style="font-weight:600;color:#1565C0;">85</span></div>
+              <div style="font-size:11px;display:flex;align-items:center;gap:4px;">👶 보육 <span style="font-weight:600;color:#B0BEC5;">62</span></div>
+              <div style="font-size:11px;display:flex;align-items:center;gap:4px;">🛡️ 안전 <span style="font-weight:600;color:#EF6C00;">48</span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-border);">
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">🚇 직장1 35분 · 직장2 48분</div>
+              <button class="btn btn-primary" style="font-size:11px;padding:4px 12px;">✓ 비교중</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>카드 radius</td><td><code>--radius-xl</code></td><td>16px</td><td>rounded-2xl</td></tr>
+              <tr><td>패딩</td><td><code>--space-4</code></td><td>16px</td><td></td></tr>
+              <tr><td>보더</td><td><code>--color-border</code></td><td>1px solid</td><td></td></tr>
+              <tr><td>그림자</td><td><code>--shadow-sm</code></td><td>0 1px 2px rgba(0,0,0,0.05)</td><td>호버: --shadow-md</td></tr>
+              <tr><td>순위 배지 (Top 3)</td><td><code>--color-accent</code></td><td>#F97316 bg + 흰 텍스트</td><td>이하: neutral-300 bg</td></tr>
+              <tr><td>단지명</td><td>—</td><td>16px Bold (700)</td><td></td></tr>
+              <tr><td>게이지</td><td>—</td><td>64px CircularGauge</td><td>우상단</td></tr>
+              <tr><td>점수 그리드</td><td>—</td><td>2x2 그리드</td><td>아이콘+라벨+등급색 숫자</td></tr>
+              <tr><td>가격 폰트</td><td>—</td><td>13px Bold, tabular-nums</td><td>쉼표 구분</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>모든 가격 데이터에 출처 태그(국토교통부 기준일)를 병행 표시</li>
+                <li>상위 3개 카드에 코랄 배지, 이하 회색 배지로 순위 구분</li>
+                <li>호버 시 shadow-md로 인터랙션 피드백 제공</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>출처 태그 없이 가격 데이터를 단독 표시하지 않음</li>
+                <li>"추천" 라벨을 카드에 붙이지 않음 (§5 컴플라이언스)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="article"</code> 또는 시맨틱 <code>&lt;article&gt;</code> 태그 사용</li>
+            <li>순위 배지에 <code>aria-label="순위 1위"</code> 명시</li>
+            <li>"비교 추가" 버튼은 최소 44x44px 터치 타겟 확보 (WCAG 2.5.5)</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-board.html" class="used-in-tag">Board</a>
           </div>
         </div>
       </div>
@@ -171,6 +242,58 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>최고 점수 셀</td><td><code>--color-brand-500</code></td><td>rgba(8,145,178,0.08) 배경</td><td>font-weight 600</td></tr>
+              <tr><td>가격 항목</td><td>—</td><td>하이라이트 미적용</td><td>저가가 반드시 좋은 것은 아님</td></tr>
+              <tr><td>열 헤더</td><td>—</td><td>Mini CircularGauge 40px</td><td>단지명 + 종합 점수</td></tr>
+              <tr><td>행 보더</td><td><code>--color-border</code></td><td>1px solid</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>카테고리별 최고 점수 셀만 하이라이트 적용 (brand 8% bg)</li>
+                <li>2~3개 단지 비교에 사용 (최대 3개, 모바일 스와이프 가능)</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>가격 항목에 하이라이트를 적용하지 않음</li>
+                <li>4개 이상 단지를 동시 비교하지 않음 (가독성 저하)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="table"</code> + 적절한 <code>&lt;th&gt;</code> 헤더로 스크린리더 탐색 지원</li>
+            <li>최고 점수 셀에 <code>aria-label="최고 점수"</code> 부가 정보 제공</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-comparison.html" class="used-in-tag">Comparison</a>
+          </div>
+        </div>
       </div>
 
       <!-- MiniPreviewCard -->
@@ -194,6 +317,60 @@
             </div>
           </div>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>크기</td><td>—</td><td>280–320px × 100–140px</td><td></td></tr>
+              <tr><td>썸네일</td><td>—</td><td>120×80px</td><td></td></tr>
+              <tr><td>진입 애니메이션</td><td>—</td><td>translateY(20px)→0, opacity 0→1</td><td>200–300ms</td></tr>
+              <tr><td>코너</td><td><code>--radius-lg</code></td><td>12px</td><td></td></tr>
+              <tr><td>그림자</td><td><code>--shadow-md</code></td><td>0 4px 12px rgba(0,0,0,0.10)</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>마커 위에 위치시키되 화면 상단 근접 시 아래로 표시</li>
+                <li>가격(Bold) + 점수(배지) + 주소(1줄) 정보만 간결하게 표시</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>카드 안에 상세 정보(카테고리별 점수 등)를 넣지 않음</li>
+                <li>지도 마커와 프리뷰 간 거리가 너무 멀어지지 않도록 주의</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>마커 클릭 시 프리뷰 출현을 <code>aria-live="polite"</code>로 알림</li>
+            <li>키보드 탭으로 마커 순회 가능, Enter로 프리뷰 오픈</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results (지도뷰)</a>
+            <a href="page-map-detail.html" class="used-in-tag">Map Detail</a>
+          </div>
+        </div>
       </div>
 
       <!-- CardSelector -->
@@ -208,8 +385,63 @@
           <button class="btn btn-outline" style="font-size:12px;padding:6px 16px;">예산 적합도순</button>
           <button class="btn btn-outline" style="font-size:12px;padding:6px 16px;">통근 시간순</button>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>선택 배경</td><td><code>--color-brand-500</code></td><td>#0891B2 + 흰 텍스트</td><td></td></tr>
+              <tr><td>미선택 스타일</td><td>—</td><td>outline (1px border)</td><td></td></tr>
+              <tr><td>정렬 옵션</td><td>—</td><td>종합 점수순 / 예산 적합도순 / 통근 시간순</td><td>기본: 종합 점수순</td></tr>
+              <tr><td>폰트</td><td>—</td><td>12px</td><td></td></tr>
+              <tr><td>패딩</td><td>—</td><td>6px 16px</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>결과 리스트 상단에 수평 배열로 배치</li>
+                <li>기본 정렬을 "종합 점수순"으로 설정</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>정렬 옵션을 5개 이상으로 확장하지 않음</li>
+                <li>칩 레이블에 "추천순" 사용 금지 (§5 컴플라이언스)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="radiogroup"</code> + 각 칩에 <code>role="radio"</code> + <code>aria-checked</code></li>
+            <li>키보드 화살표로 칩 간 이동 가능</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-map-detail.html" class="used-in-tag">Map Detail</a>
+          </div>
+        </div>
       </div>
 
+      <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>

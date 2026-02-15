@@ -58,8 +58,190 @@
           <button class="btn btn-outline" style="font-size:12px;padding:4px 12px;">비교 추가</button>
           <button class="btn btn-accent" style="font-size:12px;padding:4px 12px;">다음</button>
         </div>
+
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>Primary 배경</td><td><code>--color-brand-500</code></td><td>#0891B2</td><td>텍스트: #FFF</td></tr>
+              <tr><td>Primary 호버</td><td><code>--color-brand-600</code></td><td>#0E7490</td><td></td></tr>
+              <tr><td>Accent 배경</td><td><code>--color-accent</code></td><td>#F97316</td><td>CTA 전용</td></tr>
+              <tr><td>Accent 호버</td><td><code>--color-accent-dark</code></td><td>#C2410C</td><td></td></tr>
+              <tr><td>Outline 보더</td><td><code>--color-border</code></td><td>1px solid</td><td>투명 배경</td></tr>
+              <tr><td>Disabled 배경</td><td><code>--color-neutral-200</code></td><td>#E7E5E4</td><td>텍스트: neutral-400</td></tr>
+              <tr><td>코너</td><td><code>--radius-lg</code></td><td>12px</td><td>rounded-xl</td></tr>
+              <tr><td>최소 높이</td><td>—</td><td>48px (전체 너비 CTA) / 32px (소형)</td><td>WCAG 2.5.5 터치 타겟</td></tr>
+              <tr><td>폰트</td><td>—</td><td>SemiBold 600</td><td></td></tr>
+              <tr><td>전체 너비 CTA</td><td>—</td><td>width: 100%, padding: 16px</td><td>Sticky 하단 배치</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>CTA 버튼은 Accent(코랄) 색상으로 시각적 강조</li>
+                <li>전체 너비 CTA는 하단 Sticky로 배치 (모바일 최적화)</li>
+                <li>Disabled 상태에서 이유를 텍스트로 안내 ("필수 항목을 입력해주세요")</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>한 화면에 Primary + Accent CTA를 동시 배치하지 않음 (시각적 혼란)</li>
+                <li>Disabled 버튼을 이유 안내 없이 표시하지 않음</li>
+                <li>"추천" 또는 "문의" 같은 금지 문구를 버튼 텍스트에 사용하지 않음 (§5 컴플라이언스)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>button</code> 시맨틱 태그 사용 (div/span 금지)</li>
+            <li>Disabled 상태에서 <code>aria-disabled="true"</code> + 사유 텍스트 연결 (<code>aria-describedby</code>)</li>
+            <li>최소 44×44px 터치 타겟 확보 (WCAG 2.5.5)</li>
+            <li>포커스 링: <code>outline: 2px solid</code> + <code>outline-offset: 2px</code></li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <span class="used-in-tag">전체 페이지 (공통 UI 패턴)</span>
+          </div>
+        </div>
       </div>
 
+      <!-- Badge -->
+      <div class="demo-card">
+        <div class="demo-card-title">Badge <span class="tag">보조 패턴</span></div>
+        <p class="comp-desc">상태나 카운트를 표시하는 작은 인디케이터. ScoreBadge와 별개의 범용 배지.</p>
+
+        <div class="component-label">변형</div>
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4);">
+          <span class="badge badge-sm" style="background:var(--color-brand-50);color:var(--color-brand-600);">기본</span>
+          <span class="badge badge-sm" style="background:rgba(5,150,105,0.1);color:#059669;">성공</span>
+          <span class="badge badge-sm" style="background:rgba(217,119,6,0.1);color:#D97706;">경고</span>
+          <span class="badge badge-sm" style="background:rgba(220,38,38,0.1);color:#DC2626;">에러</span>
+          <span class="badge badge-sm" style="background:var(--color-neutral-100);color:var(--color-on-surface-muted);">중립</span>
+        </div>
+
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>sm 크기</td><td>—</td><td>높이 24px</td><td>padding 4px 8px</td></tr>
+              <tr><td>코너</td><td><code>--radius-sm</code></td><td>6px</td><td></td></tr>
+              <tr><td>폰트</td><td><code>--text-caption</code></td><td>12px Medium</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>상태나 카운트 정보를 간결하게 전달할 때 사용</li>
+                <li>시맨틱 컬러(성공/경고/에러)와 매칭하여 의미 전달</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>긴 텍스트(3단어 이상)를 배지에 넣지 않음</li>
+                <li>한 영역에 배지를 4개 이상 나열하지 않음</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>색상 외에 텍스트 라벨로 상태 정보 전달 (WCAG 1.4.1)</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-detail.html" class="used-in-tag">Detail</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="demo-card">
+        <div class="demo-card-title">Divider <span class="tag">보조 패턴</span></div>
+        <p class="comp-desc">섹션 구분선. 실선과 점선 변형.</p>
+
+        <div class="component-label">실선</div>
+        <div style="border-top:1px solid var(--color-border);margin-bottom:var(--space-4);"></div>
+
+        <div class="component-label">점선</div>
+        <div style="border-top:1px dashed var(--color-border);margin-bottom:var(--space-4);"></div>
+
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>색상</td><td><code>--color-border</code></td><td>#E7E5E4 (light) / #334155 (dark)</td><td></td></tr>
+              <tr><td>두께</td><td>—</td><td>1px</td><td></td></tr>
+              <tr><td>실선</td><td>—</td><td>solid</td><td>주요 섹션 구분</td></tr>
+              <tr><td>점선</td><td>—</td><td>dashed</td><td>부차적 구분 (예: 비활성 상태 구분)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>논리적으로 다른 섹션을 구분할 때 사용</li>
+                <li>다크모드에서 자동 전환되는 시맨틱 토큰 사용</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>카드 내부에서 과도하게 사용하지 않음 (여백으로 대체)</li>
+                <li>하드코딩 색상 사용 금지 (항상 var(--color-border))</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>시맨틱 <code>&lt;hr&gt;</code> 태그 또는 <code>role="separator"</code> 사용</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-detail.html" class="used-in-tag">Detail</a>
+            <a href="page-onboarding.html" class="used-in-tag">Onboarding</a>
+            <a href="page-legal.html" class="used-in-tag">Legal</a>
+          </div>
+        </div>
+      </div>
+
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>

@@ -135,6 +135,69 @@
             </div>
           </div>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>Mini 크기</td><td>—</td><td>48px</td><td>리스트 카드 우상단</td></tr>
+              <tr><td>Card 크기</td><td>—</td><td>64px</td><td>PropertyCard 기본</td></tr>
+              <tr><td>Hero 크기</td><td>—</td><td>80–96px</td><td>Detail Hero 영역</td></tr>
+              <tr><td>스트로크 너비</td><td>—</td><td>Mini 3px / Card 4px / Hero 6px</td><td>크기 비례</td></tr>
+              <tr><td>트랙 색상</td><td><code>--color-brand-100</code></td><td>#A5F3FC</td><td>미채움 배경</td></tr>
+              <tr><td>필 색상</td><td><code>--color-score-*</code></td><td>등급별 상이</td><td>Score 5-Grade 적용</td></tr>
+              <tr><td>숫자 폰트</td><td><code>--text-title-weight</code></td><td>Bold 700</td><td>Mini: SemiBold 600</td></tr>
+              <tr><td>애니메이션</td><td><code>--ease-out-expo</code></td><td>800–1200ms</td><td>easeOutExpo count-up</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>종합 점수 하나만 표시할 때 사용</li>
+                <li>Score 5-Grade 등급 컬러를 필 색상에 적용</li>
+                <li>숫자 라벨과 함께 등급 배지를 병행 표시</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>카테고리별 세부 점수에 사용하지 않음 (ScoreBar 사용)</li>
+                <li>게이지 안에 소수점 숫자를 넣지 않음 (정수만)</li>
+                <li>적-녹 스케일 색상을 사용하지 않음 (색맹 안전 위반)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="img"</code> + <code>aria-label="종합 점수 84점, A+ 매우 좋음"</code> 필수</li>
+            <li>등급 텍스트 라벨(A+/A/B/C/D)을 항상 병행 — WCAG 1.4.1 색상만으로 정보 전달 금지</li>
+            <li>Score 5-Grade 색상은 색맹 안전 블루-오렌지 다이버징 팔레트 사용</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-detail.html" class="used-in-tag">Detail (Hero)</a>
+            <a href="page-comparison.html" class="used-in-tag">Comparison</a>
+          </div>
+        </div>
+
+        <div class="dark-mode-note">🌙 다크모드에서 토글하여 변환을 확인하세요</div>
       </div>
 
       <!-- ScoreBar -->
@@ -180,6 +243,44 @@
           </div>
         </div>
 
+        <div class="component-label">확장 가능 아코디언 (ⓘ 클릭)</div>
+        <div style="max-width:400px;display:flex;flex-direction:column;gap:14px;margin-bottom:var(--space-6);">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px;">
+              <span style="display:flex;align-items:center;gap:4px;">예산 적합도 <span class="tooltip-trigger" onclick="toggleFactorAccordion('factorBudget')" style="cursor:pointer;">ⓘ</span></span>
+              <span style="font-weight:600;color:#1565C0;">92</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="background:#1565C0;--bar-width:92%;" data-animate></div>
+            </div>
+            <div class="factor-accordion" id="factorBudget">
+              <div class="factor-accordion-inner">
+                <span class="factor-chip positive">PIR +15</span>
+                <span class="factor-chip negative">DTI -8</span>
+                <span class="factor-chip positive">현금 충분도 +12</span>
+                <span style="font-size:11px;color:var(--color-on-surface-muted);width:100%;margin-top:2px;">PIR 40% + DTI 30% + 현금 30% 가중합</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px;">
+              <span style="display:flex;align-items:center;gap:4px;">통근 편의 <span class="tooltip-trigger" onclick="toggleFactorAccordion('factorCommute')" style="cursor:pointer;">ⓘ</span></span>
+              <span style="font-weight:600;color:#2196F3;">76</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="background:#2196F3;--bar-width:76%;" data-animate></div>
+            </div>
+            <div class="factor-accordion" id="factorCommute">
+              <div class="factor-accordion-inner">
+                <span class="factor-chip positive">직장1 42분 +18</span>
+                <span class="factor-chip negative">직장2 58분 -12</span>
+                <span class="factor-chip positive">환승 1회 +6</span>
+                <span style="font-size:11px;color:var(--color-on-surface-muted);width:100%;margin-top:2px;">통근시간 60% + 환승 20% + 도보 20%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="component-label">Compact (6px)</div>
         <div style="max-width:400px;display:flex;flex-direction:column;gap:10px;">
           <div>
@@ -197,6 +298,110 @@
             <div class="score-bar-track compact">
               <div class="score-bar-fill" style="background:#EF6C00;--bar-width:38%;" data-animate></div>
             </div>
+          </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>높이 (기본)</td><td>—</td><td>8px</td><td>375px 모바일 최적</td></tr>
+              <tr><td>높이 (compact)</td><td>—</td><td>6px</td><td>밀집 리스트용</td></tr>
+              <tr><td>코너</td><td><code>--radius-full</code></td><td>9999px (pill)</td><td></td></tr>
+              <tr><td>트랙 색상</td><td><code>--color-neutral-200</code></td><td>#E7E5E4</td><td></td></tr>
+              <tr><td>필 색상</td><td><code>--color-score-*</code></td><td>등급별 상이</td><td>Score 5-Grade 적용</td></tr>
+              <tr><td>바 간격</td><td>—</td><td>14px</td><td>카테고리 간</td></tr>
+              <tr><td>애니메이션</td><td><code>--ease-out-expo</code></td><td>500ms+</td><td>width transition</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>카테고리별 점수(예산/통근/보육/안전)를 나란히 비교할 때 사용</li>
+                <li>바 좌측에 카테고리명, 우측에 숫자 점수 배치</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>바 하나만 단독으로 사용하지 않음 (최소 2개 이상 그룹)</li>
+                <li>100% 이상의 너비를 설정하지 않음</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="progressbar"</code> + <code>aria-valuenow</code> + <code>aria-valuemin="0"</code> + <code>aria-valuemax="100"</code></li>
+            <li>숫자 라벨을 항상 바 옆에 표시하여 시각장애인도 정보 접근 가능</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-detail.html" class="used-in-tag">Detail</a>
+            <a href="page-results.html" class="used-in-tag">Results (카드 내 미니)</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visualization Decision Framework -->
+      <div class="demo-card">
+        <div class="demo-card-title">점수 시각화 비교 평가 <span class="tag">의사결정</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          점수 표현 방식 4가지를 비교 평가한 의사결정 프레임워크.
+        </p>
+
+        <table class="spec-table">
+          <thead><tr><th>방식</th><th>장점</th><th>단점</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Bar (권장)</strong></td>
+              <td>카테고리 비교 직관적, 공간 효율</td>
+              <td>단일 점수 표현 부적합</td>
+              <td><span class="badge badge-sm" style="background:rgba(5,150,105,0.1);color:#059669;">기본 채택</span></td>
+            </tr>
+            <tr>
+              <td><strong>Radar (제한)</strong></td>
+              <td>다축 비교 시 한눈에 형태 파악</td>
+              <td>3개 초과 시 가독성 급락, 면적 왜곡</td>
+              <td><span class="badge badge-sm" style="background:rgba(217,119,6,0.1);color:#D97706;">비교 전용</span></td>
+            </tr>
+            <tr>
+              <td><strong>Gauge+Bar (최적)</strong></td>
+              <td>종합=Gauge, 카테고리=Bar 병행</td>
+              <td>구현 복잡도 증가</td>
+              <td><span class="badge badge-sm" style="background:rgba(21,101,192,0.1);color:#1565C0;">Detail 채택</span></td>
+            </tr>
+            <tr>
+              <td><strong>Badge (대안)</strong></td>
+              <td>좁은 공간에 등급 표현</td>
+              <td>정밀도 부족 (5등급만)</td>
+              <td><span class="badge badge-sm" style="background:var(--color-neutral-100);color:var(--color-on-surface-muted);">보조 수단</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:var(--space-4);padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);border:1px solid var(--color-border);">
+          <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">AnimatedNumber 유틸리티 노트</div>
+          <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);line-height:1.6;">
+            CircularGauge 내부 숫자는 0에서 목표값까지 <code style="font-size:11px;padding:1px 4px;background:var(--color-neutral-100);border-radius:3px;">count-up</code> 애니메이션을 적용합니다.
+            지속시간: <code style="font-size:11px;padding:1px 4px;background:var(--color-neutral-100);border-radius:3px;">800-1200ms</code>,
+            이징: <code style="font-size:11px;padding:1px 4px;background:var(--color-neutral-100);border-radius:3px;">easeOutExpo</code>,
+            requestAnimationFrame 기반 구현 권장.
           </div>
         </div>
       </div>
@@ -228,6 +433,63 @@
         <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
           <span class="badge badge-lg" style="background:rgba(21,101,192,0.1);color:#1565C0;">A+ 매우 좋음</span>
           <span class="badge badge-lg" style="background:rgba(33,150,243,0.1);color:#2196F3;">A 좋음</span>
+        </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>sm 크기</td><td>—</td><td>높이 24px</td><td>리스트 카드 인라인</td></tr>
+              <tr><td>md 크기</td><td>—</td><td>높이 32px</td><td>카드 상단</td></tr>
+              <tr><td>lg 크기</td><td>—</td><td>높이 48px</td><td>Detail Hero 영역</td></tr>
+              <tr><td>배경</td><td><code>--color-score-*</code></td><td>등급색 10% opacity</td><td>rgba(등급색, 0.1)</td></tr>
+              <tr><td>텍스트</td><td><code>--color-score-*</code></td><td>등급색 100%</td><td>등급 라벨 포함</td></tr>
+              <tr><td>코너</td><td><code>--radius-sm</code></td><td>6px</td><td></td></tr>
+              <tr><td>폰트</td><td>—</td><td>sm: Caption / md: Body-sm Bold / lg: Title Bold</td><td>크기별 상이</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>CircularGauge와 함께 등급명(A+/A/B/C/D)을 텍스트로 표시</li>
+                <li>등급색 배경 10% + 등급색 텍스트 조합으로 사용</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>배지만 단독으로 사용하지 않음 (숫자 점수와 병행)</li>
+                <li>커스텀 색상을 적용하지 않음 (Score 5-Grade 컬러만 사용)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>등급 텍스트 라벨(A+ 매우 좋음 등)을 항상 포함 — 색상만으로 정보 전달 금지 (WCAG 1.4.1)</li>
+            <li><code>aria-label</code>에 "종합 등급 A+ 매우 좋음" 형식으로 명시</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results (카드)</a>
+            <a href="page-detail.html" class="used-in-tag">Detail (Hero)</a>
+            <a href="page-comparison.html" class="used-in-tag">Comparison</a>
+          </div>
         </div>
       </div>
 
@@ -275,8 +537,69 @@
             </g>
           </svg>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>최소 크기</td><td>—</td><td>200 × 200px</td><td>가독성 최소 기준</td></tr>
+              <tr><td>축 수</td><td>—</td><td>4축 (예산/통근/보육/안전)</td><td>5축 확장 가능</td></tr>
+              <tr><td>단지 1 색상</td><td><code>--color-compare-1</code></td><td>#0891B2 (Brand)</td><td></td></tr>
+              <tr><td>단지 2 색상</td><td><code>--color-compare-2</code></td><td>#F97316 (Accent)</td><td></td></tr>
+              <tr><td>단지 3 색상</td><td><code>--color-compare-3</code></td><td>#8B5CF6 (Purple)</td><td></td></tr>
+              <tr><td>채움 투명도</td><td>—</td><td>10%</td><td>겹침 가독성</td></tr>
+              <tr><td>스트로크</td><td>—</td><td>2px solid</td><td>각 단지별</td></tr>
+              <tr><td>라이브러리</td><td>—</td><td>Recharts (순수 SVG 가능)</td><td>§3.1 명세</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>2~3개 단지 비교에만 사용 (3개 초과 시 가독성 급락)</li>
+                <li>축 라벨(예산/통근/보육/안전)을 차트 외곽에 배치</li>
+                <li>범례를 차트 상단 또는 좌측에 배치하여 단지 구분 명확히</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>4개 이상 단지를 동시 비교하지 않음</li>
+                <li>축 수를 7개 이상으로 확장하지 않음 (가독성 저하)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="img"</code> + <code>aria-label</code>에 각 단지명과 축별 점수를 텍스트로 명시</li>
+            <li>색상 구분이 어려운 사용자를 위해 범례에 단지명 텍스트 라벨 필수</li>
+            <li>차트 하단에 점수 테이블을 접근 가능한 대체 수단으로 제공 권장</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-comparison.html" class="used-in-tag">Comparison</a>
+          </div>
+        </div>
+
+        <div class="dark-mode-note">🌙 다크모드에서 토글하여 변환을 확인하세요</div>
       </div>
 
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>

@@ -20,9 +20,44 @@
 
       <h1 class="section-header">디자인 시스템 종합 쇼케이스</h1>
       <p class="section-desc">
-        DESIGN_SYSTEM.md §3 컴포넌트 25종 + §4 페이지 패턴 6종을 시각적으로 확인할 수 있는 프리뷰입니다.<br>
+        DESIGN_SYSTEM.md §3 컴포넌트 28종 + §4 페이지 패턴 16종 + 크로스커팅 패턴을 시각적으로 확인할 수 있는 프리뷰입니다.<br>
         좌측 사이드바에서 섹션을 선택하세요. 우측 상단 토글로 Light/Dark 모드를 전환할 수 있습니다.
       </p>
+
+      <!-- ===== 디자인 원칙 7가지 ===== -->
+      <div class="demo-card" style="margin-bottom:var(--space-6);">
+        <div class="demo-card-title">설계 원칙 (§1)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3);margin-top:var(--space-3);">
+          <div class="principle-card">
+            <strong>1. 비동기 협업 우선</strong>
+            <p>커플 탐색은 각자 따로, 짧게, 반복적. 공유 찜 목록 + "둘 다 찜/한 명만 찜" 매칭 표시.</p>
+          </div>
+          <div class="principle-card">
+            <strong>2. 3입력 내 첫 가치 전달</strong>
+            <p>소득·자산·대출 3개 입력만으로 예산 범위 즉시 표시. 온보딩 완료 후 결과 화면으로 직접 라우팅.</p>
+          </div>
+          <div class="principle-card">
+            <strong>3. 지도가 곧 검색</strong>
+            <p>바운딩 박스 자동 갱신 + 가격 라벨 핀 + 3단 바텀시트. 별도 "검색" 버튼 없이 자동 재검색.</p>
+          </div>
+          <div class="principle-card">
+            <strong>4. 점수는 이야기</strong>
+            <p>0-100 점수 + 라벨 + 요인 분해 + 백분위 4층 구조. 3단계 계층적 공개.</p>
+          </div>
+          <div class="principle-card">
+            <strong>5. 실거래가가 최고의 신뢰</strong>
+            <p>호가 옆에 동일 조건 실거래 이력 항상 병기. 모든 가격에 출처·기준일 인라인 태그.</p>
+          </div>
+          <div class="principle-card">
+            <strong>6. 점진적 몰입</strong>
+            <p>등록 없이 탐색 → 카카오 로그인 → 파트너 초대. 결과 확인까지 로그인 미요구.</p>
+          </div>
+          <div class="principle-card">
+            <strong>7. 신뢰 신호는 적지만 깊게</strong>
+            <p>검증된 소수의 신뢰 장치(실거래가·출처 태그·🔒 비저장)를 콘텐츠에 통합.</p>
+          </div>
+        </div>
+      </div>
 
       <div class="grid-auto" style="margin-bottom:var(--space-8);">
         <!-- Token Card -->
@@ -37,7 +72,7 @@
         <!-- Components Card -->
         <a href="comp-score.html" class="demo-card">
           <div style="font-size:28px; margin-bottom:var(--space-3);">🧩</div>
-          <div class="demo-card-title">컴포넌트 <span class="tag">25종</span></div>
+          <div class="demo-card-title">컴포넌트 <span class="tag">28종</span></div>
           <p style="font-size:var(--text-body-sm); color:var(--color-on-surface-muted);">
             스코어 · 카드 · 네비게이션 · 입력 · 지도 · 신뢰 · 피드백
           </p>
@@ -46,16 +81,25 @@
         <!-- Pages Card -->
         <a href="page-landing.html" class="demo-card">
           <div style="font-size:28px; margin-bottom:var(--space-3);">📱</div>
-          <div class="demo-card-title">페이지 레이아웃 <span class="tag">6종</span></div>
+          <div class="demo-card-title">페이지 레이아웃 <span class="tag">16종</span></div>
           <p style="font-size:var(--text-body-sm); color:var(--color-on-surface-muted);">
-            390px 모바일 프레임 · Landing · Onboarding · Results · Detail · Comparison · Legal
+            390px 모바일 프레임 · 13개 경로 + 3개 상태(로딩/에러/빈 상태)
+          </p>
+        </a>
+
+        <!-- Patterns Card -->
+        <a href="patterns.html" class="demo-card">
+          <div style="font-size:28px; margin-bottom:var(--space-3);">🧬</div>
+          <div class="demo-card-title">크로스커팅 패턴</div>
+          <p style="font-size:var(--text-body-sm); color:var(--color-on-surface-muted);">
+            동의 플로우 · 면책 5-Point 전략 · 온보딩 설계 근거
           </p>
         </a>
       </div>
 
       <!-- Component Coverage -->
       <div class="demo-card">
-        <div class="demo-card-title">§3 SoT 컴포넌트 커버리지 (25/25)</div>
+        <div class="demo-card-title">§3 SoT 컴포넌트 커버리지 (28/28)</div>
         <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:var(--space-2); font-size:var(--text-body-sm);">
           <div>§3.1 <a href="comp-score.html" style="color:var(--color-brand-500);">CircularGauge</a></div>
           <div>§3.1 <a href="comp-score.html" style="color:var(--color-brand-500);">ScoreBar</a></div>
@@ -82,13 +126,102 @@
           <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">Toast</a></div>
           <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">Tooltip</a></div>
           <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">Skeleton</a></div>
+          <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">ExitIntentOverlay</a></div>
+          <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">AnalysisLoadingScreen</a></div>
+          <div>§3.7 <a href="comp-feedback.html" style="color:var(--color-brand-500);">WhyTooltip</a></div>
         </div>
+      </div>
+
+      <!-- ===== 빠른 시작 가이드 ===== -->
+      <div class="demo-card" style="margin-bottom:var(--space-6);">
+        <div class="demo-card-title">빠른 시작 가이드</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-3);">
+          <div>
+            <div class="component-label">1. 디자인 토큰 임포트</div>
+            <div class="quick-start-code">
+              <code>@import url('../design-tokens.css');</code><br><br>
+              <code>/* 또는 Tailwind v4 */</code><br>
+              <code>@import "tailwindcss";</code><br>
+              <code>@import "./tokens.css";</code>
+            </div>
+          </div>
+          <div>
+            <div class="component-label">2. 시맨틱 토큰 사용</div>
+            <div class="quick-start-code">
+              <code>.card {</code><br>
+              <code>  background: var(--color-surface);</code><br>
+              <code>  color: var(--color-on-surface);</code><br>
+              <code>  border: 1px solid var(--color-border);</code><br>
+              <code>}</code><br>
+              <code>/* 다크모드 자동 전환! */</code>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:var(--space-4);">
+          <div class="component-label">3. 컴포넌트 조합 예시</div>
+          <div class="quick-start-code">
+            <code>&lt;div class="rounded-2xl bg-surface p-4 shadow-sm border border-border"&gt;</code><br>
+            <code>  &lt;!-- PropertyCard: 게이지 + 가격 + 출처 태그 --&gt;</code><br>
+            <code>  &lt;CircularGauge score={84} size="card" /&gt;</code><br>
+            <code>  &lt;span class="font-bold tabular-nums"&gt;전세 3.2억&lt;/span&gt;</code><br>
+            <code>  &lt;DataSourceTag source="국토교통부" date="2026.01" /&gt;</code><br>
+            <code>&lt;/div&gt;</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 컴플라이언스 5-Point 체크리스트 ===== -->
+      <div class="demo-card" style="margin-bottom:var(--space-6);">
+        <div class="demo-card-title">컴플라이언스 5-Point 체크리스트 (§5.3)</div>
+        <table class="compliance-table" style="margin-top:var(--space-3);">
+          <thead><tr><th>#</th><th>위치</th><th>톤</th><th>빈도</th><th>구현</th></tr></thead>
+          <tbody>
+            <tr><td>①</td><td>랜딩 하단 (모든 페이지 푸터)</td><td>소프트</td><td>상시</td><td>"본 서비스는 공공데이터 기반 정보 분석 플랫폼입니다"</td></tr>
+            <tr><td>②</td><td>입력 플로우 시작 시 배너</td><td>중립</td><td>1회</td><td>"입력 정보는 분석 목적으로만 사용되며 거래 연결에 사용되지 않습니다"</td></tr>
+            <tr><td>③</td><td>결과 상단 메타 태그</td><td>컨텍스트 내장</td><td>결과 확인 시</td><td>[📊 공공데이터 기반 분석 결과] [기준일 2026.02.01] [참고용 정보]</td></tr>
+            <tr><td>④</td><td>외부 링크 클릭 모달</td><td>명시적</td><td>매 클릭</td><td>"본 서비스는 정보 분석 플랫폼이며 부동산 중개 서비스가 아닙니다"</td></tr>
+            <tr><td>⑤</td><td>이용약관</td><td>법률 문서</td><td>동의 시</td><td>제2조: 서비스 성격 정의 (공인중개사법 제2조 인용)</td></tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:var(--space-6);">
+          <div class="component-label">금지 표현 → 허용 표현 매핑</div>
+          <table class="compliance-table">
+            <thead><tr><th>카테고리</th><th style="color:#DC2626;">금지 표현</th><th style="color:#059669;">허용 표현</th></tr></thead>
+            <tbody>
+              <tr><td>중개</td><td style="text-decoration:line-through;color:#DC2626;">추천 / 알선 / 중개</td><td style="color:#059669;">분석 결과 안내 / 정보 연결 / 정보 분석</td></tr>
+              <tr><td>CTA</td><td style="text-decoration:line-through;color:#DC2626;">매물 문의 / 바로 연결 / 전화하기</td><td style="color:#059669;">외부 매물 보러가기 ↗ / 외부 페이지로 이동</td></tr>
+              <tr><td>금융</td><td style="text-decoration:line-through;color:#DC2626;">대출 가능 보장 / 투자 수익 보장</td><td style="color:#059669;">예상 대출 범위 (참고용) / 과거 실거래가 변동 추이</td></tr>
+              <tr><td>치안</td><td style="text-decoration:line-through;color:#DC2626;">범죄율 높음 / 위험 지역 / 치안 열악</td><td style="color:#059669;">안전 편의시설 현황 / CCTV·가로등 보강 여지</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== 리서치 결정 요약 ===== -->
+      <div class="demo-card" style="margin-bottom:var(--space-6);">
+        <div class="demo-card-title">리서치 결정 요약 (4축 스코어카드)</div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-3);">
+          4개 축 리서치 결과 종합. 가중치 기반 100점 만점 평가. 75점 이상 유지, 15점+ 상회 시 변경.
+        </p>
+        <table class="spec-table">
+          <thead><tr><th>영역</th><th>현재 점수</th><th>판정</th><th>근거</th></tr></thead>
+          <tbody>
+            <tr><td>Primary #0891B2</td><td><strong>86점</strong></td><td><span class="badge badge-sm" style="background:rgba(5,150,105,0.1);color:#059669;">유지</span></td><td>접근성 28/35 + 브랜드 적합 22/25 + 구현비용 0</td></tr>
+            <tr><td>Accent #F97316</td><td><strong>86점</strong></td><td><span class="badge badge-sm" style="background:rgba(5,150,105,0.1);color:#059669;">유지</span></td><td>CTA 주목성 높음 + Safety 충돌 없음</td></tr>
+            <tr><td>Score 5등급</td><td>70→<strong>84점</strong></td><td><span class="badge badge-sm" style="background:rgba(217,119,6,0.1);color:#D97706;">부분 개선</span></td><td>Good-Avg 대비 1.02→1.56:1 교정, 다크 변형 추가</td></tr>
+            <tr><td>Pretendard Variable</td><td><strong>91점</strong></td><td><span class="badge badge-sm" style="background:rgba(5,150,105,0.1);color:#059669;">유지</span></td><td>KRDS 공식 채택 + tnum + Dynamic Subset</td></tr>
+            <tr><td>타입 스케일</td><td>88→<strong>92점</strong></td><td><span class="badge badge-sm" style="background:rgba(217,119,6,0.1);color:#D97706;">부분 개선</span></td><td>Display 32px 추가, Subtitle 18px 고정</td></tr>
+            <tr><td>다크모드</td><td>71→<strong>88점</strong></td><td><span class="badge badge-sm" style="background:rgba(220,38,38,0.1);color:#DC2626;">변경 권장</span></td><td>next-themes 도입 (+17점), OS 자동 감지 + FOUC 방지</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div style="text-align:center; padding:var(--space-8) 0; font-size:11px; color:var(--color-on-surface-muted);">
         SoT: docs/design-system/DESIGN_SYSTEM.md · 토큰: docs/design-system/design-tokens.css
       </div>
 
+      <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>
