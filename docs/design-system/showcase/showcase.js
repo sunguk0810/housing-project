@@ -35,9 +35,24 @@ var NAV_SECTIONS = [
       { label: 'Landing', href: 'page-landing.html' },
       { label: 'Onboarding', href: 'page-onboarding.html' },
       { label: 'Results', href: 'page-results.html' },
+      { label: 'MapDetail', href: 'page-map-detail.html' },
       { label: 'Detail', href: 'page-detail.html' },
       { label: 'Comparison', href: 'page-comparison.html' },
-      { label: 'Legal', href: 'page-legal.html' }
+      { label: 'Board', href: 'page-board.html' },
+      { label: 'MyPage', href: 'page-mypage.html' },
+      { label: 'Guide', href: 'page-guide.html' },
+      { label: 'Auth', href: 'page-auth.html' },
+      { label: 'Legal', href: 'page-legal.html' },
+      { label: 'Privacy', href: 'page-privacy.html' },
+      { label: 'Location', href: 'page-location-terms.html' }
+    ]
+  },
+  {
+    title: 'States',
+    items: [
+      { label: 'Loading', href: 'page-loading.html' },
+      { label: 'Error', href: 'page-error.html' },
+      { label: 'Empty', href: 'page-empty.html' }
     ]
   }
 ];
@@ -46,7 +61,8 @@ var SECTION_LABELS = {
   'Overview': 'Overview',
   'Tokens': '\uD1A0\uD070',
   'Components': '\uCEF4\uD3EC\uB10C\uD2B8',
-  'Pages': '\uD398\uC774\uC9C0'
+  'Pages': '\uD398\uC774\uC9C0',
+  'States': '\uC0C1\uD0DC'
 };
 
 var ITEM_LABELS = {
@@ -63,9 +79,19 @@ var ITEM_LABELS = {
   'Landing': 'Landing (/)',
   'Onboarding': 'Onboarding (/search)',
   'Results': 'Results (/results)',
+  'MapDetail': 'Map Detail (/results)',
   'Detail': 'Detail (/complex/[id])',
   'Comparison': 'Comparison (/compare)',
-  'Legal': 'Legal (/terms)'
+  'Board': 'Board (/board/[id])',
+  'MyPage': 'MyPage (/mypage)',
+  'Guide': 'Guide (/guide)',
+  'Auth': 'Auth (/auth)',
+  'Legal': 'Legal (/terms)',
+  'Privacy': 'Privacy (/privacy)',
+  'Location': 'Location (/location-terms)',
+  'Loading': 'Loading',
+  'Error': 'Error',
+  'Empty': 'Empty States'
 };
 
 /* ---- Sidebar Rendering ---- */
@@ -121,6 +147,15 @@ function updateThemeButton() {
   if (!btn) return;
   var isDark = document.documentElement.classList.contains('dark');
   btn.textContent = isDark ? '\u2600\uFE0F Light' : '\uD83C\uDF19 Dark';
+}
+
+/* ---- Fullscreen Toggle ---- */
+function toggleFullscreen() {
+  document.documentElement.classList.toggle('fullscreen-mode');
+  var btn = document.getElementById('fullscreenBtn');
+  if (!btn) return;
+  var isFs = document.documentElement.classList.contains('fullscreen-mode');
+  btn.textContent = isFs ? '\u2716 \uB2EB\uAE30' : '\u26F6 \uD480\uC2A4\uD06C\uB9B0';
 }
 
 /* ---- Mobile Sidebar Toggle ---- */

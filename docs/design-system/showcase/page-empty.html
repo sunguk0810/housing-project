@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Empty States</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Empty States</h1>
+      <p class="section-desc">빈 상태. 검색 결과 0건, 찜 목록 비어있음, 비교 대상 없음, 알림 없음.</p>
+
+      <div style="display:grid;gap:var(--space-6);">
+        <!-- No Results -->
+        <div class="demo-card">
+          <div class="demo-card-title">검색 결과 없음 <span class="tag">Results</span></div>
+          <div class="phone-frame" style="height:600px;">
+            <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+              <span>9:41</span>
+              <span style="display:flex;gap:4px;">📶 🔋</span>
+            </div>
+            <!-- Header -->
+            <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
+              <span style="font-size:20px;cursor:pointer;">←</span>
+              <span style="font-size:var(--text-body-sm);font-weight:600;flex:1;">분석 결과</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-8) var(--space-4);text-align:center;min-height:350px;">
+              <div style="font-size:64px;margin-bottom:var(--space-4);opacity:0.5;">🔍</div>
+              <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-2);">조건에 맞는 단지가 없습니다</div>
+              <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);line-height:1.6;">
+                검색 조건을 조정하면<br>더 많은 결과를 확인할 수 있어요
+              </div>
+              <button class="btn btn-primary" style="padding:var(--space-3) var(--space-6);">조건 완화하기</button>
+            </div>
+            <div class="phone-bottom-nav">
+              <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+              <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+              <a class="nav-item active"><span class="nav-icon">🗺️</span>지도</a>
+              <a class="nav-item"><span class="nav-icon">📊</span>비교</a>
+              <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty Favorites -->
+        <div class="demo-card">
+          <div class="demo-card-title">찜 목록 비어있음 <span class="tag">Board</span></div>
+          <div class="phone-frame" style="height:600px;">
+            <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+              <span>9:41</span>
+              <span style="display:flex;gap:4px;">📶 🔋</span>
+            </div>
+            <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
+              <span style="font-size:20px;cursor:pointer;">←</span>
+              <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">우리 찜 목록</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-8) var(--space-4);text-align:center;min-height:350px;">
+              <div style="font-size:64px;margin-bottom:var(--space-4);opacity:0.5;">💕</div>
+              <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-2);">아직 저장한 단지가 없어요</div>
+              <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);line-height:1.6;">
+                마음에 드는 단지를 찜하면<br>파트너와 함께 비교할 수 있어요
+              </div>
+              <button class="btn btn-primary" style="padding:var(--space-3) var(--space-6);">탐색 시작하기</button>
+            </div>
+            <div class="phone-bottom-nav">
+              <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+              <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+              <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
+              <a class="nav-item active"><span class="nav-icon">📋</span>보드</a>
+              <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Comparison -->
+        <div class="demo-card">
+          <div class="demo-card-title">비교 대상 없음 <span class="tag">Comparison</span></div>
+          <div class="phone-frame" style="height:600px;">
+            <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+              <span>9:41</span>
+              <span style="display:flex;gap:4px;">📶 🔋</span>
+            </div>
+            <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
+              <span style="font-size:20px;cursor:pointer;">←</span>
+              <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">단지 비교</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-8) var(--space-4);text-align:center;min-height:350px;">
+              <div style="font-size:64px;margin-bottom:var(--space-4);opacity:0.5;">⚖️</div>
+              <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-2);">비교할 단지를 담아보세요</div>
+              <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);line-height:1.6;">
+                분석 결과에서 단지를 선택하면<br>최대 3개까지 비교할 수 있어요
+              </div>
+              <button class="btn btn-primary" style="padding:var(--space-3) var(--space-6);">결과 보러가기</button>
+            </div>
+            <div class="phone-bottom-nav">
+              <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+              <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+              <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
+              <a class="nav-item active"><span class="nav-icon">📊</span>비교</a>
+              <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Notifications -->
+        <div class="demo-card">
+          <div class="demo-card-title">알림 없음 <span class="tag">MyPage</span></div>
+          <div style="max-width:390px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-8) var(--space-4);text-align:center;">
+            <div style="font-size:48px;margin-bottom:var(--space-3);opacity:0.5;">🔔</div>
+            <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-1);">새로운 알림이 없습니다</div>
+            <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">가격 변동이나 새 매물이 나오면 알려드릴게요</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

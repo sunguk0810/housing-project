@@ -6,6 +6,20 @@
   <title>집콕신혼 디자인 시스템 — Onboarding</title>
   <link rel="stylesheet" href="../design-tokens.css">
   <link rel="stylesheet" href="showcase.css">
+  <style>
+    .ob-step { display: none; }
+    .ob-step.active { display: block; }
+    .ob-tab { padding: 6px 14px; border-radius: var(--radius-full); border: 1.5px solid var(--color-border); background: transparent; color: var(--color-on-surface); font-size: 12px; font-family: var(--font-sans); cursor: pointer; white-space: nowrap; transition: all var(--duration-fast) var(--ease-smooth); }
+    .ob-tab.active { background: var(--color-brand-500); color: #FFF; border-color: var(--color-brand-500); }
+    .ob-card { padding: var(--space-4); background: var(--color-surface); border: 1.5px solid var(--color-border); border-radius: var(--radius-xl); cursor: pointer; transition: all var(--duration-fast) var(--ease-smooth); text-align: center; }
+    .ob-card:hover { border-color: var(--color-brand-400); }
+    .ob-card.selected { border-color: var(--color-brand-500); background: var(--color-brand-50); }
+    .ob-quick-btn { padding: 6px 12px; border-radius: var(--radius-full); border: 1px solid var(--color-border); background: var(--color-surface); font-size: 12px; font-family: var(--font-sans); cursor: pointer; }
+    .ob-quick-btn:hover { border-color: var(--color-brand-400); }
+    @keyframes analysisFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .analysis-step { opacity: 0; }
+    .analysis-step.show { animation: analysisFade 0.5s var(--ease-out-expo) forwards; }
+  </style>
 </head>
 <body>
   <div class="showcase-layout">
@@ -19,7 +33,16 @@
     <main class="showcase-content">
 
       <h1 class="section-header">Onboarding (/search)</h1>
-      <p class="section-desc">§4.3 — Step 2/4 상태. 직장 입력 화면 + TrustBadge Mini + Sticky CTA.</p>
+      <p class="section-desc">§4.3 — Step 1~5 전체 온보딩 플로우. 탭으로 각 스텝 전환.</p>
+
+      <!-- Step selector tabs -->
+      <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-4);flex-wrap:wrap;">
+        <button class="ob-tab active" onclick="showObStep(1)">Step 1</button>
+        <button class="ob-tab" onclick="showObStep(2)">Step 2</button>
+        <button class="ob-tab" onclick="showObStep(3)">Step 3</button>
+        <button class="ob-tab" onclick="showObStep(4)">Step 4</button>
+        <button class="ob-tab" onclick="showObStep(5)">Step 5</button>
+      </div>
 
       <div class="phone-frame">
         <!-- Status bar -->
@@ -35,62 +58,288 @@
         </div>
 
         <!-- Progress bar -->
-        <div style="padding:0 var(--space-4);margin-bottom:var(--space-6);">
-          <div style="display:flex;align-items:center;gap:0;margin-bottom:var(--space-2);">
-            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-brand-500);color:#FFF;font-size:11px;font-weight:700;">✓</div>
-            <div style="flex:1;height:2px;background:var(--color-brand-500);"></div>
-            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-brand-500);color:#FFF;font-size:11px;font-weight:700;">2</div>
-            <div style="flex:1;height:2px;background:var(--color-neutral-200);"></div>
-            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-neutral-200);color:var(--color-on-surface-muted);font-size:11px;">3</div>
-            <div style="flex:1;height:2px;background:var(--color-neutral-200);"></div>
-            <div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--color-neutral-200);color:var(--color-on-surface-muted);font-size:11px;">4</div>
-          </div>
-          <div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;">Step 2 of 4 · 출퇴근 정보</div>
+        <div id="obProgress" style="padding:0 var(--space-4);margin-bottom:var(--space-6);">
+          <!-- JS fills this -->
         </div>
 
-        <!-- Content -->
-        <div style="padding:0 var(--space-4);flex:1;">
-          <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">
-            직장 주소를 입력해주세요
-          </div>
-          <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">
-            대중교통 통근 시간을 분석합니다
-          </div>
+        <!-- ===== Step 1: 주거형태 + 자녀계획 ===== -->
+        <div class="ob-step active" id="obStep1">
+          <div style="padding:0 var(--space-4);flex:1;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">어떤 형태를 찾고 계세요?</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">선호하는 주거 형태를 선택해주세요</div>
 
-          <!-- Input 1 -->
-          <div style="margin-bottom:var(--space-4);">
-            <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 1 (필수)</div>
-            <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
-              <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);">🔍</span>
-              <span style="font-size:var(--text-body);color:var(--color-on-surface);">삼성역</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-6);">
+              <div class="ob-card selected">
+                <div style="font-size:28px;margin-bottom:var(--space-2);">🏠</div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">매매</div>
+              </div>
+              <div class="ob-card">
+                <div style="font-size:28px;margin-bottom:var(--space-2);">🏢</div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">전세</div>
+              </div>
+              <div class="ob-card">
+                <div style="font-size:28px;margin-bottom:var(--space-2);">🏨</div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">월세</div>
+              </div>
+            </div>
+
+            <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-3);">자녀 계획</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-6);">
+              <div class="ob-card">
+                <div style="font-size:var(--text-body-sm);font-weight:600;">계획 없음</div>
+              </div>
+              <div class="ob-card selected">
+                <div style="font-size:var(--text-body-sm);font-weight:600;">1~2년 내</div>
+              </div>
+              <div class="ob-card">
+                <div style="font-size:var(--text-body-sm);font-weight:600;">이미 있음</div>
+              </div>
+            </div>
+
+            <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
+              🔒 입력 정보는 분석 후 즉시 삭제됩니다
             </div>
           </div>
-
-          <!-- Input 2 -->
-          <div style="margin-bottom:var(--space-6);">
-            <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 2 (선택)</div>
-            <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
-              <span style="margin-right:var(--space-2);color:var(--color-neutral-300);">🔍</span>
-              <span style="font-size:var(--text-body);color:var(--color-neutral-400);">두 번째 직장은 선택사항입니다</span>
-            </div>
-          </div>
-
-          <!-- Trust badge mini -->
-          <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;margin-bottom:var(--space-6);">
-            🔒 입력 정보는 분석 후 즉시 삭제됩니다
+          <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
+            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">다음</button>
           </div>
         </div>
 
-        <!-- Sticky CTA -->
-        <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
-          <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">
-            다음
-          </button>
+        <!-- ===== Step 2: 직장 주소 입력 ===== -->
+        <div class="ob-step" id="obStep2">
+          <div style="padding:0 var(--space-4);flex:1;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">직장 주소를 입력해주세요</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">대중교통 통근 시간을 분석합니다</div>
+
+            <div style="margin-bottom:var(--space-4);">
+              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 1 (필수)</div>
+              <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+                <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);">🔍</span>
+                <span style="font-size:var(--text-body);color:var(--color-on-surface);">삼성역</span>
+              </div>
+            </div>
+
+            <div style="margin-bottom:var(--space-6);">
+              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 2 (선택)</div>
+              <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+                <span style="margin-right:var(--space-2);color:var(--color-neutral-300);">🔍</span>
+                <span style="font-size:var(--text-body);color:var(--color-neutral-400);">두 번째 직장은 선택사항입니다</span>
+              </div>
+            </div>
+
+            <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
+              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+            </div>
+          </div>
+          <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
+            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">다음</button>
+          </div>
+        </div>
+
+        <!-- ===== Step 3: 합산 연봉 + 보유 현금 ===== -->
+        <div class="ob-step" id="obStep3">
+          <div style="padding:0 var(--space-4);flex:1;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">예산 정보를 알려주세요</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">적정 예산 범위를 분석합니다</div>
+
+            <div style="margin-bottom:var(--space-5);">
+              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">부부 합산 연봉</div>
+              <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+                <span style="font-size:var(--text-body);font-weight:600;color:var(--color-on-surface);">7,000</span>
+                <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-left:auto;">만원</span>
+              </div>
+              <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
+                <button class="ob-quick-btn">5,000만</button>
+                <button class="ob-quick-btn">7,000만</button>
+                <button class="ob-quick-btn">1억</button>
+                <button class="ob-quick-btn">1.5억</button>
+              </div>
+            </div>
+
+            <div style="margin-bottom:var(--space-6);">
+              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">보유 현금 (자기자본)</div>
+              <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+                <span style="font-size:var(--text-body);font-weight:600;color:var(--color-on-surface);">15,000</span>
+                <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-left:auto;">만원</span>
+              </div>
+              <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
+                <button class="ob-quick-btn">5,000만</button>
+                <button class="ob-quick-btn">1억</button>
+                <button class="ob-quick-btn">1.5억</button>
+                <button class="ob-quick-btn">2억</button>
+              </div>
+            </div>
+
+            <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
+              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+            </div>
+          </div>
+          <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
+            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;">다음</button>
+          </div>
+        </div>
+
+        <!-- ===== Step 4: 기존 대출 + 월 주거비 ===== -->
+        <div class="ob-step" id="obStep4">
+          <div style="padding:0 var(--space-4);flex:1;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">현재 대출이 있으신가요?</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-6);">DSR 한도를 분석합니다 (없으면 0 입력)</div>
+
+            <div style="margin-bottom:var(--space-5);">
+              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">기존 대출 잔액</div>
+              <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+                <span style="font-size:var(--text-body);font-weight:600;color:var(--color-on-surface);">3,000</span>
+                <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-left:auto;">만원</span>
+              </div>
+              <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
+                <button class="ob-quick-btn">없음</button>
+                <button class="ob-quick-btn">3,000만</button>
+                <button class="ob-quick-btn">5,000만</button>
+                <button class="ob-quick-btn">1억</button>
+              </div>
+            </div>
+
+            <div style="margin-bottom:var(--space-6);">
+              <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">희망 월 주거비 상한</div>
+              <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
+                <span style="font-size:var(--text-body);font-weight:600;color:var(--color-on-surface);">120</span>
+                <span style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-left:auto;">만원/월</span>
+              </div>
+              <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
+                <button class="ob-quick-btn">80만</button>
+                <button class="ob-quick-btn">100만</button>
+                <button class="ob-quick-btn">120만</button>
+                <button class="ob-quick-btn">150만</button>
+              </div>
+            </div>
+
+            <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
+              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+            </div>
+          </div>
+          <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
+            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;" onclick="showObStep(5)">분석 시작</button>
+          </div>
+        </div>
+
+        <!-- ===== Step 5: 분석 중 시퀀스 ===== -->
+        <div class="ob-step" id="obStep5">
+          <div style="padding:var(--space-8) var(--space-4);text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:500px;">
+            <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);margin-bottom:var(--space-2);">분석 중입니다</div>
+            <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-8);">입력하신 조건으로 최적의 단지를 찾고 있어요</div>
+
+            <div style="display:flex;flex-direction:column;gap:var(--space-5);text-align:left;width:100%;max-width:280px;">
+              <div class="analysis-step" id="aStep1" style="display:flex;align-items:center;gap:var(--space-3);">
+                <span style="font-size:24px;">💰</span>
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">예산 범위 분석</div>
+                  <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">DSR, 자기자본 기반 한도 계산</div>
+                </div>
+              </div>
+              <div class="analysis-step" id="aStep2" style="display:flex;align-items:center;gap:var(--space-3);">
+                <span style="font-size:24px;">🚇</span>
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">통근 경로 분석</div>
+                  <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">대중교통 최적 경로 탐색</div>
+                </div>
+              </div>
+              <div class="analysis-step" id="aStep3" style="display:flex;align-items:center;gap:var(--space-3);">
+                <span style="font-size:24px;">🛡️</span>
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">생활 환경 평가</div>
+                  <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">보육 / 안전 시설 반경 분석</div>
+                </div>
+              </div>
+              <div class="analysis-step" id="aStep4" style="display:flex;align-items:center;gap:var(--space-3);">
+                <span style="font-size:24px;">✨</span>
+                <div>
+                  <div style="font-size:var(--text-body-sm);font-weight:600;">종합 점수 산출</div>
+                  <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">4개 카테고리 가중 평균</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:var(--space-8);">
+              <div style="width:200px;height:4px;background:var(--color-neutral-200);border-radius:var(--radius-full);overflow:hidden;">
+                <div id="analysisBar" style="width:0%;height:100%;background:var(--color-brand-500);border-radius:var(--radius-full);transition:width 0.5s var(--ease-out-expo);"></div>
+              </div>
+              <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);margin-top:var(--space-2);" id="analysisPercent">0%</div>
+            </div>
+          </div>
         </div>
       </div>
 
     </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
   </div>
   <script src="showcase.js"></script>
+  <script>
+    var currentObStep = 1;
+
+    function showObStep(step) {
+      currentObStep = step;
+      for (var i = 1; i <= 5; i++) {
+        var el = document.getElementById('obStep' + i);
+        if (el) el.classList.toggle('active', i === step);
+      }
+      // Update tabs
+      var tabs = document.querySelectorAll('.ob-tab');
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.toggle('active', j === step - 1);
+      }
+      updateProgress(step);
+
+      // If step 5, start analysis animation
+      if (step === 5) startAnalysisSequence();
+    }
+
+    function updateProgress(step) {
+      var html = '<div style="display:flex;align-items:center;gap:0;margin-bottom:var(--space-2);">';
+      for (var i = 1; i <= 4; i++) {
+        var bg, color, text;
+        if (i < step || step === 5) { bg = 'var(--color-brand-500)'; color = '#FFF'; text = '✓'; }
+        else if (i === step) { bg = 'var(--color-brand-500)'; color = '#FFF'; text = i; }
+        else { bg = 'var(--color-neutral-200)'; color = 'var(--color-on-surface-muted)'; text = i; }
+        html += '<div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:' + bg + ';color:' + color + ';font-size:11px;font-weight:700;">' + text + '</div>';
+        if (i < 4) {
+          var lineBg = (i < step || step === 5) ? 'var(--color-brand-500)' : 'var(--color-neutral-200)';
+          html += '<div style="flex:1;height:2px;background:' + lineBg + ';"></div>';
+        }
+      }
+      html += '</div>';
+      var stepLabel = step <= 4 ? 'Step ' + step + ' of 4' : '분석 중...';
+      var stepNames = ['', '주거 형태', '출퇴근 정보', '예산 정보', '대출 정보', '분석 중'];
+      html += '<div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;">' + stepLabel + ' \xB7 ' + stepNames[step] + '</div>';
+      document.getElementById('obProgress').innerHTML = html;
+    }
+
+    function startAnalysisSequence() {
+      var steps = ['aStep1', 'aStep2', 'aStep3', 'aStep4'];
+      var bar = document.getElementById('analysisBar');
+      var pct = document.getElementById('analysisPercent');
+      // Reset
+      for (var i = 0; i < steps.length; i++) {
+        document.getElementById(steps[i]).classList.remove('show');
+      }
+      if (bar) bar.style.width = '0%';
+      if (pct) pct.textContent = '0%';
+
+      var percents = [25, 50, 75, 100];
+      for (var j = 0; j < steps.length; j++) {
+        (function(idx) {
+          setTimeout(function() {
+            document.getElementById(steps[idx]).classList.add('show');
+            if (bar) bar.style.width = percents[idx] + '%';
+            if (pct) pct.textContent = percents[idx] + '%';
+          }, (idx + 1) * 800);
+        })(j);
+      }
+    }
+
+    // Initial progress render
+    document.addEventListener('DOMContentLoaded', function() {
+      updateProgress(1);
+    });
+  </script>
 </body>
 </html>

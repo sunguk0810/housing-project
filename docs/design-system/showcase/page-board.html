@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Board</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+  <style>
+    .board-tab { padding: 6px 14px; border-radius: var(--radius-full); border: 1.5px solid var(--color-border); background: transparent; color: var(--color-on-surface); font-size: 12px; font-family: var(--font-sans); cursor: pointer; white-space: nowrap; }
+    .board-tab.active { background: var(--color-brand-500); color: #FFF; border-color: var(--color-brand-500); }
+  </style>
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Board (/board/[id])</h1>
+      <p class="section-desc">§4.3 — 커플 공유 보드. 찜 목록, 둘 다 찜/한 명만 찜 매칭.</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span style="display:flex;gap:4px;">📶 🔋</span>
+        </div>
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);">
+          <span style="font-size:20px;cursor:pointer;">←</span>
+          <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">우리 찜 목록</span>
+          <div style="display:flex;">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--color-brand-100);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-surface);">👩</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--color-accent-light,#FFE0B2);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-surface);margin-left:-8px;">👨</div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div style="padding:var(--space-2) var(--space-4);display:flex;gap:var(--space-2);overflow-x:auto;">
+          <button class="board-tab active">전체 (3)</button>
+          <button class="board-tab">💕 둘 다 찜 (1)</button>
+          <button class="board-tab">🙋‍♀️ 나만 (1)</button>
+          <button class="board-tab">🙋‍♂️ 상대방 (1)</button>
+        </div>
+
+        <!-- Cards -->
+        <div style="padding:var(--space-3) var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);">
+          <!-- Card 1: Both liked -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:4px;">
+                  <span style="font-size:15px;font-weight:700;">래미안 위브 하남</span>
+                  <span style="font-size:14px;">💕</span>
+                </div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">경기도 하남시 미사동 · 84㎡</div>
+              </div>
+              <div class="gauge-wrapper" style="width:40px;height:40px;">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#1565C0" stroke-dasharray="100.53" style="--gauge-offset:16.08;--gauge-circumference:100.53;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:12px;">84</span>
+              </div>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-top:var(--space-2);font-variant-numeric:tabular-nums;">전세 3억 2,000만</div>
+            <!-- Comment preview -->
+            <div style="margin-top:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--color-neutral-100);border-radius:var(--radius-md);font-size:11px;color:var(--color-on-surface-muted);">
+              👩 "통근 시간이 괜찮은 것 같아!"
+            </div>
+          </div>
+
+          <!-- Card 2: Only me -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:4px;">
+                  <span style="font-size:15px;font-weight:700;">힐스테이트 미사역</span>
+                  <span style="font-size:14px;">🙋‍♀️</span>
+                </div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">경기도 하남시 미사동 · 59㎡</div>
+              </div>
+              <div class="gauge-wrapper" style="width:40px;height:40px;">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#2196F3" stroke-dasharray="100.53" style="--gauge-offset:25.13;--gauge-circumference:100.53;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:12px;">75</span>
+              </div>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-top:var(--space-2);font-variant-numeric:tabular-nums;">전세 2억 5,000만</div>
+          </div>
+
+          <!-- Card 3: Partner only -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:4px;">
+                  <span style="font-size:15px;font-weight:700;">더샵 하남풀을</span>
+                  <span style="font-size:14px;">🙋‍♂️</span>
+                </div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);">경기도 하남시 풍산동 · 74㎡</div>
+              </div>
+              <div class="gauge-wrapper" style="width:40px;height:40px;">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
+                  <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#2196F3" stroke-dasharray="100.53" style="--gauge-offset:30.16;--gauge-circumference:100.53;" data-animate/>
+                </svg>
+                <span class="gauge-text" style="font-size:12px;">70</span>
+              </div>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-top:var(--space-2);font-variant-numeric:tabular-nums;">전세 3억 5,000만</div>
+            <div style="margin-top:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--color-neutral-100);border-radius:var(--radius-md);font-size:11px;color:var(--color-on-surface-muted);">
+              👨 "새 아파트라 마감이 좋더라"
+            </div>
+          </div>
+        </div>
+
+        <div style="height:20px;"></div>
+
+        <!-- Bottom Nav -->
+        <div class="phone-bottom-nav">
+          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
+          <a class="nav-item active"><span class="nav-icon">📋</span>보드</a>
+          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+        </div>
+      </div>
+
+    </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

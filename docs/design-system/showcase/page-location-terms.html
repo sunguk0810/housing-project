@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>집콕신혼 디자인 시스템 — Legal</title>
+  <title>집콕신혼 디자인 시스템 — Location Terms</title>
   <link rel="stylesheet" href="../design-tokens.css">
   <link rel="stylesheet" href="showcase.css">
 </head>
@@ -18,60 +18,78 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <main class="showcase-content">
 
-      <h1 class="section-header">Legal (/terms, /privacy, /location-terms)</h1>
-      <p class="section-desc">§4.3 — 정적 약관 문서. 제2조 서비스 성격 정의 예시 포함.</p>
+      <h1 class="section-header">Location Terms (/location-terms)</h1>
+      <p class="section-desc">§4.3 — 위치정보 이용약관.</p>
 
       <div class="phone-frame">
         <!-- Status bar -->
         <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
           <span>9:41</span>
-          <span>📶 🔋</span>
+          <span style="display:flex;gap:4px;">📶 🔋</span>
         </div>
 
         <!-- Header -->
         <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
           <span style="font-size:20px;cursor:pointer;">←</span>
-          <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">이용약관</span>
+          <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">위치정보 이용약관</span>
         </div>
 
         <!-- Content -->
         <div style="padding:var(--space-4);font-size:var(--text-body-sm);line-height:1.8;color:var(--color-on-surface);">
-          <div style="font-size:var(--text-title);font-weight:700;margin-bottom:var(--space-4);">이용약관</div>
+          <div style="font-size:var(--text-title);font-weight:700;margin-bottom:var(--space-4);">위치정보 이용약관</div>
 
           <div style="font-weight:600;margin-bottom:var(--space-2);">제1조 (목적)</div>
           <p style="margin-bottom:var(--space-4);color:var(--color-on-surface-muted);">
-            이 약관은 집콕신혼(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임 사항을 규정함을 목적으로 합니다.
+            이 약관은 집콕신혼(이하 "서비스")이 위치정보의 보호 및 이용 등에 관한 법률에 따라 위치기반 서비스를 제공할 때 이용자의 권리와 의무를 규정함을 목적으로 합니다.
           </p>
 
-          <div style="font-weight:600;margin-bottom:var(--space-2);">제2조 (서비스의 성격)</div>
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제2조 (수집 목적)</div>
           <div style="padding:var(--space-3);background:var(--color-brand-50);border-left:3px solid var(--color-brand-500);border-radius:0 var(--radius-md) var(--radius-md) 0;margin-bottom:var(--space-4);">
             <p style="color:var(--color-on-surface);">
-              ① 본 서비스는 <strong>공공데이터 기반 정보 분석 플랫폼</strong>으로서, 「공인중개사법」 제2조에 따른 중개업·중개행위를 하지 않습니다.
-            </p>
-            <p style="color:var(--color-on-surface);margin-top:var(--space-2);">
-              ② 서비스에서 제공하는 분석 결과, 점수, 순위 등은 <strong>참고용 정보</strong>이며, 부동산 거래에 관한 최종 의사결정의 근거로 사용될 수 없습니다.
-            </p>
-            <p style="color:var(--color-on-surface);margin-top:var(--space-2);">
-              ③ 서비스는 부동산 <strong>알선, 자문, 감정평가</strong>를 하지 않으며, 이용자와 제3자 간의 거래에 관여하지 않습니다.
+              ① 직장 주소 기반 <strong>통근 시간 분석</strong>을 위한 경로 탐색<br>
+              ② 지도 기반 <strong>주변 편의시설 탐색</strong> (보육 / 안전)<br>
+              ③ 위치 기반 <strong>실거래가 매핑</strong>
             </p>
           </div>
 
-          <div style="font-weight:600;margin-bottom:var(--space-2);">제3조 (개인정보 처리)</div>
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제3조 (이용 범위)</div>
           <p style="margin-bottom:var(--space-4);color:var(--color-on-surface-muted);">
-            이용자가 입력한 소득, 자산, 직장 주소 등의 정보는 분석 목적으로만 사용되며, 세션 종료 시 즉시 삭제됩니다. 서버에 영구 저장되지 않습니다.
+            위치정보는 서비스 내 분석 기능에서만 사용되며, 마케팅, 광고, 제3자 제공 목적으로 사용되지 않습니다.
           </p>
 
-          <div style="font-weight:600;margin-bottom:var(--space-2);">제4조 (데이터 출처)</div>
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제4조 (제3자 제공)</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:var(--space-4);">
+            <thead>
+              <tr style="border-bottom:2px solid var(--color-border);">
+                <th style="text-align:left;padding:8px 6px;">제공받는 자</th>
+                <th style="text-align:left;padding:8px 6px;">목적</th>
+                <th style="text-align:left;padding:8px 6px;">항목</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--color-border);">
+                <td style="padding:8px 6px;color:var(--color-on-surface-muted);">ODsay Lab</td>
+                <td style="padding:8px 6px;">대중교통 경로 탐색</td>
+                <td style="padding:8px 6px;">출발/도착 좌표</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 6px;color:var(--color-on-surface-muted);">카카오맵 API</td>
+                <td style="padding:8px 6px;">지도 렌더링</td>
+                <td style="padding:8px 6px;">지도 중심 좌표</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-weight:600;margin-bottom:var(--space-2);">제5조 (보유 및 파기)</div>
           <p style="margin-bottom:var(--space-4);color:var(--color-on-surface-muted);">
-            분석에 사용되는 데이터는 국토교통부, 행정안전부, 사회보장정보원 등 공공기관의 공개 데이터 및 정식 API를 통해 수집됩니다.
+            위치정보는 세션 내에서만 일시적으로 사용되며, 서버에 영구 저장하지 않습니다. 분석 완료 후 즉시 메모리에서 삭제됩니다.
           </p>
 
-          <!-- Document links -->
           <div style="border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4);">
             <div style="font-weight:600;margin-bottom:var(--space-3);">관련 문서</div>
             <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+              <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">이용약관 →</a>
               <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">개인정보처리방침 →</a>
-              <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">위치정보 이용약관 →</a>
             </div>
           </div>
         </div>
