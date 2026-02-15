@@ -48,40 +48,56 @@
           </div>
         </div>
 
-        <!-- Score Bars -->
+        <!-- Score Bars with ⓘ Accordion -->
         <div style="padding:var(--space-6) var(--space-4);">
           <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-4);">카테고리별 분석</div>
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                <span>💰 예산 적합도</span><span style="font-weight:600;color:#1565C0;">92</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px;">
+                <span style="display:flex;align-items:center;gap:4px;">💰 예산 적합도 <span class="tooltip-trigger" onclick="toggleFactorAccordion('dtlBudget')" style="cursor:pointer;width:16px;height:16px;font-size:10px;">ⓘ</span></span>
+                <span style="font-weight:600;color:#1565C0;">92</span>
               </div>
               <div class="score-bar-track">
                 <div class="score-bar-fill" style="background:#1565C0;width:92%;"></div>
               </div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                <span>🚇 통근 편의</span><span style="font-weight:600;color:#42A5F5;">76</span>
-              </div>
-              <div class="score-bar-track">
-                <div class="score-bar-fill" style="background:#42A5F5;width:76%;"></div>
-              </div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                <span>👶 보육 환경</span><span style="font-weight:600;color:#42A5F5;">68</span>
-              </div>
-              <div class="score-bar-track">
-                <div class="score-bar-fill" style="background:#42A5F5;width:68%;"></div>
+              <div class="factor-accordion" id="dtlBudget">
+                <div class="factor-accordion-inner">
+                  <span class="factor-chip positive">PIR +15</span>
+                  <span class="factor-chip negative">DTI -8</span>
+                  <span class="factor-chip positive">현금 +12</span>
+                </div>
               </div>
             </div>
             <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                <span>🛡️ 안전 편의시설</span><span style="font-weight:600;color:#90A4AE;">55</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px;">
+                <span style="display:flex;align-items:center;gap:4px;">🚇 통근 편의 <span class="tooltip-trigger" onclick="toggleFactorAccordion('dtlCommute')" style="cursor:pointer;width:16px;height:16px;font-size:10px;">ⓘ</span></span>
+                <span style="font-weight:600;color:#2196F3;">76</span>
               </div>
               <div class="score-bar-track">
-                <div class="score-bar-fill" style="background:#90A4AE;width:55%;"></div>
+                <div class="score-bar-fill" style="background:#2196F3;width:76%;"></div>
+              </div>
+              <div class="factor-accordion" id="dtlCommute">
+                <div class="factor-accordion-inner">
+                  <span class="factor-chip positive">직장1 42분 +18</span>
+                  <span class="factor-chip negative">직장2 58분 -12</span>
+                  <span class="factor-chip positive">환승 1회 +6</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                <span>👶 보육 환경</span><span style="font-weight:600;color:#2196F3;">68</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="background:#2196F3;width:68%;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                <span>🛡️ 안전 편의시설</span><span style="font-weight:600;color:#B0BEC5;">55</span>
+              </div>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="background:#B0BEC5;width:55%;"></div>
               </div>
             </div>
           </div>
@@ -120,21 +136,55 @@
           </div>
         </div>
 
-        <!-- Safety Section -->
+        <!-- Childcare Grid -->
+        <div style="padding:0 var(--space-4) var(--space-6);border-top:1px solid var(--color-border);padding-top:var(--space-4);">
+          <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-3);">보육 환경</div>
+          <div class="childcare-grid">
+            <div class="childcare-item">
+              <div class="icon">🏫</div>
+              <div class="count">8</div>
+              <div class="label">어린이집</div>
+            </div>
+            <div class="childcare-item">
+              <div class="icon">🎒</div>
+              <div class="count">3</div>
+              <div class="label">유치원</div>
+            </div>
+            <div class="childcare-item">
+              <div class="icon">🏥</div>
+              <div class="count">5</div>
+              <div class="label">소아과</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-2);">반경 1km 이내 시설 수</div>
+          <div style="margin-top:var(--space-2);">
+            <span class="source-tag">🏫 사회보장정보원 보육시설 2025.12</span>
+          </div>
+        </div>
+
+        <!-- Safety Section with Progress Bars -->
         <div style="padding:0 var(--space-4) var(--space-6);border-top:1px solid var(--color-border);padding-top:var(--space-4);">
           <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-3);">안전 편의시설 현황</div>
-          <div style="display:flex;flex-direction:column;gap:var(--space-2);font-size:13px;">
-            <div style="display:flex;justify-content:space-between;">
-              <span>CCTV 밀집도</span>
-              <span style="color:#4CAF50;font-weight:600;">서울시 평균 대비 상위</span>
+          <div style="margin-bottom:var(--space-3);">
+            <div class="safety-bar-row">
+              <span class="safety-bar-label">CCTV</span>
+              <div class="safety-bar-track"><div class="safety-bar-fill" style="width:82%;background:#1976D2;"></div></div>
+              <span class="safety-bar-value" style="color:#1976D2;">상위</span>
             </div>
-            <div style="display:flex;justify-content:space-between;">
-              <span>가로등</span>
-              <span style="color:#FF9800;font-weight:600;">보통 수준</span>
+            <div class="safety-bar-row">
+              <span class="safety-bar-label">가로등</span>
+              <div class="safety-bar-track"><div class="safety-bar-fill" style="width:55%;background:#FFC107;"></div></div>
+              <span class="safety-bar-value" style="color:#FFC107;">보통</span>
             </div>
-            <div style="display:flex;justify-content:space-between;">
-              <span>경찰서 거리</span>
-              <span style="color:#9E9E9E;font-weight:600;">다소 먼 편</span>
+            <div class="safety-bar-row">
+              <span class="safety-bar-label">경찰서</span>
+              <div class="safety-bar-track"><div class="safety-bar-fill" style="width:35%;background:#757575;"></div></div>
+              <span class="safety-bar-value" style="color:#757575;">먼 편</span>
+            </div>
+            <div class="safety-bar-row">
+              <span class="safety-bar-label">비상벨</span>
+              <div class="safety-bar-track"><div class="safety-bar-fill" style="width:78%;background:#1976D2;"></div></div>
+              <span class="safety-bar-value" style="color:#1976D2;">상위</span>
             </div>
           </div>
           <div style="margin-top:var(--space-2);">
@@ -142,9 +192,9 @@
           </div>
         </div>
 
-        <!-- External CTA -->
+        <!-- External CTA with Modal -->
         <div style="padding:0 var(--space-4) var(--space-6);">
-          <button class="btn btn-outline" style="width:100%;padding:var(--space-3);">
+          <button class="btn btn-outline" onclick="openModal('detailExternalModal')" style="width:100%;padding:var(--space-3);">
             외부 매물 보러가기 ↗ <span style="color:var(--color-on-surface-muted);font-weight:400;">네이버 부동산</span>
           </button>
           <div style="font-size:11px;color:var(--color-on-surface-muted);text-align:center;margin-top:var(--space-2);">
@@ -152,10 +202,42 @@
           </div>
         </div>
 
-        <div style="height:20px;"></div>
+        <!-- Disclaimer -->
+        <div style="padding:0 var(--space-4) var(--space-6);">
+          <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.6;padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-md);text-align:center;">
+            본 서비스는 공공데이터 기반 정보 분석 플랫폼이며 부동산 중개 서비스가 아닙니다.
+            분석 결과는 참고용이며 실제 거래를 보장하지 않습니다.
+          </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="phone-bottom-nav">
+          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+          <a class="nav-item active"><span class="nav-icon">🗺️</span>지도</a>
+          <a class="nav-item"><span class="nav-icon">📊</span>비교</a>
+          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
+        </div>
       </div>
 
+    <!-- External Link Modal -->
+    <div class="modal-overlay" id="detailExternalModal">
+      <div class="modal-card">
+        <h3>외부 사이트로 이동</h3>
+        <p>
+          <strong>네이버 부동산</strong>으로 이동합니다.<br><br>
+          매물 정보는 해당 외부 사이트에서 제공하며, 본 서비스는 정보 분석 플랫폼이며 부동산 중개 서비스가 아닙니다.<br><br>
+          매물 정보의 정확성은 해당 외부 사이트에서 확인해주세요.
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="closeModal('detailExternalModal')">취소</button>
+          <button class="btn btn-primary" onclick="closeModal('detailExternalModal')">확인 후 이동</button>
+        </div>
+      </div>
+    </div>
+
     </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
   </div>
   <script src="showcase.js"></script>
 </body>

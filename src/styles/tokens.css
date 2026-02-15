@@ -16,8 +16,8 @@
   --color-brand-800: #164e63;
   --color-brand-900: #0c4a6e;
 
-  --color-s7-accent: #f97316;
-  --color-s7-accent-dark: #c2410c;
+  --color-accent: #f97316;
+  --color-accent-dark: #c2410c;
 
   --color-neutral-50: #fafaf9;
   --color-neutral-100: #f5f5f4;
@@ -34,19 +34,62 @@
   --color-warning: #d97706;
   --color-error: #dc2626;
 
+  /* Score 5-Grade: Excellent */
   --color-score-excellent: #1565c0;
-  --color-score-good: #42a5f5;
-  --color-score-average: #90a4ae;
-  --color-score-below: #ff8a65;
-  --color-score-poor: #d84315;
+  --color-score-excellent-subtle: #e3f2fd;
+  --color-score-excellent-border: #1976d2;
+  --color-score-excellent-fg: #0d47a1;
 
-  --color-safety-sufficient: #4caf50;
-  --color-safety-moderate: #ff9800;
-  --color-safety-lacking: #9e9e9e;
+  /* Score 5-Grade: Good */
+  --color-score-good: #2196f3;
+  --color-score-good-subtle: #e3f2fd;
+  --color-score-good-border: #42a5f5;
+  --color-score-good-fg: #1565c0;
+
+  /* Score 5-Grade: Average */
+  --color-score-average: #b0bec5;
+  --color-score-average-subtle: #eceff1;
+  --color-score-average-border: #90a4ae;
+  --color-score-average-fg: #546e7a;
+
+  /* Score 5-Grade: Below */
+  --color-score-below: #ef6c00;
+  --color-score-below-subtle: #fff3e0;
+  --color-score-below-border: #ff9800;
+  --color-score-below-fg: #9a3412;
+
+  /* Score 5-Grade: Poor */
+  --color-score-poor: #d84315;
+  --color-score-poor-subtle: #fbe9e7;
+  --color-score-poor-border: #ff5722;
+  --color-score-poor-fg: #bf360c;
+
+  /* Safety: Sufficient (Blue) */
+  --color-safety-sufficient: #1976d2;
+  --color-safety-sufficient-subtle: #e3f2fd;
+  --color-safety-sufficient-border: #2196f3;
+  --color-safety-sufficient-fg: #0d47a1;
+
+  /* Safety: Moderate (Amber) */
+  --color-safety-moderate: #ffc107;
+  --color-safety-moderate-subtle: #fff8e1;
+  --color-safety-moderate-border: #ffd54f;
+  --color-safety-moderate-fg: #8d6e00;
+
+  /* Safety: Lacking (Gray) */
+  --color-safety-lacking: #757575;
+  --color-safety-lacking-subtle: #f5f5f5;
+  --color-safety-lacking-border: #9e9e9e;
+  --color-safety-lacking-fg: #424242;
 
   --color-compare-1: #0891b2;
   --color-compare-2: #f97316;
   --color-compare-3: #8b5cf6;
+
+  --text-display: 2rem;
+  --text-display-lh: 1.25;
+  --text-display-weight: 700;
+  --text-display-ls: -0.04em;
 
   --text-caption: 0.75rem;
   --text-caption-lh: 1.4;
@@ -63,7 +106,7 @@
   --text-body-weight: 400;
   --text-body-ls: -0.02em;
 
-  --text-subtitle: 1.0625rem;
+  --text-subtitle: 1.125rem;
   --text-subtitle-lh: 1.4;
   --text-subtitle-weight: 600;
   --text-subtitle-ls: -0.02em;
@@ -114,19 +157,65 @@
 
   --color-surface: #ffffff;
   --color-surface-elevated: #fafaf9;
+  --color-surface-sunken: #f5f5f4;
   --color-on-surface: #1c1917;
   --color-on-surface-muted: #78716c;
-  --color-s7-border: #e7e5e4;
-  --color-s7-primary: var(--color-brand-500);
-  --color-on-s7-primary: #ffffff;
+  --color-border: #e7e5e4;
+  --color-primary: var(--color-brand-500);
+  --color-primary-hover: #0e7490;
+  --color-on-primary: #ffffff;
 }
 
 .dark {
   --color-surface: #0f172a;
   --color-surface-elevated: #1e293b;
+  --color-surface-sunken: #0c1222;
   --color-on-surface: #f1f5f9;
   --color-on-surface-muted: #94a3b8;
-  --color-s7-border: #334155;
-  --color-s7-primary: var(--color-brand-400);
-  --color-on-s7-primary: #0f172a;
+  --color-border: #334155;
+  --color-primary: var(--color-brand-400);
+  --color-primary-hover: #22d3ee;
+  --color-on-primary: #0f172a;
+
+  /* Score dark variants */
+  --color-score-excellent: #42a5f5;
+  --color-score-excellent-subtle: #1a237e;
+  --color-score-excellent-border: #1976d2;
+  --color-score-excellent-fg: #90caf9;
+
+  --color-score-good: #64b5f6;
+  --color-score-good-subtle: #1a237e;
+  --color-score-good-border: #2196f3;
+  --color-score-good-fg: #bbdefb;
+
+  --color-score-average: #b0bec5;
+  --color-score-average-subtle: #263238;
+  --color-score-average-border: #78909c;
+  --color-score-average-fg: #cfd8dc;
+
+  --color-score-below: #ffb74d;
+  --color-score-below-subtle: #3e2723;
+  --color-score-below-border: #ff9800;
+  --color-score-below-fg: #ffe0b2;
+
+  --color-score-poor: #ff8a65;
+  --color-score-poor-subtle: #3e2723;
+  --color-score-poor-border: #e64a19;
+  --color-score-poor-fg: #ffccbc;
+
+  /* Safety dark variants */
+  --color-safety-sufficient: #42a5f5;
+  --color-safety-sufficient-subtle: #0d47a1;
+  --color-safety-sufficient-border: #1976d2;
+  --color-safety-sufficient-fg: #90caf9;
+
+  --color-safety-moderate: #ffd54f;
+  --color-safety-moderate-subtle: #4e342e;
+  --color-safety-moderate-border: #ffc107;
+  --color-safety-moderate-fg: #fff9c4;
+
+  --color-safety-lacking: #bdbdbd;
+  --color-safety-lacking-subtle: #37474f;
+  --color-safety-lacking-border: #757575;
+  --color-safety-lacking-fg: #e0e0e0;
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Auth</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Auth (/auth)</h1>
+      <p class="section-desc">§4.3 — 로그인. 카카오 소셜 + 비회원 탐색.</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span style="display:flex;gap:4px;">📶 🔋</span>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-8) var(--space-4);min-height:600px;">
+          <!-- Logo -->
+          <div style="width:80px;height:80px;border-radius:var(--radius-xl);background:linear-gradient(135deg,var(--color-brand-600),var(--color-brand-400));display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:var(--space-6);">🏠</div>
+
+          <!-- Brand -->
+          <div style="font-size:var(--text-heading);font-weight:var(--text-heading-weight);margin-bottom:var(--space-2);">집콕신혼</div>
+          <div style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);text-align:center;line-height:1.6;margin-bottom:var(--space-8);">
+            신혼부부 맞춤 주거 분석 플랫폼<br>
+            예산·통근·보육·안전 4가지 기준으로 분석
+          </div>
+
+          <!-- Kakao Login -->
+          <button style="width:100%;max-width:300px;padding:var(--space-4);background:#FEE500;color:#000000;border:none;border-radius:var(--radius-lg);font-size:var(--text-body);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--space-2);font-family:var(--font-sans);">
+            <svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 3C5.58 3 2 5.8 2 9.2c0 2.2 1.47 4.13 3.68 5.22-.16.58-.58 2.1-.67 2.43-.1.4.15.4.32.29.13-.08 2.1-1.42 2.95-2 .55.08 1.12.12 1.72.12 4.42 0 8-2.8 8-6.26C18 5.8 14.42 3 10 3" fill="#000000"/></svg>
+            카카오로 시작하기
+          </button>
+
+          <!-- Divider -->
+          <div style="display:flex;align-items:center;gap:var(--space-3);width:100%;max-width:300px;margin:var(--space-5) 0;">
+            <div style="flex:1;height:1px;background:var(--color-border);"></div>
+            <span style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">또는</span>
+            <div style="flex:1;height:1px;background:var(--color-border);"></div>
+          </div>
+
+          <!-- Guest link -->
+          <button style="background:none;border:none;font-size:var(--text-body-sm);color:var(--color-brand-500);cursor:pointer;text-decoration:underline;font-family:var(--font-sans);">로그인 없이 둘러보기</button>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:var(--space-4);text-align:center;border-top:1px solid var(--color-border);">
+          <div style="display:flex;align-items:center;justify-content:center;gap:var(--space-2);margin-bottom:var(--space-2);">
+            <span style="font-size:14px;">🔒</span>
+            <span style="font-size:11px;color:var(--color-on-surface-muted);">개인정보를 서버에 저장하지 않습니다</span>
+          </div>
+          <div style="font-size:11px;color:var(--color-neutral-400);">
+            <span style="cursor:pointer;">이용약관</span> · <span style="cursor:pointer;">개인정보처리방침</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

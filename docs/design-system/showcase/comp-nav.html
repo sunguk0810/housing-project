@@ -53,6 +53,64 @@
             </div>
           </div>
         </div>
+
+        <!-- Documentation: BottomNav -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead>
+              <tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>탭 수</td><td>—</td><td>5 (홈/검색/지도/비교/MY)</td><td></td></tr>
+              <tr><td>높이</td><td>—</td><td>56px + safe-area-inset</td><td>env(safe-area-inset-bottom)</td></tr>
+              <tr><td>활성 색상</td><td><code>--color-brand-500</code></td><td>#0891B2 + Bold</td><td></td></tr>
+              <tr><td>비활성 색상</td><td><code>--color-neutral-400</code></td><td>#A8A29E + Regular</td><td></td></tr>
+              <tr><td>비교 탭 배지</td><td><code>--color-accent</code></td><td>#F97316 bg + 흰 텍스트</td><td>담긴 수 표시</td></tr>
+              <tr><td>숨김 동작</td><td>—</td><td>스크롤 다운 시 숨김</td><td>/complex, /results에서</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label">Do</div>
+              <ul>
+                <li>5개 탭을 유지하며 추가하지 않음</li>
+                <li>비교 탭에 담긴 수 배지를 항상 표시</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label">Don't</div>
+              <ul>
+                <li>탭 6개 이상으로 확장하지 않음</li>
+                <li>모든 페이지에서 항상 표시하지 않음 (상세/결과에서 스크롤 다운 시 숨김)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="navigation"</code> + <code>aria-label="메인 탐색"</code> 필수</li>
+            <li>활성 탭에 <code>aria-current="page"</code> 적용</li>
+            <li>각 탭 최소 44x44px 터치 타겟</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a class="used-in-tag" href="page-landing.html">page-landing.html</a>
+            <a class="used-in-tag" href="page-results.html">page-results.html</a>
+            <a class="used-in-tag" href="page-board.html">page-board.html</a>
+            <a class="used-in-tag" href="page-mypage.html">page-mypage.html</a>
+            <a class="used-in-tag" href="page-guide.html">page-guide.html</a>
+          </div>
+        </div>
       </div>
 
       <!-- BottomSheet -->
@@ -99,7 +157,7 @@
                   <div class="gauge-wrapper" style="width:40px;height:40px;flex-shrink:0;">
                     <svg width="40" height="40" viewBox="0 0 40 40">
                       <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
-                      <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#42A5F5"
+                      <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#2196F3"
                         stroke-dasharray="100.53" style="--gauge-offset:25.13;--gauge-circumference:100.53;" data-animate/>
                     </svg>
                     <span class="gauge-text" style="font-size:11px;">75</span>
@@ -113,7 +171,7 @@
                   <div class="gauge-wrapper" style="width:40px;height:40px;flex-shrink:0;">
                     <svg width="40" height="40" viewBox="0 0 40 40">
                       <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
-                      <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#42A5F5"
+                      <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#2196F3"
                         stroke-dasharray="100.53" style="--gauge-offset:30.16;--gauge-circumference:100.53;" data-animate/>
                     </svg>
                     <span class="gauge-text" style="font-size:11px;">70</span>
@@ -125,6 +183,61 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Documentation: BottomSheet -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead>
+              <tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Peek</td><td>—</td><td>~25% (100–160px)</td><td>드래그 핸들 + 검색바 + 매물 수</td></tr>
+              <tr><td>Half</td><td>—</td><td>~50% (350–400px)</td><td>카드 2–3개</td></tr>
+              <tr><td>Expanded</td><td>—</td><td>~90%</td><td>전체 리스트 스크롤</td></tr>
+              <tr><td>드래그 핸들</td><td><code>--color-neutral-400</code></td><td>40×4px, 라운드</td><td></td></tr>
+              <tr><td>트랜지션</td><td>—</td><td>300–400ms spring</td><td>stiffness:400, damping:30</td></tr>
+              <tr><td>넌모달</td><td>—</td><td>시트 올라와도 지도 인터랙션 가능</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label">Do</div>
+              <ul>
+                <li>넌모달로 유지 — 시트가 올라와도 지도 인터랙션 항상 가능</li>
+                <li>Peek 상태에서 매물 수를 항상 표시</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label">Don't</div>
+              <ul>
+                <li>모달 오버레이로 지도를 가리지 않음</li>
+                <li>Expanded에서 지도 완전 가림 금지 (상단 safe area 유지)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="dialog"</code> + <code>aria-label="검색 결과 시트"</code></li>
+            <li>드래그 핸들에 <code>aria-label="시트 크기 조절"</code> 필요</li>
+            <li>포커스 트랩 미적용 (넌모달이므로 지도와 공존)</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a class="used-in-tag" href="page-results.html">page-results.html</a>
+            <a class="used-in-tag" href="page-map-detail.html">page-map-detail.html</a>
           </div>
         </div>
       </div>
@@ -141,18 +254,74 @@
             <div style="display:flex;gap:var(--space-2);flex:1;overflow-x:auto;">
               <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--color-brand-50);border:1px solid var(--color-brand-200);border-radius:var(--radius-full);font-size:11px;font-weight:600;white-space:nowrap;">
                 래미안 84
-                <button style="background:none;border:none;color:var(--color-on-surface-muted);cursor:pointer;font-size:12px;">&times;</button>
+                <button style="background:none;border:none;color:var(--color-on-surface-muted);cursor:pointer;font-size:12px;">×</button>
               </span>
               <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--color-brand-50);border:1px solid var(--color-brand-200);border-radius:var(--radius-full);font-size:11px;font-weight:600;white-space:nowrap;">
                 힐스테이트 75
-                <button style="background:none;border:none;color:var(--color-on-surface-muted);cursor:pointer;font-size:12px;">&times;</button>
+                <button style="background:none;border:none;color:var(--color-on-surface-muted);cursor:pointer;font-size:12px;">×</button>
               </span>
             </div>
             <button class="btn btn-primary" style="font-size:12px;padding:8px 16px;white-space:nowrap;">비교하기 (2/3)</button>
           </div>
         </div>
+
+        <!-- Documentation: CompareBar -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead>
+              <tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>위치</td><td>—</td><td>하단 sticky (바텀 탭 위)</td><td></td></tr>
+              <tr><td>높이</td><td>—</td><td>64–80px</td><td></td></tr>
+              <tr><td>패딩</td><td>—</td><td>pb-[max(10px,env(safe-area-inset-bottom))]</td><td></td></tr>
+              <tr><td>최대 항목</td><td>—</td><td>모바일 3개, 데스크톱 4개</td><td></td></tr>
+              <tr><td>초과 시</td><td>—</td><td>토스트 "최대 3개까지 비교 가능합니다"</td><td></td></tr>
+              <tr><td>진입</td><td>—</td><td>slide-up 300ms spring</td><td>stiffness:300, damping:30</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label">Do</div>
+              <ul>
+                <li>단지 태그에 점수를 함께 표시하여 빠른 식별 가능</li>
+                <li>"비교하기" 버튼에 현재 수/최대 수 표시 (예: 2/3)</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label">Don't</div>
+              <ul>
+                <li>4개 이상 담기를 허용하지 않음</li>
+                <li>비교 바가 콘텐츠를 가리지 않도록 하단 여백 확보</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="toolbar"</code> + <code>aria-label="비교 도구 모음"</code></li>
+            <li>각 태그의 X 버튼에 <code>aria-label="래미안 위브 비교 해제"</code> 명시</li>
+            <li>바 출현 시 <code>aria-live="polite"</code>로 알림</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a class="used-in-tag" href="page-results.html">page-results.html</a>
+            <a class="used-in-tag" href="page-map-detail.html">page-map-detail.html</a>
+          </div>
+        </div>
       </div>
 
+      <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>

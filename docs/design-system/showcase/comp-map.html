@@ -45,7 +45,7 @@
             <svg width="44" height="56" viewBox="0 0 44 56">
               <g filter="url(#markerShadow)">
                 <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
-                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#42A5F5">75</text>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#2196F3">75</text>
               </g>
             </svg>
             <div class="demo-item-label">A Default</div>
@@ -54,7 +54,7 @@
             <svg width="44" height="56" viewBox="0 0 44 56">
               <g filter="url(#markerShadow)">
                 <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
-                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#90A4AE">55</text>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#B0BEC5">55</text>
               </g>
             </svg>
             <div class="demo-item-label">B Default</div>
@@ -63,7 +63,7 @@
             <svg width="44" height="56" viewBox="0 0 44 56">
               <g filter="url(#markerShadow)">
                 <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#FFFFFF" stroke="var(--color-border)" stroke-width="1"/>
-                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FF8A65">42</text>
+                <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#EF6C00">42</text>
               </g>
             </svg>
             <div class="demo-item-label">C Default</div>
@@ -84,9 +84,9 @@
           </div>
           <div class="demo-item">
             <svg width="50" height="64" viewBox="0 0 50 64">
-              <filter id="markerGlow2"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#42A5F5" flood-opacity="0.25"/></filter>
+              <filter id="markerGlow2"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#2196F3" flood-opacity="0.25"/></filter>
               <g filter="url(#markerGlow2)" transform="scale(1.15) translate(-2,-2)">
-                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#42A5F5"/>
+                <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#2196F3"/>
                 <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">75</text>
               </g>
             </svg>
@@ -114,6 +114,64 @@
           </div>
           <div style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--color-neutral-700);color:#FFF;font-size:12px;font-weight:600;border-radius:var(--radius-md);box-shadow:var(--shadow-md);">
             📍 직장 2
+          </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>Default 배경</td><td>—</td><td>#FFFFFF</td><td>텍스트: Score 등급 컬러</td></tr>
+              <tr><td>Default 크기</td><td>—</td><td>1.0x (30–34px, 터치영역 44–48px)</td><td></td></tr>
+              <tr><td>Default 그림자</td><td><code>--shadow-base</code></td><td>0 2px 8px rgba(0,0,0,0.12)</td><td></td></tr>
+              <tr><td>Selected 배경</td><td><code>--color-score-*</code></td><td>Score 등급 컬러 bg</td><td>텍스트: #FFFFFF</td></tr>
+              <tr><td>Selected 크기</td><td>—</td><td>1.15x</td><td></td></tr>
+              <tr><td>Selected 그림자</td><td>—</td><td>0 4px 16px {color}40</td><td>등급색 glow</td></tr>
+              <tr><td>Visited opacity</td><td>—</td><td>70%</td><td></td></tr>
+              <tr><td>선택 트랜지션</td><td>—</td><td>150ms spring</td><td>stiffness:400, damping:25</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>3상태(Default/Selected/Visited)를 명확히 구분</li>
+                <li>점수 라벨을 마커 내부에 표시하여 지도에서 즉시 비교 가능</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>마커 크기를 터치 타겟(44px) 미만으로 설정하지 않음</li>
+                <li>적-녹 스케일 컬러를 마커에 사용하지 않음</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>각 마커에 <code>role="button"</code> + <code>aria-label="래미안 위브 84점 A+"</code> 형식</li>
+            <li>키보드 Tab으로 마커 순회 가능</li>
+            <li>Selected 상태 변경 시 <code>aria-pressed="true"</code> 업데이트</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-map-detail.html" class="used-in-tag">Map Detail</a>
           </div>
         </div>
       </div>
@@ -153,6 +211,60 @@
             <div class="demo-item-label">줌 14+<br>(개별 가격 핀)</div>
           </div>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>줌 7–10</td><td>—</td><td>대형 클러스터 40–60px</td><td>원형 카운터</td></tr>
+              <tr><td>줌 11–13</td><td>—</td><td>중간 클러스터</td><td>매물 수 표시</td></tr>
+              <tr><td>줌 14+</td><td>—</td><td>개별 마커</td><td>가격 라벨 핀</td></tr>
+              <tr><td>배경</td><td><code>--color-brand-500</code></td><td>rgba(8,145,178,0.15)</td><td>보더: brand-500 solid</td></tr>
+              <tr><td>Debounce</td><td>—</td><td>200–300ms</td><td>줌 변경 시</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>뷰포트 내 마커만 렌더링하여 성능 최적화</li>
+                <li>줌 변경 시 200–300ms debounce 적용</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>뷰포트 밖 마커까지 렌더링하지 않음</li>
+                <li>클러스터 내부 상세 정보를 과도하게 표시하지 않음</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>클러스터에 <code>aria-label="이 영역에 48개 단지"</code> 형식</li>
+            <li>클러스터 클릭 시 줌인 동작을 <code>aria-live</code>로 알림</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-map-detail.html" class="used-in-tag">Map Detail</a>
+          </div>
+        </div>
       </div>
 
       <!-- Legend -->
@@ -168,9 +280,9 @@
             <div class="component-label">수평 배치</div>
             <div style="display:inline-flex;gap:var(--space-3);padding:var(--space-2) var(--space-3);background:rgba(255,255,255,0.9);border-radius:var(--radius-md);border:1px solid var(--color-border);font-size:11px;">
               <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#1565C0;"></span>A+</span>
-              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#42A5F5;"></span>A</span>
-              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#90A4AE;"></span>B</span>
-              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#FF8A65;"></span>C</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#2196F3;"></span>A</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#B0BEC5;"></span>B</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF6C00;"></span>C</span>
               <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#D84315;"></span>D</span>
             </div>
           </div>
@@ -179,11 +291,64 @@
             <div class="component-label">수직 배치</div>
             <div style="display:inline-flex;flex-direction:column;gap:var(--space-1);padding:var(--space-2) var(--space-3);background:rgba(255,255,255,0.9);border-radius:var(--radius-md);border:1px solid var(--color-border);font-size:11px;">
               <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#1565C0;"></span>A+ 매우 좋음</span>
-              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#42A5F5;"></span>A 좋음</span>
-              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#90A4AE;"></span>B 보통</span>
-              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#FF8A65;"></span>C 미흡</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#2196F3;"></span>A 좋음</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#B0BEC5;"></span>B 보통</span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF6C00;"></span>C 미흡</span>
               <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#D84315;"></span>D 부족</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>위치</td><td>—</td><td>지도 우하단</td><td></td></tr>
+              <tr><td>배경</td><td>—</td><td>rgba(255,255,255,0.9)</td><td>반투명</td></tr>
+              <tr><td>코너</td><td><code>--radius-md</code></td><td>8px</td><td></td></tr>
+              <tr><td>등급</td><td><code>--color-score-*</code></td><td>A+(#1565C0)/A(#2196F3)/B(#B0BEC5)/C(#EF6C00)/D(#D84315)</td><td></td></tr>
+              <tr><td>폰트</td><td>—</td><td>11px</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>지도 위에 항상 표시하여 등급색 해석 보조</li>
+                <li>수평/수직 배치를 화면 크기에 따라 선택</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>범례를 지도 영역 밖에 배치하지 않음</li>
+                <li>등급 라벨(A+/A/B/C/D)을 생략하고 색상만 표시하지 않음</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="img"</code> + <code>aria-label="점수 등급 범례: A+ 매우 좋음, A 좋음, B 보통, C 미흡, D 부족"</code></li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-map-detail.html" class="used-in-tag">Map Detail</a>
           </div>
         </div>
       </div>
@@ -217,18 +382,71 @@
             <div style="display:flex;gap:var(--space-3);">
               <svg width="44" height="50" viewBox="0 0 44 56">
                 <g transform="scale(1.15) translate(-2,-2)">
-                  <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#42A5F5"/>
+                  <path d="M22 4 C12 4 4 12 4 22 C4 34 22 50 22 50 C22 50 40 34 40 22 C40 12 32 4 22 4Z" fill="#2196F3"/>
                   <text x="22" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#FFF">75</text>
                 </g>
               </svg>
-              <div style="padding:var(--space-3);background:rgba(66,165,245,0.06);border:2px solid var(--color-brand-300);border-radius:var(--radius-lg);font-size:12px;font-weight:600;flex:1;">
+              <div style="padding:var(--space-3);background:rgba(33,150,243,0.06);border:2px solid var(--color-brand-300);border-radius:var(--radius-lg);font-size:12px;font-weight:600;flex:1;">
                 힐스테이트 75점
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>카드 hover→마커</td><td>—</td><td>마커 Selected 상태 전환</td><td>즉시 반응</td></tr>
+              <tr><td>마커 클릭→카드</td><td>—</td><td>카드 자동 스크롤 + 하이라이트</td><td></td></tr>
+              <tr><td>바텀시트 스와이프</td><td>—</td><td>현재 보이는 카드의 마커 하이라이트</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>양방향 싱크를 항상 유지 (카드↔마커)</li>
+                <li>스크롤 시 현재 보이는 카드의 마커를 자동 하이라이트</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>단방향만 구현하지 않음 (양방향 필수)</li>
+                <li>싱크 시 지도 줌 레벨을 자동 변경하지 않음 (사용자 혼란)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>카드 hover 시 해당 마커의 <code>aria-selected</code> 업데이트</li>
+            <li>마커 클릭으로 카드 스크롤 시 <code>aria-live="polite"</code> 알림</li>
+          </ul>
+        </div>
+
+        <!-- Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-results.html" class="used-in-tag">Results</a>
+            <a href="page-map-detail.html" class="used-in-tag">Map Detail</a>
+          </div>
+        </div>
       </div>
 
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>

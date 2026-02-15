@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Patterns</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">크로스커팅 패턴</h1>
+      <p class="section-desc">동의 플로우, 면책 5-Point 전략, 온보딩 설계 근거 — 개별 컴포넌트를 관통하는 UX 패턴 문서</p>
+
+      <!-- ===== Pattern 1: Consent Flow ===== -->
+      <div class="demo-card" id="consent-flow">
+        <div class="demo-card-title">1. 동의 플로우 4단계 워크스루</div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          사용자 여정의 각 터치포인트에서 신뢰를 쌓고 컴플라이언스를 달성하는 점진적 동의 전략
+        </p>
+
+        <!-- Phase tabs -->
+        <div class="pattern-tabs" style="margin-bottom:var(--space-4);">
+          <button class="pattern-tab active" onclick="showPatternPhase(0)">Phase 1: Landing</button>
+          <button class="pattern-tab" onclick="showPatternPhase(1)">Phase 2: Input</button>
+          <button class="pattern-tab" onclick="showPatternPhase(2)">Phase 3: Flow</button>
+          <button class="pattern-tab" onclick="showPatternPhase(3)">Phase 4: Post</button>
+        </div>
+
+        <!-- Phase 1: Landing -->
+        <div class="pattern-phase active" id="patternPhase0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+            <div>
+              <div class="component-label">Value-First 접근</div>
+              <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-3);">
+                Landing 페이지에서 동의를 요구하지 않고, 먼저 서비스 가치를 보여준다.
+                "3개 입력, 30초면 맞춤 분석" 같은 가치 제안으로 사용자를 유인한 뒤,
+                CTA 클릭 시 온보딩 플로우로 진입.
+              </p>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">
+                <strong>핵심 원칙:</strong> 동의 요청은 가치 전달 <em>이후</em>에만 시작
+              </div>
+            </div>
+            <div style="background:var(--color-surface-elevated);border-radius:var(--radius-lg);padding:var(--space-4);">
+              <div style="font-size:11px;font-weight:600;color:var(--color-brand-500);margin-bottom:var(--space-2);">Landing 화면 예시</div>
+              <div style="font-size:var(--text-body-sm);font-weight:700;margin-bottom:var(--space-2);">신혼부부 맞춤 주거 분석</div>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);margin-bottom:var(--space-3);">3개 입력, 30초면 우리 부부에게 딱 맞는 단지를 찾아드려요</div>
+              <div style="padding:8px 16px;background:var(--color-brand-500);color:#FFF;border-radius:var(--radius-full);text-align:center;font-size:12px;font-weight:600;">무료 분석 시작하기</div>
+              <div style="font-size:10px;color:var(--color-on-surface-muted);text-align:center;margin-top:var(--space-2);">로그인 없이 바로 시작</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 2: Input -->
+        <div class="pattern-phase" id="patternPhase1">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+            <div>
+              <div class="component-label">Inline Consent</div>
+              <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-3);">
+                온보딩 Step 0에서 인라인 동의를 받는다. 필수 2개(개인정보 수집, 위치정보) + 선택 1개(정밀 분석).
+                TrustBadge로 "세션 종료 시 즉시 삭제"를 강조하여 불안 해소.
+              </p>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">
+                <strong>핵심 원칙:</strong> 필수 미체크 시 CTA 비활성, 선택은 기본 체크 해제
+              </div>
+            </div>
+            <div style="background:var(--color-surface-elevated);border-radius:var(--radius-lg);padding:var(--space-4);">
+              <div style="font-size:11px;font-weight:600;color:var(--color-brand-500);margin-bottom:var(--space-2);">Step 0 동의 화면</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:var(--space-3);">
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                  <input type="checkbox" checked disabled style="accent-color:var(--color-brand-500);">
+                  <span>[필수] 개인정보 수집 이용 동의</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                  <input type="checkbox" checked disabled style="accent-color:var(--color-brand-500);">
+                  <span>[필수] 위치정보 이용 동의</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;">
+                  <input type="checkbox" disabled>
+                  <span>[선택] 정밀 분석 추가 동의</span>
+                </label>
+              </div>
+              <div style="padding:6px 10px;background:var(--color-brand-50);border-radius:var(--radius-md);font-size:10px;display:flex;align-items:center;gap:4px;">
+                <span>🔒</span> 입력 정보는 분석 후 즉시 삭제됩니다
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 3: Flow -->
+        <div class="pattern-phase" id="patternPhase2">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+            <div>
+              <div class="component-label">Progressive Disclosure</div>
+              <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-3);">
+                입력 플로우 중 각 민감 필드(연봉, 보유 현금) 옆에 WhyTooltip을 배치.
+                "왜 이 정보가 필요한가요?" 클릭 시 사용 목적과 삭제 시점을 설명.
+                각 스텝 하단에 🔒 TrustBadge 반복 노출.
+              </p>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">
+                <strong>핵심 원칙:</strong> 민감 정보 수집 시 맥락 설명 제공
+              </div>
+            </div>
+            <div style="background:var(--color-surface-elevated);border-radius:var(--radius-lg);padding:var(--space-4);">
+              <div style="font-size:11px;font-weight:600;color:var(--color-brand-500);margin-bottom:var(--space-2);">WhyTooltip 패턴</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:var(--space-2);">
+                <span style="font-size:12px;font-weight:600;">부부 합산 연봉</span>
+                <span class="why-tooltip-trigger" style="font-size:10px;">? 왜 필요한가요?</span>
+              </div>
+              <div style="background:var(--color-neutral-800);color:#FFF;padding:8px 10px;border-radius:var(--radius-md);font-size:10px;line-height:1.5;">
+                소득 정보는 PIR(가격소득비)와 DTI 계산에 사용됩니다. 세션 종료 시 즉시 삭제됩니다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 4: Post -->
+        <div class="pattern-phase" id="patternPhase3">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+            <div>
+              <div class="component-label">Progressive Commitment</div>
+              <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-3);">
+                결과 화면에서는 동의 없이 분석 결과를 바로 보여준다.
+                외부 링크 클릭 시에만 면책 모달 표시.
+                로그인/회원가입은 "찜 저장"이나 "파트너 공유" 시점까지 유보.
+              </p>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">
+                <strong>핵심 원칙:</strong> 결과 확인까지 로그인 미요구 (점진적 몰입)
+              </div>
+            </div>
+            <div style="background:var(--color-surface-elevated);border-radius:var(--radius-lg);padding:var(--space-4);">
+              <div style="font-size:11px;font-weight:600;color:var(--color-brand-500);margin-bottom:var(--space-2);">점진적 몰입 단계</div>
+              <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;">
+                <div style="display:flex;align-items:center;gap:6px;"><span style="color:var(--color-brand-500);font-weight:700;">1</span> 비로그인 탐색 (자유)</div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="color:var(--color-brand-500);font-weight:700;">2</span> 카카오 로그인 (찜 저장 시)</div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="color:var(--color-brand-500);font-weight:700;">3</span> 파트너 초대 (공유 시)</div>
+                <div style="display:flex;align-items:center;gap:6px;"><span style="color:var(--color-brand-500);font-weight:700;">4</span> 알림 동의 (관심 단지 변동)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Pattern 2: Disclaimer 5-Point ===== -->
+      <div class="demo-card" id="disclaimer-strategy">
+        <div class="demo-card-title">2. 면책 5-Point 배치 전략</div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          공인중개사법 §2 준수를 위한 5개 터치포인트별 면책 문구 톤 전략.
+          소프트에서 법률 문서까지 점진적으로 강화.
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+          <!-- Point 1 -->
+          <div style="display:grid;grid-template-columns:40px 1fr;gap:var(--space-3);align-items:start;">
+            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--color-brand-50);color:var(--color-brand-600);font-size:14px;font-weight:700;">1</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);">
+                <span style="font-size:var(--text-body-sm);font-weight:600;">랜딩 하단 (모든 페이지 푸터)</span>
+                <span class="tone-badge tone-soft">소프트</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);">상시 노출 | 시선을 방해하지 않는 작은 텍스트</div>
+              <div style="padding:var(--space-2) var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-md);font-size:11px;color:var(--color-on-surface-muted);text-align:center;">
+                "본 서비스는 공공데이터 기반 정보 분석 플랫폼입니다"
+              </div>
+            </div>
+          </div>
+
+          <!-- Point 2 -->
+          <div style="display:grid;grid-template-columns:40px 1fr;gap:var(--space-3);align-items:start;">
+            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--color-brand-50);color:var(--color-brand-600);font-size:14px;font-weight:700;">2</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);">
+                <span style="font-size:var(--text-body-sm);font-weight:600;">입력 플로우 배너</span>
+                <span class="tone-badge tone-neutral">중립</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);">1회 노출 | 온보딩 Step 0에서 동의와 함께</div>
+              <div style="padding:var(--space-2) var(--space-3);background:var(--color-brand-50);border:1px solid var(--color-brand-200);border-radius:var(--radius-md);font-size:11px;display:flex;align-items:center;gap:6px;">
+                <span>🔒</span> "입력 정보는 분석 목적으로만 사용되며 거래 연결에 사용되지 않습니다"
+              </div>
+            </div>
+          </div>
+
+          <!-- Point 3 -->
+          <div style="display:grid;grid-template-columns:40px 1fr;gap:var(--space-3);align-items:start;">
+            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--color-brand-50);color:var(--color-brand-600);font-size:14px;font-weight:700;">3</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);">
+                <span style="font-size:var(--text-body-sm);font-weight:600;">결과 상단 메타 태그</span>
+                <span class="tone-badge tone-context">컨텍스트</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);">결과 확인 시 | 데이터 출처를 자연스럽게 내장</div>
+              <div style="display:flex;gap:var(--space-1);flex-wrap:wrap;">
+                <span class="source-tag">📊 공공데이터 기반 분석 결과</span>
+                <span class="source-tag">📅 기준일 2026.02.01</span>
+                <span class="source-tag">참고용 정보</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Point 4 -->
+          <div style="display:grid;grid-template-columns:40px 1fr;gap:var(--space-3);align-items:start;">
+            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--color-brand-50);color:var(--color-brand-600);font-size:14px;font-weight:700;">4</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);">
+                <span style="font-size:var(--text-body-sm);font-weight:600;">외부 링크 클릭 모달</span>
+                <span class="tone-badge tone-explicit">명시적</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);">매 클릭 시 | 모달로 확인 후 이동</div>
+              <div style="padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);border:1px solid var(--color-border);">
+                <div style="font-size:12px;font-weight:600;margin-bottom:var(--space-2);">외부 사이트로 이동</div>
+                <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.5;">
+                  본 서비스는 정보 분석 플랫폼이며 부동산 중개 서비스가 아닙니다.
+                  매물 정보의 정확성은 해당 외부 사이트에서 확인해주세요.
+                </div>
+                <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);justify-content:flex-end;">
+                  <button class="btn btn-outline" style="font-size:11px;padding:4px 10px;">취소</button>
+                  <button class="btn btn-primary" style="font-size:11px;padding:4px 10px;">확인 후 이동</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Point 5 -->
+          <div style="display:grid;grid-template-columns:40px 1fr;gap:var(--space-3);align-items:start;">
+            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--color-brand-50);color:var(--color-brand-600);font-size:14px;font-weight:700;">5</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);">
+                <span style="font-size:var(--text-body-sm);font-weight:600;">이용약관</span>
+                <span class="tone-badge tone-legal">법률</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);">동의 시 1회 | 법률 문서 형식</div>
+              <div style="padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-md);font-size:11px;color:var(--color-on-surface-muted);line-height:1.6;font-family:var(--font-mono);">
+                제2조 (서비스 성격)<br>
+                본 서비스는 공공데이터를 활용한 정보 분석 플랫폼으로서,<br>
+                「공인중개사법」 제2조에 따른 부동산중개업에 해당하지 않습니다.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Pattern 3: Onboarding Design Rationale ===== -->
+      <div class="demo-card" id="onboarding-rationale">
+        <div class="demo-card-title">3. 온보딩 설계 근거</div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          "원 퀘스천 퍼 스크린" 원칙 기반 온보딩 5스텝 설계 이유와 전략
+        </p>
+
+        <!-- Principle: One Question Per Screen -->
+        <div style="padding:var(--space-4);background:var(--color-brand-50);border-radius:var(--radius-lg);border:1px solid var(--color-brand-200);margin-bottom:var(--space-6);">
+          <div style="font-size:var(--text-body-sm);font-weight:700;color:var(--color-brand-700);margin-bottom:var(--space-2);">핵심 원칙: 원 퀘스천 퍼 스크린</div>
+          <div style="font-size:12px;color:var(--color-brand-600);line-height:1.6;">
+            각 스텝에서 하나의 의사결정만 요구한다. 인지 부하를 최소화하고 완료율을 극대화한다.
+            복수 필드가 있는 스텝(Step 3: 연봉+현금)도 하나의 질문("예산 정보를 알려주세요")으로 프레이밍한다.
+          </div>
+        </div>
+
+        <!-- Step Order Strategy -->
+        <div class="component-label" style="margin-bottom:var(--space-3);">스텝 순서 전략</div>
+        <table class="spec-table" style="margin-bottom:var(--space-6);">
+          <thead>
+            <tr><th>Step</th><th>질문</th><th>배치 근거</th><th>심리 효과</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>0</strong></td>
+              <td>서비스 이용 동의</td>
+              <td>법적 요구사항 충족</td>
+              <td>투명성으로 신뢰 구축</td>
+            </tr>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>주거 형태 + 자녀 계획</td>
+              <td>가벼운 선택 (카드 탭)</td>
+              <td>낮은 진입 장벽, 쉬운 첫 액션</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>직장 주소</td>
+              <td>일상적 정보, 주소 모멘텀</td>
+              <td>익숙한 정보 입력으로 흐름 유지</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>합산 연봉 + 보유 현금</td>
+              <td>민감하지만 핵심 데이터</td>
+              <td>매몰 비용 효과 (이미 2스텝 완료)</td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td>기존 대출 + 월 주거비</td>
+              <td>마지막 재무 정보</td>
+              <td>완료 직전 동기 부여</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Key Design Decisions -->
+        <div class="component-label" style="margin-bottom:var(--space-3);">주요 설계 결정</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+          <div style="padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);">
+            <div style="font-size:12px;font-weight:600;margin-bottom:var(--space-2);">빠른 입력 버튼</div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.5;">
+              모든 금액 필드에 사전 설정 버튼(5,000만 / 1억 / 1.5억 등) 제공.
+              키보드 입력 없이 탭 한 번으로 완료 가능. 평균 입력 시간 4초 단축.
+            </div>
+          </div>
+          <div style="padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);">
+            <div style="font-size:12px;font-weight:600;margin-bottom:var(--space-2);">한글 금액 변환</div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.5;">
+              숫자 입력 하단에 "1억 5,000만원" 한글 변환 표시.
+              대한민국 금융 관행에 맞는 억/만 단위 확인으로 입력 오류 방지.
+            </div>
+          </div>
+          <div style="padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);">
+            <div style="font-size:12px;font-weight:600;margin-bottom:var(--space-2);">외벌이 스킵</div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.5;">
+              Step 2에서 "외벌이예요" 체크 시 직장 2 입력을 스킵.
+              불필요한 입력 제거로 이탈 방지. 맞벌이 비율 72% 고려한 기본값.
+            </div>
+          </div>
+          <div style="padding:var(--space-3);background:var(--color-surface-elevated);border-radius:var(--radius-lg);">
+            <div style="font-size:12px;font-weight:600;margin-bottom:var(--space-2);">분석 로딩 시퀀스</div>
+            <div style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.5;">
+              Step 5에서 4단계 분석 과정을 시각적으로 표현.
+              실제 작업 진행을 보여주어 대기 불안 해소. 완료 시 "결과 보기" CTA 활성화.
+            </div>
+          </div>
+        </div>
+
+        <!-- Guardrails -->
+        <div class="component-label" style="margin-top:var(--space-6);margin-bottom:var(--space-3);">이탈 방지 가드레일</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+          <div class="good-panel">
+            <div style="font-size:12px;font-weight:600;color:#059669;margin-bottom:var(--space-2);">Do</div>
+            <ul style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.8;padding-left:16px;margin:0;">
+              <li>Step 2 이상에서 이탈 시 ExitIntentOverlay 표시</li>
+              <li>기본 분석 결과 보기 CTA 제공 (완전 이탈 방지)</li>
+              <li>진행률을 시각적으로 표시 (4단계 진행 바)</li>
+              <li>각 스텝 하단에 TrustBadge 반복 노출</li>
+            </ul>
+          </div>
+          <div class="bad-panel">
+            <div style="font-size:12px;font-weight:600;color:#DC2626;margin-bottom:var(--space-2);">Don't</div>
+            <ul style="font-size:11px;color:var(--color-on-surface-muted);line-height:1.8;padding-left:16px;margin:0;">
+              <li>Step 1에서는 이탈 방지 팝업 금지</li>
+              <li>브라우저 뒤로가기를 막지 않음</li>
+              <li>강제 로그인이나 회원가입 요구 금지</li>
+              <li>"정말 나가시겠습니까?" 같은 압박성 문구 금지</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; padding:var(--space-8) 0; font-size:11px; color:var(--color-on-surface-muted);">
+        SoT: docs/design-system/DESIGN_SYSTEM.md · 레퍼런스: step4~step6 JSX guides
+      </div>
+
+    </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+  </div>
+  <script src="showcase.js"></script>
+  <script>
+    // Pattern phase tabs
+    function showPatternPhase(idx) {
+      var phases = document.querySelectorAll('.pattern-phase');
+      var tabs = document.querySelectorAll('.pattern-tab');
+      for (var i = 0; i < phases.length; i++) {
+        phases[i].classList.toggle('active', i === idx);
+      }
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.toggle('active', j === idx);
+      }
+    }
+  </script>
+</body>
+</html>

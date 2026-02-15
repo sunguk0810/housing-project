@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — MyPage</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">MyPage (/mypage)</h1>
+      <p class="section-desc">§4.3 — 프로필, 저장 목록, 파트너 관리, 알림 설정.</p>
+
+      <div class="phone-frame">
+        <!-- Status bar -->
+        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
+          <span>9:41</span>
+          <span style="display:flex;gap:4px;">📶 🔋</span>
+        </div>
+
+        <!-- Profile -->
+        <div style="padding:var(--space-6) var(--space-4);text-align:center;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--color-brand-400),var(--color-brand-600));display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto var(--space-3);">👩</div>
+          <div style="font-size:var(--text-title);font-weight:var(--text-title-weight);">하늘씨</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:var(--space-2);margin-top:var(--space-1);">
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:var(--color-brand-50);border:1px solid var(--color-brand-200);border-radius:var(--radius-full);font-size:11px;font-weight:600;color:var(--color-brand-600);">
+              🔗 파트너 연결됨
+            </span>
+          </div>
+        </div>
+
+        <!-- Menu grid -->
+        <div style="padding:0 var(--space-4);margin-bottom:var(--space-4);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);">
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4);text-align:center;">
+              <div style="font-size:24px;margin-bottom:var(--space-2);">🏠</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">저장한 단지</div>
+              <div style="font-size:var(--text-title);font-weight:700;color:var(--color-brand-500);margin-top:2px;">12</div>
+            </div>
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4);text-align:center;">
+              <div style="font-size:24px;margin-bottom:var(--space-2);">🔍</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">검색 이력</div>
+              <div style="font-size:var(--text-title);font-weight:700;color:var(--color-brand-500);margin-top:2px;">5</div>
+            </div>
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4);text-align:center;">
+              <div style="font-size:24px;margin-bottom:var(--space-2);">🔔</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">가격 변동 알림</div>
+              <div style="font-size:var(--text-title);font-weight:700;color:var(--color-accent);margin-top:2px;">3</div>
+            </div>
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4);text-align:center;">
+              <div style="font-size:24px;margin-bottom:var(--space-2);">⚖️</div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">가중치 프로필</div>
+              <div style="font-size:12px;color:var(--color-on-surface-muted);margin-top:2px;">균형형</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings list -->
+        <div style="padding:0 var(--space-4);">
+          <div style="font-size:var(--text-body-sm);font-weight:600;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);padding-left:var(--space-1);">설정</div>
+          <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);">
+              <span style="font-size:var(--text-body-sm);">파트너 관리</span>
+              <span style="font-size:14px;color:var(--color-on-surface-muted);">›</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);">
+              <span style="font-size:var(--text-body-sm);">알림 설정</span>
+              <span style="font-size:14px;color:var(--color-on-surface-muted);">›</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);">
+              <span style="font-size:var(--text-body-sm);">앱 정보</span>
+              <span style="font-size:14px;color:var(--color-on-surface-muted);">›</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logout + version -->
+        <div style="padding:var(--space-6) var(--space-4);text-align:center;">
+          <button style="background:none;border:none;color:var(--color-on-surface-muted);font-size:var(--text-body-sm);cursor:pointer;font-family:var(--font-sans);">로그아웃</button>
+          <div style="font-size:11px;color:var(--color-neutral-400);margin-top:var(--space-2);">v1.0.0</div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="phone-bottom-nav">
+          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
+          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
+          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
+          <a class="nav-item"><span class="nav-icon">📋</span>보드</a>
+          <a class="nav-item active"><span class="nav-icon">👤</span>MY</a>
+        </div>
+      </div>
+
+    </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+  </div>
+  <script src="showcase.js"></script>
+</body>
+</html>

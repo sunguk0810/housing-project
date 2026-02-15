@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집콕신혼 디자인 시스템 — Loading</title>
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="showcase.css">
+  <style>
+    @keyframes analysisFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .ld-step { opacity: 0; }
+    .ld-step.show { animation: analysisFade 0.5s var(--ease-out-expo) forwards; }
+  </style>
+</head>
+<body>
+  <div class="showcase-layout">
+    <header class="showcase-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1>집콕신혼 디자인 시스템</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+    </header>
+    <nav class="showcase-sidebar" id="sidebar"></nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="showcase-content">
+
+      <h1 class="section-header">Loading States</h1>
+      <p class="section-desc">로딩/분석 중 상태. 스켈레톤 + Step 5 분석 시퀀스 + Progressive Reveal.</p>
+
+      <!-- Skeleton Cards -->
+      <div class="demo-card">
+        <div class="demo-card-title">Skeleton PropertyCard <span class="tag">§3.7</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">PropertyCard 로딩 스켈레톤</p>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-3);max-width:390px;">
+          <!-- Skeleton card 1 -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="flex:1;">
+                <div class="skeleton" style="width:160px;height:16px;margin-bottom:8px;"></div>
+                <div class="skeleton" style="width:200px;height:12px;"></div>
+              </div>
+              <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
+            </div>
+            <div class="skeleton" style="width:140px;height:14px;margin-top:12px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+            </div>
+          </div>
+          <!-- Skeleton card 2 -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="flex:1;">
+                <div class="skeleton" style="width:140px;height:16px;margin-bottom:8px;"></div>
+                <div class="skeleton" style="width:180px;height:12px;"></div>
+              </div>
+              <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
+            </div>
+            <div class="skeleton" style="width:120px;height:14px;margin-top:12px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+            </div>
+          </div>
+          <!-- Skeleton card 3 -->
+          <div style="background:var(--color-surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid var(--color-border);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="flex:1;">
+                <div class="skeleton" style="width:150px;height:16px;margin-bottom:8px;"></div>
+                <div class="skeleton" style="width:190px;height:12px;"></div>
+              </div>
+              <div class="skeleton" style="width:48px;height:48px;border-radius:50%;"></div>
+            </div>
+            <div class="skeleton" style="width:130px;height:14px;margin-top:12px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+              <div class="skeleton" style="width:80px;height:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Detail Hero -->
+      <div class="demo-card">
+        <div class="demo-card-title">Skeleton Detail Hero <span class="tag">§3.7</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">Detail 페이지 Hero 영역 스켈레톤</p>
+
+        <div style="max-width:390px;background:var(--color-neutral-200);border-radius:var(--radius-xl);padding:var(--space-6);text-align:center;">
+          <div class="skeleton" style="width:96px;height:96px;border-radius:50%;margin:0 auto var(--space-4);"></div>
+          <div class="skeleton" style="width:180px;height:20px;margin:0 auto var(--space-2);"></div>
+          <div class="skeleton" style="width:240px;height:14px;margin:0 auto var(--space-2);"></div>
+          <div class="skeleton" style="width:80px;height:24px;margin:0 auto;border-radius:var(--radius-full);"></div>
+        </div>
+      </div>
+
+      <!-- Analysis Sequence -->
+      <div class="demo-card">
+        <div class="demo-card-title">Analysis Sequence <span class="tag">Step 5</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">분석 중 4단계 시퀀스 애니메이션</p>
+        <button class="btn btn-primary" onclick="runLoadingDemo()" style="margin-bottom:var(--space-4);">시퀀스 실행</button>
+
+        <div style="max-width:300px;display:flex;flex-direction:column;gap:var(--space-4);">
+          <div class="ld-step" id="ldStep1" style="display:flex;align-items:center;gap:var(--space-3);">
+            <span style="font-size:24px;">💰</span>
+            <div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">예산 범위 분석</div>
+              <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">DSR, 자기자본 기반 한도 계산</div>
+            </div>
+          </div>
+          <div class="ld-step" id="ldStep2" style="display:flex;align-items:center;gap:var(--space-3);">
+            <span style="font-size:24px;">🚇</span>
+            <div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">통근 경로 분석</div>
+              <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">대중교통 최적 경로 탐색</div>
+            </div>
+          </div>
+          <div class="ld-step" id="ldStep3" style="display:flex;align-items:center;gap:var(--space-3);">
+            <span style="font-size:24px;">🛡️</span>
+            <div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">생활 환경 평가</div>
+              <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">보육 / 안전 시설 반경 분석</div>
+            </div>
+          </div>
+          <div class="ld-step" id="ldStep4" style="display:flex;align-items:center;gap:var(--space-3);">
+            <span style="font-size:24px;">✨</span>
+            <div>
+              <div style="font-size:var(--text-body-sm);font-weight:600;">종합 점수 산출</div>
+              <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">4개 카테고리 가중 평균</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:var(--space-4);max-width:300px;">
+          <div style="width:100%;height:4px;background:var(--color-neutral-200);border-radius:var(--radius-full);overflow:hidden;">
+            <div id="ldBar" style="width:0%;height:100%;background:var(--color-brand-500);border-radius:var(--radius-full);transition:width 0.5s var(--ease-out-expo);"></div>
+          </div>
+          <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);margin-top:var(--space-1);" id="ldPercent">0%</div>
+        </div>
+      </div>
+
+      <!-- Progressive Reveal Count-up -->
+      <div class="demo-card">
+        <div class="demo-card-title">Progressive Reveal Count-up <span class="tag">§3.7</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">점수 카운트업 데모</p>
+        <button class="btn btn-primary" onclick="runCountUp()" style="margin-bottom:var(--space-4);">카운트업 실행</button>
+
+        <div style="display:flex;gap:var(--space-6);align-items:center;">
+          <div class="gauge-wrapper" style="width:96px;height:96px;">
+            <svg width="96" height="96" viewBox="0 0 96 96">
+              <circle class="gauge-track" cx="48" cy="48" r="40" stroke-width="6"/>
+              <circle id="countGauge" class="gauge-fill" cx="48" cy="48" r="40" stroke-width="6" stroke="var(--color-brand-500)" stroke-dasharray="251.33" style="stroke-dashoffset:251.33;transition:stroke-dashoffset 1.5s var(--ease-out-expo);"/>
+            </svg>
+            <span class="gauge-text" style="font-size:28px;" id="countText">0</span>
+          </div>
+          <div>
+            <div style="font-size:var(--text-body-sm);font-weight:600;">종합 점수</div>
+            <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">1.5초 count-up 애니메이션</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+  </div>
+  <script src="showcase.js"></script>
+  <script>
+    function runLoadingDemo() {
+      var steps = ['ldStep1', 'ldStep2', 'ldStep3', 'ldStep4'];
+      var bar = document.getElementById('ldBar');
+      var pct = document.getElementById('ldPercent');
+      for (var i = 0; i < steps.length; i++) {
+        document.getElementById(steps[i]).classList.remove('show');
+      }
+      if (bar) bar.style.width = '0%';
+      if (pct) pct.textContent = '0%';
+
+      var percents = [25, 50, 75, 100];
+      for (var j = 0; j < steps.length; j++) {
+        (function(idx) {
+          setTimeout(function() {
+            document.getElementById(steps[idx]).classList.add('show');
+            if (bar) bar.style.width = percents[idx] + '%';
+            if (pct) pct.textContent = percents[idx] + '%';
+          }, (idx + 1) * 800);
+        })(j);
+      }
+    }
+
+    function runCountUp() {
+      var gauge = document.getElementById('countGauge');
+      var text = document.getElementById('countText');
+      var target = 84;
+      var circumference = 251.33;
+      var offset = circumference * (1 - target / 100);
+      // Reset
+      gauge.style.strokeDashoffset = circumference;
+      text.textContent = '0';
+      // Trigger after reflow
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          gauge.style.strokeDashoffset = offset;
+        });
+      });
+      // Count-up text
+      var start = 0;
+      var duration = 1500;
+      var startTime = null;
+      function animate(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        text.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
+  </script>
+</body>
+</html>

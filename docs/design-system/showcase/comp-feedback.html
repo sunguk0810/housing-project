@@ -39,6 +39,66 @@
           <button class="btn btn-primary" onclick="showToast('✅ 비교 목록에 추가되었습니다')">성공 토스트</button>
           <button class="btn btn-accent" onclick="showToast('⚠️ 최대 3개까지 비교 가능합니다')">경고 토스트</button>
         </div>
+
+        <!-- Documentation: Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead>
+              <tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>진입</td><td>—</td><td>slide-up 200ms ease-out</td><td></td></tr>
+              <tr><td>유지</td><td>—</td><td>2000ms</td><td></td></tr>
+              <tr><td>퇴장</td><td>—</td><td>fade-out 150ms</td><td></td></tr>
+              <tr><td>위치</td><td>—</td><td>하단 중앙, 바텀 탭 위</td><td></td></tr>
+              <tr><td>배경</td><td><code>--color-neutral-900</code></td><td>#1C1917 (웜 다크)</td><td></td></tr>
+              <tr><td>텍스트</td><td>—</td><td>#FFFFFF, 14px</td><td></td></tr>
+              <tr><td>코너</td><td><code>--radius-lg</code></td><td>12px</td><td></td></tr>
+              <tr><td>그림자</td><td><code>--shadow-lg</code></td><td>0 8px 24px rgba(0,0,0,0.12)</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Documentation: Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label">Do</div>
+              <ul>
+                <li>성공/경고를 아이콘(✅/⚠️)으로 구분</li>
+                <li>2초 후 자동 사라짐으로 사용자 흐름 방해 최소화</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label">Don't</div>
+              <ul>
+                <li>에러 메시지를 토스트로 표시하지 않음 (영구 표시 필요)</li>
+                <li>토스트 안에 액션 버튼을 넣지 않음 (사라지기 전 클릭 어려움)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentation: Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="status"</code> + <code>aria-live="polite"</code> 로 스크린리더에 알림</li>
+            <li><code>aria-atomic="true"</code> 로 전체 메시지 읽기</li>
+          </ul>
+        </div>
+
+        <!-- Documentation: Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a class="used-in-tag" href="page-results.html">page-results.html</a>
+            <a class="used-in-tag" href="page-comparison.html">page-comparison.html</a>
+            <a class="used-in-tag" href="page-board.html">page-board.html</a>
+          </div>
+        </div>
       </div>
 
       <!-- Tooltip -->
@@ -88,6 +148,64 @@
               분석 방법론 전체 문서 → 별도 페이지 이동<br>
               <span style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">분석 방법론 자세히 보기 →</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Documentation: Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead>
+              <tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>트리거</td><td>—</td><td>ⓘ 아이콘 탭</td><td></td></tr>
+              <tr><td>배경</td><td><code>--color-neutral-900</code></td><td>#1C1917 (웜 다크)</td><td></td></tr>
+              <tr><td>텍스트</td><td>—</td><td>#FFFFFF</td><td></td></tr>
+              <tr><td>코너</td><td><code>--radius-md</code></td><td>8px</td><td></td></tr>
+              <tr><td>3단계 공개</td><td>—</td><td>ⓘ→1줄 요약→요인 기여도→전체 방법론</td><td>계층적 디스클로저</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Documentation: Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label">Do</div>
+              <ul>
+                <li>"왜 이 정보가 필요한지" 1줄 해설을 제공</li>
+                <li>3단계 계층적 공개 패턴으로 점진적 정보 제공</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label">Don't</div>
+              <ul>
+                <li>툴팁에 3줄 이상의 텍스트를 넣지 않음 (1단계)</li>
+                <li>hover 트리거 사용 금지 (모바일에서 hover 불가 → 탭 트리거만 사용)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentation: Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>ⓘ 아이콘에 <code>aria-label="정보 보기"</code> + <code>aria-expanded</code> 토글</li>
+            <li>툴팁에 <code>role="tooltip"</code> + <code>id</code> 참조</li>
+            <li>트리거와 툴팁을 <code>aria-describedby</code> 로 연결</li>
+          </ul>
+        </div>
+
+        <!-- Documentation: Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a class="used-in-tag" href="page-detail.html">page-detail.html</a>
+            <a class="used-in-tag" href="page-results.html">page-results.html</a>
+            <a class="used-in-tag" href="page-onboarding.html">page-onboarding.html</a>
           </div>
         </div>
       </div>
@@ -162,8 +280,297 @@
             </div>
           </div>
         </div>
+
+        <!-- Documentation: Specs -->
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead>
+              <tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>배경</td><td><code>--color-neutral-200</code></td><td>#E7E5E4</td><td></td></tr>
+              <tr><td>하이라이트</td><td><code>--color-neutral-50</code></td><td>#FAFAF9</td><td></td></tr>
+              <tr><td>애니메이션</td><td>—</td><td>shimmer sweep, linear, 1500ms 반복</td><td></td></tr>
+              <tr><td>카드 스켈레톤</td><td>—</td><td>게이지+텍스트 줄+그리드 레이아웃</td><td></td></tr>
+              <tr><td>리스트 스켈레톤</td><td>—</td><td>원형+텍스트 2줄</td><td></td></tr>
+              <tr><td>점수 스켈레톤</td><td>—</td><td>원형 64px+바 3줄</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Documentation: Guidelines -->
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label">Do</div>
+              <ul>
+                <li>실제 콘텐츠의 레이아웃과 동일한 모양으로 스켈레톤 구성</li>
+                <li>shimmer 애니메이션으로 로딩 중임을 시각적으로 전달</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label">Don't</div>
+              <ul>
+                <li>스피너(spinner)를 스켈레톤 대신 사용하지 않음 (레이아웃 시프트 방지)</li>
+                <li>스켈레톤 표시 시간이 5초 이상이면 진행 상태 텍스트 추가</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentation: Accessibility -->
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>스켈레톤 컨테이너에 <code>aria-busy="true"</code> + <code>aria-label="콘텐츠 로딩 중"</code></li>
+            <li>콘텐츠 로드 완료 시 <code>aria-busy="false"</code> 로 업데이트</li>
+          </ul>
+        </div>
+
+        <!-- Documentation: Used In -->
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a class="used-in-tag" href="page-loading.html">page-loading.html</a>
+            <a class="used-in-tag" href="page-results.html">page-results.html</a>
+          </div>
+        </div>
       </div>
 
+      <!-- ExitIntentOverlay -->
+      <div class="demo-card">
+        <div class="demo-card-title">ExitIntentOverlay <span class="tag">§4.3</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          온보딩 이탈 방지 바텀시트. Step >= 2에서 뒤로가기 시 표시. 기본 분석 결과 CTA 조건부.
+        </p>
+
+        <div style="max-width:390px;margin:0 auto;">
+          <div class="exit-overlay">
+            <div class="exit-overlay-title">잠깐, 이미 입력한 정보가 있어요</div>
+            <div class="exit-overlay-desc">
+              지금까지 입력한 조건으로 기본 분석 결과를 확인할 수 있어요.<br>
+              나가시면 입력 정보가 삭제됩니다.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+              <button class="btn btn-primary" style="width:100%;padding:var(--space-3);">기본 분석 결과 보기</button>
+              <button class="btn btn-outline" style="width:100%;padding:var(--space-3);">계속 입력하기</button>
+              <button style="background:none;border:none;font-family:var(--font-sans);font-size:var(--text-body-sm);color:var(--color-on-surface-muted);cursor:pointer;padding:var(--space-2);">나가기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>트리거</td><td>—</td><td>뒤로가기 / 브라우저 이탈 감지</td><td>Step >= 2에서만</td></tr>
+              <tr><td>CTA 1</td><td>—</td><td>"기본 분석 결과 보기"</td><td>Step >= 2 조건부 표시</td></tr>
+              <tr><td>CTA 2</td><td>—</td><td>"계속 입력하기"</td><td>항상 표시</td></tr>
+              <tr><td>CTA 3</td><td>—</td><td>"나가기"</td><td>텍스트 버튼 (최소 강조)</td></tr>
+              <tr><td>진입</td><td>—</td><td>바텀시트 slide-up</td><td>300ms ease-out-expo</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>"기본 분석 결과 보기" CTA로 이탈 방지 (Step >= 2)</li>
+                <li>입력 정보 삭제 사실을 명확히 안내</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>닫기 옵션 없이 강제 유지하지 않음 (다크 패턴 금지)</li>
+                <li>Step 1에서는 표시하지 않음 (입력 정보 없음)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>role="alertdialog"</code> + <code>aria-modal="true"</code></li>
+            <li>포커스 트랩: 오버레이 내부에서만 탭 이동</li>
+            <li>ESC 키로 "나가기" 동작 트리거</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-onboarding.html" class="used-in-tag">Onboarding (Step 2+)</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- AnalysisLoadingScreen -->
+      <div class="demo-card">
+        <div class="demo-card-title">AnalysisLoadingScreen <span class="tag">§4.3</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          Conic-gradient 프로그레스 링 + 4단계 상태 메시지 + 퍼센티지 카운트업.
+        </p>
+
+        <div style="max-width:300px;margin:0 auto;text-align:center;">
+          <div class="analysis-progress-ring">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle class="ring-track" cx="60" cy="60" r="52"/>
+              <circle class="ring-fill" cx="60" cy="60" r="52"
+                stroke-dasharray="326.73"
+                style="stroke-dashoffset:81.68;"/>
+            </svg>
+            <div class="ring-text">75%</div>
+          </div>
+          <div style="font-size:var(--text-subtitle);font-weight:600;margin-bottom:var(--space-4);">분석 중입니다</div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-3);text-align:left;">
+            <div style="display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-body-sm);">
+              <span style="color:#059669;font-weight:700;">✓</span> 예산 범위 분석 완료
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-body-sm);">
+              <span style="color:#059669;font-weight:700;">✓</span> 통근 경로 분석 완료
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-body-sm);">
+              <span style="color:var(--color-brand-500);font-weight:700;">→</span> 생활 환경 평가 중...
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-body-sm);color:var(--color-on-surface-muted);">
+              <span>○</span> 종합 점수 산출
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>링 크기</td><td>—</td><td>120px</td><td>SVG circle</td></tr>
+              <tr><td>트랙</td><td><code>--color-neutral-200</code></td><td>6px stroke</td><td></td></tr>
+              <tr><td>필</td><td><code>--color-brand-500</code></td><td>6px stroke, round cap</td><td></td></tr>
+              <tr><td>퍼센티지</td><td>—</td><td>28px Bold, count-up</td><td>requestAnimationFrame</td></tr>
+              <tr><td>4단계 메시지</td><td>—</td><td>예산→통근→생활→종합</td><td>순차 fade-in (800ms 간격)</td></tr>
+              <tr><td>완료 시</td><td>—</td><td>"결과 보기" CTA 자동 표시</td><td>800ms 지연</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>각 단계 완료를 체크마크(✓)로 표시하여 진행감 제공</li>
+                <li>퍼센티지 숫자를 카운트업 애니메이션으로 표시</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>단순 스피너를 사용하지 않음 (진행 상태 불투명)</li>
+                <li>10초 이상 걸리면 사용자에게 "예상 시간" 안내 추가</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li>프로그레스에 <code>role="progressbar"</code> + <code>aria-valuenow</code> + <code>aria-valuemax="100"</code></li>
+            <li>단계 메시지에 <code>aria-live="polite"</code> 로 진행 상태 스크린리더 안내</li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-onboarding.html" class="used-in-tag">Onboarding (Step 5)</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- WhyTooltip -->
+      <div class="demo-card">
+        <div class="demo-card-title">WhyTooltip <span class="tag">§3.7+</span></div>
+        <p style="font-size:var(--text-body-sm);color:var(--color-on-surface-muted);margin-bottom:var(--space-4);">
+          "왜 이 정보가 필요한가요?" 신뢰 구축 목적의 인라인 툴팁. 기존 Tooltip과 구분.
+        </p>
+
+        <div style="max-width:360px;">
+          <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);">
+            <span style="font-size:var(--text-body-sm);font-weight:600;">부부 합산 연봉</span>
+            <button class="why-tooltip-trigger" onclick="toggleTooltip('whyDemo')">? 왜 필요한가요?</button>
+          </div>
+          <div class="tooltip-popup" id="whyDemo">
+            소득 정보는 PIR(가격소득비)와 DTI(부채상환비율) 계산에 사용됩니다. 예산 적합도 점수의 핵심 요인입니다. 세션 종료 시 즉시 삭제됩니다.
+          </div>
+        </div>
+
+        <div class="comp-specs">
+          <div class="component-label">사양</div>
+          <table class="spec-table">
+            <thead><tr><th>속성</th><th>토큰</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>트리거</td><td>—</td><td>"? 왜 필요한가요?" 텍스트 버튼</td><td>pill 형태</td></tr>
+              <tr><td>배경</td><td><code>--color-neutral-100</code></td><td>호버: neutral-200</td><td></td></tr>
+              <tr><td>팝업</td><td>—</td><td>기존 Tooltip과 동일 스타일</td><td>다크 배경 + 흰 텍스트</td></tr>
+              <tr><td>내용</td><td>—</td><td>정보 필요 이유 + 삭제 시점 안내</td><td>신뢰 구축 목적</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comp-guidelines">
+          <div class="component-label">사용 가이드라인</div>
+          <div class="guideline-grid">
+            <div class="guideline-do">
+              <div class="guideline-label do">✅ Do</div>
+              <ul>
+                <li>민감 정보(소득, 자산) 입력 라벨 옆에 배치</li>
+                <li>삭제 시점을 함께 안내하여 신뢰 강화</li>
+              </ul>
+            </div>
+            <div class="guideline-dont">
+              <div class="guideline-label dont">❌ Don't</div>
+              <ul>
+                <li>모든 입력 필드에 남용하지 않음 (민감 정보만)</li>
+                <li>ⓘ 아이콘 대신 "? 왜 필요한가요?" 텍스트로 더 명시적인 트리거 사용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-a11y">
+          <div class="component-label">접근성</div>
+          <ul class="a11y-list">
+            <li><code>aria-expanded</code> 토글로 팝업 상태 전달</li>
+            <li>트리거에 <code>aria-label="왜 합산 연봉 정보가 필요한지 안내 보기"</code></li>
+          </ul>
+        </div>
+
+        <div class="comp-used-in">
+          <div class="component-label">사용 페이지</div>
+          <div class="used-in-links">
+            <a href="page-onboarding.html" class="used-in-tag">Onboarding (Step 3, 4)</a>
+          </div>
+        </div>
+
+        <div class="comp-compliance">
+          <div class="component-label">컴플라이언스 노트</div>
+          <div class="compliance-note">
+            NFR-1 개인정보 비저장 원칙과 연계. "세션 종료 시 즉시 삭제" 문구를 WhyTooltip 내에 포함하여 신뢰를 강화합니다.
+          </div>
+        </div>
+      </div>
+
+      <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
     </main>
   </div>
   <script src="showcase.js"></script>
