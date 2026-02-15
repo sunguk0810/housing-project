@@ -10,6 +10,7 @@
 | PHASE1     | Active | `docs/agentic-tools/prompt-packs/PHASE1_prompt_pack.md`     | 왕복 동작 확인 완료           |
 | PHASE1 Fix | Active | `docs/agentic-tools/prompt-packs/PHASE1_fix_prompt_pack.md` | P0 수정 + Run 2 재검증 트리거 |
 | PHASE2     | Active | `docs/agentic-tools/prompt-packs/PHASE2_prompt_pack.md`     | 마일스톤별 실행+검증 (M1~M4)  |
+| PHASE1 DS  | Active | `docs/agentic-tools/prompt-packs/PHASE1_design_system_alternatives_prompt_pack.md` | 디자인 시스템 4축 대안 리서치 (5 Packs) |
 | PHASE3     | TBD    | -                                                           | 정본 충족 시 생성             |
 | PHASE4     | TBD    | -                                                           | 정본 충족 시 생성             |
 
