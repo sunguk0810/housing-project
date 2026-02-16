@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { eq, lte, desc, and, sql } from "drizzle-orm";
+import pLimit from "p-limit";
 import { db } from "@/db/connection";
 import { apartments, apartmentPrices, safetyStats } from "@/db/schema";
 import { recommendRequestSchema } from "@/lib/validators/recommend";
@@ -78,7 +79,7 @@ export async function POST(
         {
           error: {
             code: "ADDRESS_NOT_FOUND" as const,
-            message: "직장1 주소를 좌표로 변환할 수 없습니다.",
+            message: "직장 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)",
           },
         },
         { status: 400 },
@@ -137,128 +138,130 @@ export async function POST(
       });
     }
 
-    // Step 6-10: Score each candidate
-    const scoredCandidates: Array<{
-      item: RecommendationItem;
-      score: number;
-    }> = [];
+    // Step 6-10: Score each candidate (parallelized with concurrency limit)
+    const limit = pLimit(5);
 
-    for (const row of candidateRows) {
-      const aptId = row.id;
-      const aptLon = row.longitude;
-      const aptLat = row.latitude;
+    const scoredCandidates = await Promise.all(
+      candidateRows.map((row) =>
+        limit(async (): Promise<{ item: RecommendationItem; score: number }> => {
+          const aptId = row.id;
+          const aptLon = row.longitude;
+          const aptLat = row.latitude;
 
-      // Step 6: Childcare within 800m
-      const childcareItems = await findNearbyChildcare(aptLon, aptLat, 800);
+          // Step 6: Childcare within 800m
+          const childcareItems = await findNearbyChildcare(aptLon, aptLat, 800);
 
-      // Step 7: School score — simplified to average nearby school scores
-      const schoolRows = await db.execute(sql`
-        SELECT COALESCE(AVG(CAST(achievement_score AS REAL)), 0) AS "avgScore"
-        FROM schools
-        WHERE ST_DWithin(
-          location::geography,
-          ST_SetSRID(ST_MakePoint(${aptLon}, ${aptLat}), 4326)::geography,
-          1500
-        )
-      `);
-      const avgSchoolScore = Number(
-        (schoolRows[0] as Record<string, unknown>)?.avgScore ?? 0,
-      );
+          // Step 7: School score — simplified to average nearby school scores
+          const schoolRows = await db.execute(sql`
+            SELECT COALESCE(AVG(CAST(achievement_score AS REAL)), 0) AS "avgScore"
+            FROM schools
+            WHERE ST_DWithin(
+              location::geography,
+              ST_SetSRID(ST_MakePoint(${aptLon}, ${aptLat}), 4326)::geography,
+              1500
+            )
+          `);
+          const avgSchoolScore = Number(
+            (schoolRows[0] as Record<string, unknown>)?.avgScore ?? 0,
+          );
 
-      // Step 8: Safety mapping
-      const safetyRows = await db
-        .select({
-          crimeLevel: sql<number>`COALESCE(CAST(${safetyStats.crimeRate} AS REAL), 5)`,
-          cctvDensity: sql<number>`COALESCE(CAST(${safetyStats.cctvDensity} AS REAL), 2)`,
-          shelterCount: sql<number>`COALESCE(${safetyStats.shelterCount}, 3)`,
-          dataDate: safetyStats.dataDate,
-        })
-        .from(safetyStats)
-        .limit(1);
+          // Step 8: Safety mapping — match by regionCode extracted from aptCode
+          const safetyRows = await db
+            .select({
+              crimeLevel: sql<number>`COALESCE(CAST(${safetyStats.crimeRate} AS REAL), 5)`,
+              cctvDensity: sql<number>`COALESCE(CAST(${safetyStats.cctvDensity} AS REAL), 2)`,
+              shelterCount: sql<number>`COALESCE(${safetyStats.shelterCount}, 3)`,
+              dataDate: safetyStats.dataDate,
+            })
+            .from(safetyStats)
+            .where(sql`${safetyStats.regionCode} = SUBSTRING(${row.aptCode} FROM 5 FOR 5)`)
+            .limit(1);
 
-      const safetyData = safetyRows[0];
+          const safetyData = safetyRows[0];
 
-      // Step 9: Commute times
-      const commute1 = await getCommuteTime({
-        aptId,
-        aptLon,
-        aptLat,
-        destLon: job1Result.coordinate.lng,
-        destLat: job1Result.coordinate.lat,
-        destLabel: input.job1,
-      });
+          // Step 9: Commute times
+          const commute1 = await getCommuteTime({
+            aptId,
+            aptLon,
+            aptLat,
+            destLon: job1Result.coordinate.lng,
+            destLat: job1Result.coordinate.lat,
+            destLabel: input.job1,
+          });
 
-      let commute2Time = 0;
-      if (job2Result) {
-        const c2 = await getCommuteTime({
-          aptId,
-          aptLon,
-          aptLat,
-          destLon: job2Result.coordinate.lng,
-          destLat: job2Result.coordinate.lat,
-          destLabel: input.job2 ?? "",
-        });
-        commute2Time = c2.timeMinutes;
-      }
+          let commute2Time = 0;
+          if (job2Result) {
+            const c2 = await getCommuteTime({
+              aptId,
+              aptLon,
+              aptLat,
+              destLon: job2Result.coordinate.lng,
+              destLat: job2Result.coordinate.lat,
+              destLabel: input.job2 ?? "",
+            });
+            commute2Time = c2.timeMinutes;
+          }
 
-      // Step 10: Scoring
-      const monthlyCost = budget.estimatedMonthlyCost;
-      const scoringInput: ScoringInput = {
-        maxBudget: input.monthlyBudget,
-        monthlyCost,
-        commuteTime1: commute1.timeMinutes,
-        commuteTime2: commute2Time,
-        childcareCount800m: childcareItems.length,
-        crimeLevel: safetyData?.crimeLevel ?? 5,
-        cctvDensity: safetyData?.cctvDensity ?? 2,
-        shelterCount: safetyData?.shelterCount ?? 3,
-        achievementScore: avgSchoolScore,
-      };
+          // Step 10: Scoring
+          const monthlyCost = budget.estimatedMonthlyCost;
+          const scoringInput: ScoringInput = {
+            maxBudget: input.monthlyBudget,
+            monthlyCost,
+            commuteTime1: commute1.timeMinutes,
+            commuteTime2: commute2Time,
+            childcareCount800m: childcareItems.length,
+            crimeLevel: safetyData?.crimeLevel ?? 5,
+            cctvDensity: safetyData?.cctvDensity ?? 2,
+            shelterCount: safetyData?.shelterCount ?? 3,
+            achievementScore: avgSchoolScore,
+          };
 
-      const result = calculateFinalScore(
-        scoringInput,
-        input.weightProfile as WeightProfileKey,
-      );
+          const result = calculateFinalScore(
+            scoringInput,
+            input.weightProfile as WeightProfileKey,
+          );
 
-      scoredCandidates.push({
-        score: result.finalScore,
-        item: {
-          rank: 0, // Will be set after sorting
-          aptId,
-          aptName: row.aptName,
-          address: row.address,
-          lat: aptLat,
-          lng: aptLon,
-          tradeType: input.tradeType,
-          averagePrice: Number(row.averagePrice),
-          householdCount: row.householdCount,
-          areaMin: row.areaMin,
-          monthlyCost: Math.round(monthlyCost),
-          commuteTime1: commute1.timeMinutes,
-          commuteTime2: job2Result ? commute2Time : null,
-          childcareCount: childcareItems.length,
-          schoolScore: Math.round(avgSchoolScore),
-          safetyScore:
-            Math.round(
-              (result.dimensions.safety + Number.EPSILON) * 100,
-            ) / 100,
-          finalScore: result.finalScore,
-          reason: result.reason,
-          whyNot: result.whyNot || null,
-          dimensions: {
-            budget: Math.round(result.dimensions.budget * 100) / 100,
-            commute: Math.round(result.dimensions.commute * 100) / 100,
-            childcare: Math.round(result.dimensions.childcare * 100) / 100,
-            safety: Math.round(result.dimensions.safety * 100) / 100,
-            school: Math.round(result.dimensions.school * 100) / 100,
-          },
-          sources: {
-            priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, "0")}`,
-            safetyDate: safetyData?.dataDate ?? "N/A",
-          },
-        },
-      });
-    }
+          return {
+            score: result.finalScore,
+            item: {
+              rank: 0,
+              aptId,
+              aptName: row.aptName,
+              address: row.address,
+              lat: aptLat,
+              lng: aptLon,
+              tradeType: input.tradeType,
+              averagePrice: Number(row.averagePrice),
+              householdCount: row.householdCount,
+              areaMin: row.areaMin,
+              monthlyCost: Math.round(monthlyCost),
+              commuteTime1: commute1.timeMinutes,
+              commuteTime2: job2Result ? commute2Time : null,
+              childcareCount: childcareItems.length,
+              schoolScore: Math.round(avgSchoolScore),
+              safetyScore:
+                Math.round(
+                  (result.dimensions.safety + Number.EPSILON) * 100,
+                ) / 100,
+              finalScore: result.finalScore,
+              reason: result.reason,
+              whyNot: result.whyNot || null,
+              dimensions: {
+                budget: Math.round(result.dimensions.budget * 100) / 100,
+                commute: Math.round(result.dimensions.commute * 100) / 100,
+                childcare: Math.round(result.dimensions.childcare * 100) / 100,
+                safety: Math.round(result.dimensions.safety * 100) / 100,
+                school: Math.round(result.dimensions.school * 100) / 100,
+              },
+              sources: {
+                priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, "0")}`,
+                safetyDate: safetyData?.dataDate ?? "N/A",
+              },
+            },
+          };
+        }),
+      ),
+    );
 
     // Sort by score descending, take top 10
     scoredCandidates.sort((a, b) => b.score - a.score);
