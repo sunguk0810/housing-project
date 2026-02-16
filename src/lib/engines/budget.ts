@@ -76,6 +76,25 @@ function calculateSaleBudget(
   };
 }
 
+/**
+ * Per-apartment monthly cost estimate.
+ * Unlike estimatedMonthlyCost (user-level max), this reflects
+ * the actual loan needed for a specific apartment price.
+ */
+export function estimateApartmentMonthlyCost(
+  apartmentPrice: number,
+  cash: number,
+  tradeType: "sale" | "jeonse",
+): number {
+  const loanNeeded = Math.max(0, apartmentPrice - cash);
+  if (loanNeeded <= 0) return 0;
+  const termMonths =
+    tradeType === "sale"
+      ? BUDGET_CONSTANTS.SALE_LOAN_TERM_YEARS * 12
+      : BUDGET_CONSTANTS.JEONSE_LOAN_TERM_YEARS * 12;
+  return Math.round((loanNeeded / termMonths) * 10) / 10;
+}
+
 function calculateJeonseBudget(
   cash: number,
   income: number,

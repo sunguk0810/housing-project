@@ -5,7 +5,7 @@ import pLimit from "p-limit";
 import { db } from "@/db/connection";
 import { apartments, apartmentPrices, safetyStats } from "@/db/schema";
 import { recommendRequestSchema } from "@/lib/validators/recommend";
-import { calculateBudget } from "@/lib/engines/budget";
+import { calculateBudget, estimateApartmentMonthlyCost } from "@/lib/engines/budget";
 import { calculateFinalScore } from "@/lib/engines/scoring";
 import { findNearbyChildcare } from "@/lib/engines/spatial";
 import { getCommuteTime } from "@/lib/engines/commute";
@@ -79,7 +79,19 @@ export async function POST(
         {
           error: {
             code: "ADDRESS_NOT_FOUND" as const,
-            message: "직장 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)",
+            message: "직장1 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)",
+          },
+        },
+        { status: 400 },
+      );
+    }
+
+    if (input.job2 && !job2Result) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "ADDRESS_NOT_FOUND" as const,
+            message: "직장2 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)",
           },
         },
         { status: 400 },
@@ -202,8 +214,12 @@ export async function POST(
             commute2Time = c2.timeMinutes;
           }
 
-          // Step 10: Scoring
-          const monthlyCost = budget.estimatedMonthlyCost;
+          // Step 10: Scoring — per-apartment monthly cost based on actual price
+          const monthlyCost = estimateApartmentMonthlyCost(
+            Number(row.averagePrice),
+            input.cash,
+            input.tradeType,
+          );
           const scoringInput: ScoringInput = {
             maxBudget: input.monthlyBudget,
             monthlyCost,
