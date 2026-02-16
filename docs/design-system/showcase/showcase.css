@@ -768,7 +768,8 @@ a.demo-card:active,
   color: var(--color-brand-500);
   font-weight: 700;
 }
-.phone-bottom-nav .nav-item .nav-icon { font-size: 20px; }
+.phone-bottom-nav .nav-item .nav-icon { font-size: 20px; line-height: 1; }
+.phone-bottom-nav .nav-item .nav-icon svg { display: block; }
 
 /* ---- Skeleton Shimmer (m4) ---- */
 .skeleton {
@@ -1599,3 +1600,308 @@ a.demo-card:active,
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .bottomsheet-container { width: 100%; max-width: 390px; }
 }
+
+/* ============================================================
+ * Reusable Page Component Classes (Phase 1)
+ * ============================================================ */
+
+/* ---- Score Color Classes ---- */
+.score-color-excellent { color: var(--color-score-excellent); }
+.score-color-good { color: var(--color-score-good); }
+.score-color-average { color: var(--color-score-average); }
+.score-color-below { color: var(--color-score-below); }
+.score-color-poor { color: var(--color-score-poor); }
+
+.score-bg-excellent { background: var(--color-score-excellent); }
+.score-bg-good { background: var(--color-score-good); }
+.score-bg-average { background: var(--color-score-average); }
+.score-bg-below { background: var(--color-score-below); }
+.score-bg-poor { background: var(--color-score-poor); }
+
+.score-stroke-excellent { stroke: var(--color-score-excellent); }
+.score-stroke-good { stroke: var(--color-score-good); }
+.score-stroke-average { stroke: var(--color-score-average); }
+.score-stroke-below { stroke: var(--color-score-below); }
+.score-stroke-poor { stroke: var(--color-score-poor); }
+
+/* ---- Safety Color Classes ---- */
+.safety-bg-sufficient { background: var(--color-safety-sufficient); }
+.safety-color-sufficient { color: var(--color-safety-sufficient); }
+.safety-bg-moderate { background: var(--color-safety-moderate); }
+.safety-color-moderate { color: var(--color-safety-moderate); }
+.safety-bg-lacking { background: var(--color-safety-lacking); }
+.safety-color-lacking { color: var(--color-safety-lacking); }
+
+/* ---- Property Card ---- */
+.property-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-normal) var(--ease-smooth),
+              border-color var(--duration-normal) var(--ease-smooth);
+  cursor: pointer;
+}
+.property-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-brand-200);
+}
+.property-card:active {
+  transform: translateY(0) scale(0.98);
+}
+.property-card.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent), var(--shadow-sm);
+}
+
+/* ---- Sort Chip Button ---- */
+.sort-chip-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-on-surface);
+  border: 1.5px solid var(--color-border);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+.sort-chip-btn:hover { border-color: var(--color-brand-400); }
+.sort-chip-btn.active {
+  background: var(--color-brand-500);
+  color: #FFF;
+  border-color: var(--color-brand-500);
+}
+
+/* ---- Card Score Grid ---- */
+.card-score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: var(--space-2);
+  font-size: 11px;
+}
+
+/* ---- Page Section ---- */
+.page-section {
+  padding: 0 var(--space-4) var(--space-6);
+}
+.page-section-bordered {
+  padding: 0 var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+.page-section-title {
+  font-size: var(--text-subtitle);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+/* ---- Rank Badge ---- */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rank-badge-accent { background: var(--color-accent); }
+.rank-badge-neutral { background: var(--color-neutral-500); }
+
+/* ---- Phone Status Bar ---- */
+.phone-status-bar {
+  height: 44px;
+  padding: 12px 20px 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---- Scroll Animations ---- */
+.fade-in-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--duration-normal) var(--ease-smooth),
+              transform var(--duration-normal) var(--ease-out-expo);
+}
+.fade-in-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stagger-child {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--duration-normal) var(--ease-smooth),
+              transform var(--duration-normal) var(--ease-out-expo);
+}
+.stagger-child.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- Winner Highlight (Comparison) ---- */
+.winner-cell {
+  background: rgba(8,145,178,0.08);
+  font-weight: 600;
+  color: var(--color-score-excellent);
+}
+
+/* ---- Sticky CTA Bar ---- */
+.sticky-cta-bar {
+  position: sticky;
+  bottom: 56px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  z-index: 5;
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* ---- How It Works Flow ---- */
+.how-it-works-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+.how-it-works-step .step-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-brand-50);
+  border: 2px solid var(--color-brand-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--color-brand-600);
+}
+.how-it-works-step .step-icon svg { display: block; }
+.how-it-works-connector {
+  display: flex;
+  align-items: center;
+  color: var(--color-neutral-300);
+  font-size: 16px;
+  padding-top: 16px;
+}
+
+/* ---- Stats Counter Row ---- */
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  gap: var(--space-3);
+}
+.stat-item .stat-number {
+  font-size: var(--text-title);
+  font-weight: 700;
+  color: var(--color-brand-500);
+}
+.stat-item .stat-label {
+  font-size: 11px;
+  color: var(--color-on-surface-muted);
+  margin-top: 2px;
+}
+
+/* ---- Mini Transaction Table ---- */
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: var(--space-2);
+}
+.mini-table th {
+  text-align: left;
+  padding: 4px 6px;
+  font-weight: 600;
+  color: var(--color-on-surface-muted);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 10px;
+}
+.mini-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--color-neutral-100);
+  font-variant-numeric: tabular-nums;
+}
+.dark .mini-table td { border-bottom-color: var(--color-neutral-800); }
+
+/* ---- Facility Grid (Education / Amenities) ---- */
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+.facility-item {
+  text-align: center;
+  padding: var(--space-3);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+.facility-item .icon { font-size: 24px; margin-bottom: var(--space-1); }
+.facility-item .count {
+  font-size: var(--text-title);
+  font-weight: 700;
+  color: var(--color-brand-500);
+}
+.facility-item .label {
+  font-size: 11px;
+  color: var(--color-on-surface-muted);
+  margin-top: 2px;
+}
+
+/* ---- Inline SVG Icon Helpers ---- */
+.icon-inline { display: inline-flex; align-items: center; vertical-align: middle; }
+.icon-inline svg { display: block; }
+.score-icon { display: inline-flex; align-items: center; flex-shrink: 0; color: var(--color-on-surface-muted); }
+.score-icon svg { display: block; }
+
+/* ---- Card Score Row (icon + label + value) ---- */
+.card-score-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 0;
+}
+.card-score-row .score-label { color: var(--color-on-surface-muted); }
+.card-score-row .score-value { font-weight: 600; margin-left: auto; }
+
+/* ---- Card Select Animation (Onboarding) ---- */
+@keyframes cardSelectBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.ob-card.selected {
+  animation: cardSelectBounce var(--duration-normal) var(--ease-spring);
+}
+.ob-card .check-mark {
+  display: none;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-brand-500);
+  color: #FFF;
+  font-size: 12px;
+  align-items: center;
+  justify-content: center;
+}
+.ob-card.selected .check-mark { display: flex; }

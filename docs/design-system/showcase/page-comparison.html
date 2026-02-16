@@ -12,7 +12,7 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -23,14 +23,11 @@
 
       <div class="phone-frame">
         <!-- Status bar -->
-        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
-          <span>9:41</span>
-          <span>📶 🔋</span>
-        </div>
+        <div data-status-bar></div>
 
         <!-- Header -->
         <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
-          <span style="font-size:20px;cursor:pointer;">←</span>
+          <a href="page-results.html" style="font-size:20px;cursor:pointer;text-decoration:none;color:var(--color-on-surface);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg></a>
           <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">단지 비교 (3/3)</span>
         </div>
 
@@ -50,16 +47,16 @@
             <text x="140" y="268" text-anchor="middle" font-size="11" font-weight="600" fill="var(--color-on-surface)">보육</text>
             <text x="22" y="145" text-anchor="end" font-size="11" font-weight="600" fill="var(--color-on-surface)">안전</text>
             <g transform="translate(140,140)">
-              <polygon points="0,-92 76,0 0,68 -55,0" fill="rgba(8,145,178,0.10)" stroke="#0891B2" stroke-width="2"/>
-              <polygon points="0,-78 85,0 0,62 -48,0" fill="rgba(249,115,22,0.10)" stroke="#F97316" stroke-width="2"/>
-              <polygon points="0,-65 72,0 0,80 -52,0" fill="rgba(139,92,246,0.10)" stroke="#8B5CF6" stroke-width="2"/>
+              <polygon points="0,-92 76,0 0,68 -55,0" fill="color-mix(in srgb, var(--color-compare-1) 10%, transparent)" stroke="var(--color-compare-1)" stroke-width="2"/>
+              <polygon points="0,-78 85,0 0,62 -48,0" fill="color-mix(in srgb, var(--color-compare-2) 10%, transparent)" stroke="var(--color-compare-2)" stroke-width="2"/>
+              <polygon points="0,-65 72,0 0,80 -52,0" fill="color-mix(in srgb, var(--color-compare-3) 10%, transparent)" stroke="var(--color-compare-3)" stroke-width="2"/>
             </g>
           </svg>
           <!-- Legend -->
           <div style="display:flex;justify-content:center;gap:var(--space-4);font-size:11px;margin-top:var(--space-2);">
-            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:#0891B2;border-radius:1px;"></span>래미안</span>
-            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:#F97316;border-radius:1px;"></span>힐스테이트</span>
-            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:#8B5CF6;border-radius:1px;"></span>더샵</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:var(--color-compare-1);border-radius:1px;"></span>래미안</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:var(--color-compare-2);border-radius:1px;"></span>힐스테이트</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:var(--color-compare-3);border-radius:1px;"></span>더샵</span>
           </div>
         </div>
 
@@ -71,33 +68,39 @@
                 <th style="text-align:left;padding:8px 6px;font-weight:600;"></th>
                 <th style="text-align:center;padding:8px 6px;font-weight:700;color:var(--color-brand-500);">래미안<br><span style="font-size:16px;">84</span></th>
                 <th style="text-align:center;padding:8px 6px;font-weight:700;color:var(--color-accent);">힐스테이트<br><span style="font-size:16px;">75</span></th>
-                <th style="text-align:center;padding:8px 6px;font-weight:700;color:#8B5CF6;">더샵<br><span style="font-size:16px;">70</span></th>
+                <th style="text-align:center;padding:8px 6px;font-weight:700;color:var(--color-compare-3);">더샵<br><span style="font-size:16px;">70</span></th>
               </tr>
             </thead>
             <tbody>
               <tr style="border-bottom:1px solid var(--color-border);">
                 <td style="padding:8px 6px;font-weight:600;">예산</td>
-                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">92</td>
+                <td style="padding:8px 6px;text-align:center;background:color-mix(in srgb, var(--color-compare-1) 8%, transparent);font-weight:600;color:var(--color-score-excellent);">92</td>
                 <td style="padding:8px 6px;text-align:center;">78</td>
                 <td style="padding:8px 6px;text-align:center;">65</td>
               </tr>
               <tr style="border-bottom:1px solid var(--color-border);">
                 <td style="padding:8px 6px;font-weight:600;">통근</td>
                 <td style="padding:8px 6px;text-align:center;">76</td>
-                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">85</td>
+                <td style="padding:8px 6px;text-align:center;background:color-mix(in srgb, var(--color-compare-1) 8%, transparent);font-weight:600;color:var(--color-score-excellent);">85</td>
                 <td style="padding:8px 6px;text-align:center;">72</td>
               </tr>
               <tr style="border-bottom:1px solid var(--color-border);">
                 <td style="padding:8px 6px;font-weight:600;">보육</td>
                 <td style="padding:8px 6px;text-align:center;">68</td>
                 <td style="padding:8px 6px;text-align:center;">62</td>
-                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">80</td>
+                <td style="padding:8px 6px;text-align:center;background:color-mix(in srgb, var(--color-compare-1) 8%, transparent);font-weight:600;color:var(--color-score-excellent);">80</td>
               </tr>
               <tr style="border-bottom:1px solid var(--color-border);">
                 <td style="padding:8px 6px;font-weight:600;">안전</td>
-                <td style="padding:8px 6px;text-align:center;background:rgba(8,145,178,0.08);font-weight:600;color:#1565C0;">55</td>
+                <td style="padding:8px 6px;text-align:center;background:color-mix(in srgb, var(--color-compare-1) 8%, transparent);font-weight:600;color:var(--color-score-excellent);">55</td>
                 <td style="padding:8px 6px;text-align:center;">48</td>
                 <td style="padding:8px 6px;text-align:center;">52</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--color-border);">
+                <td style="padding:8px 6px;font-weight:600;">학군</td>
+                <td style="padding:8px 6px;text-align:center;">72</td>
+                <td style="padding:8px 6px;text-align:center;">65</td>
+                <td style="padding:8px 6px;text-align:center;background:color-mix(in srgb, var(--color-compare-1) 8%, transparent);font-weight:600;color:var(--color-score-excellent);">78</td>
               </tr>
               <tr>
                 <td style="padding:8px 6px;font-weight:600;">가격</td>
@@ -109,25 +112,35 @@
           </table>
         </div>
 
+        <!-- Winner badge -->
+        <div style="padding:var(--space-3) var(--space-4);text-align:center;">
+          <div style="display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);background:var(--color-brand-50);border:1px solid var(--color-brand-200);border-radius:var(--radius-full);font-size:12px;font-weight:600;color:var(--color-brand-600);">
+            <span class="score-icon" style="margin-right:2px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span> 종합 1위: 래미안 위브 하남 (84점)
+          </div>
+        </div>
+
+        <!-- Source + Disclaimer -->
+        <div style="padding:var(--space-2) var(--space-4);">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--color-on-surface-muted);margin-bottom:var(--space-2);">
+            <span class="source-tag"><span class="score-icon" style="margin-right:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> 공공데이터 기반 · 2026.01 기준</span>
+          </div>
+          <div style="font-size:10px;color:var(--color-on-surface-muted);line-height:1.5;">
+            비교 분석은 참고용이며 실거래를 보장하지 않습니다
+          </div>
+        </div>
+
         <!-- Bottom action -->
-        <div style="padding:var(--space-6) var(--space-4);">
-          <button class="btn btn-outline" style="width:100%;padding:var(--space-3);">
-            분석 결과 목록으로 돌아가기
-          </button>
+        <div style="padding:var(--space-4) var(--space-4) var(--space-6);display:flex;gap:var(--space-3);">
+          <a href="page-detail.html" class="btn btn-primary" style="flex:1;text-align:center;text-decoration:none;">1위 상세 보기</a>
+          <a href="page-results.html" class="btn btn-outline" style="flex:1;text-align:center;text-decoration:none;">목록으로</a>
         </div>
 
         <!-- Bottom Nav -->
-        <div class="phone-bottom-nav">
-          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
-          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
-          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
-          <a class="nav-item active"><span class="nav-icon">📊</span>비교</a>
-          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
-        </div>
+        <div data-bottom-nav="comparison"></div>
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
 </body>

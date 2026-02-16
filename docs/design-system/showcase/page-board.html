@@ -16,7 +16,7 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -27,14 +27,11 @@
 
       <div class="phone-frame">
         <!-- Status bar -->
-        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
-          <span>9:41</span>
-          <span style="display:flex;gap:4px;">📶 🔋</span>
-        </div>
+        <div data-status-bar></div>
 
         <!-- Header -->
         <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);">
-          <span style="font-size:20px;cursor:pointer;">←</span>
+          <a href="page-results.html" style="font-size:20px;cursor:pointer;text-decoration:none;color:var(--color-on-surface);">←</a>
           <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">우리 찜 목록</span>
           <div style="display:flex;">
             <div style="width:28px;height:28px;border-radius:50%;background:var(--color-brand-100);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--color-surface);">👩</div>
@@ -65,7 +62,7 @@
               <div class="gauge-wrapper" style="width:40px;height:40px;">
                 <svg width="40" height="40" viewBox="0 0 40 40">
                   <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
-                  <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#1565C0" stroke-dasharray="100.53" style="--gauge-offset:16.08;--gauge-circumference:100.53;" data-animate/>
+                  <circle class="gauge-fill score-stroke-excellent" cx="20" cy="20" r="16" stroke-width="3" stroke-dasharray="100.53" style="--gauge-offset:16.08;--gauge-circumference:100.53;" data-animate/>
                 </svg>
                 <span class="gauge-text" style="font-size:12px;">84</span>
               </div>
@@ -90,7 +87,7 @@
               <div class="gauge-wrapper" style="width:40px;height:40px;">
                 <svg width="40" height="40" viewBox="0 0 40 40">
                   <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
-                  <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#2196F3" stroke-dasharray="100.53" style="--gauge-offset:25.13;--gauge-circumference:100.53;" data-animate/>
+                  <circle class="gauge-fill score-stroke-good" cx="20" cy="20" r="16" stroke-width="3" stroke-dasharray="100.53" style="--gauge-offset:25.13;--gauge-circumference:100.53;" data-animate/>
                 </svg>
                 <span class="gauge-text" style="font-size:12px;">75</span>
               </div>
@@ -111,7 +108,7 @@
               <div class="gauge-wrapper" style="width:40px;height:40px;">
                 <svg width="40" height="40" viewBox="0 0 40 40">
                   <circle class="gauge-track" cx="20" cy="20" r="16" stroke-width="3"/>
-                  <circle class="gauge-fill" cx="20" cy="20" r="16" stroke-width="3" stroke="#2196F3" stroke-dasharray="100.53" style="--gauge-offset:30.16;--gauge-circumference:100.53;" data-animate/>
+                  <circle class="gauge-fill score-stroke-good" cx="20" cy="20" r="16" stroke-width="3" stroke-dasharray="100.53" style="--gauge-offset:30.16;--gauge-circumference:100.53;" data-animate/>
                 </svg>
                 <span class="gauge-text" style="font-size:12px;">70</span>
               </div>
@@ -126,17 +123,11 @@
         <div style="height:20px;"></div>
 
         <!-- Bottom Nav -->
-        <div class="phone-bottom-nav">
-          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
-          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
-          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
-          <a class="nav-item active"><span class="nav-icon">📋</span>보드</a>
-          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
-        </div>
+        <div data-bottom-nav=""></div>
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
 </body>

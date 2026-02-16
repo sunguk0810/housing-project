@@ -17,7 +17,7 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -107,28 +107,28 @@
 
         <div style="max-width:300px;display:flex;flex-direction:column;gap:var(--space-4);">
           <div class="ld-step" id="ldStep1" style="display:flex;align-items:center;gap:var(--space-3);">
-            <span style="font-size:24px;">💰</span>
+            <span style="display:inline-flex;color:var(--color-brand-600);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg></span>
             <div>
               <div style="font-size:var(--text-body-sm);font-weight:600;">예산 범위 분석</div>
               <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">DSR, 자기자본 기반 한도 계산</div>
             </div>
           </div>
           <div class="ld-step" id="ldStep2" style="display:flex;align-items:center;gap:var(--space-3);">
-            <span style="font-size:24px;">🚇</span>
+            <span style="display:inline-flex;color:var(--color-brand-600);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/></svg></span>
             <div>
               <div style="font-size:var(--text-body-sm);font-weight:600;">통근 경로 분석</div>
               <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">대중교통 최적 경로 탐색</div>
             </div>
           </div>
           <div class="ld-step" id="ldStep3" style="display:flex;align-items:center;gap:var(--space-3);">
-            <span style="font-size:24px;">🛡️</span>
+            <span style="display:inline-flex;color:var(--color-brand-600);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
             <div>
               <div style="font-size:var(--text-body-sm);font-weight:600;">생활 환경 평가</div>
               <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">보육 / 안전 시설 반경 분석</div>
             </div>
           </div>
           <div class="ld-step" id="ldStep4" style="display:flex;align-items:center;gap:var(--space-3);">
-            <span style="font-size:24px;">✨</span>
+            <span style="display:inline-flex;color:var(--color-brand-600);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></span>
             <div>
               <div style="font-size:var(--text-body-sm);font-weight:600;">종합 점수 산출</div>
               <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">4개 카테고리 가중 평균</div>
@@ -166,7 +166,7 @@
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
   <script>
