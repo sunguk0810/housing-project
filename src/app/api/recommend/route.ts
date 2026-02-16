@@ -95,8 +95,9 @@ export async function POST(
     });
 
     // Step 5: Spatial filter — apartments within budget
+    // selectDistinctOn: per-apartment 1 row (latest price) to avoid JOIN duplicates
     const candidateRows = await db
-      .select({
+      .selectDistinctOn([apartments.id], {
         id: apartments.id,
         aptCode: apartments.aptCode,
         aptName: apartments.aptName,
@@ -104,6 +105,8 @@ export async function POST(
         longitude: sql<number>`ST_X(${apartments.location}::geometry)`,
         latitude: sql<number>`ST_Y(${apartments.location}::geometry)`,
         builtYear: apartments.builtYear,
+        householdCount: apartments.householdCount,
+        areaMin: apartments.areaMin,
         averagePrice: apartmentPrices.averagePrice,
         dealCount: apartmentPrices.dealCount,
         priceYear: apartmentPrices.year,
@@ -117,7 +120,11 @@ export async function POST(
           lte(sql<number>`CAST(${apartmentPrices.averagePrice} AS INTEGER)`, budget.maxPrice),
         ),
       )
-      .orderBy(desc(apartmentPrices.averagePrice))
+      .orderBy(
+        apartments.id,
+        desc(apartmentPrices.year),
+        desc(apartmentPrices.month),
+      )
       .limit(50);
 
     if (candidateRows.length === 0) {
@@ -222,6 +229,10 @@ export async function POST(
           address: row.address,
           lat: aptLat,
           lng: aptLon,
+          tradeType: input.tradeType,
+          averagePrice: Number(row.averagePrice),
+          householdCount: row.householdCount,
+          areaMin: row.areaMin,
           monthlyCost: Math.round(monthlyCost),
           commuteTime1: commute1.timeMinutes,
           commuteTime2: job2Result ? commute2Time : null,
@@ -234,6 +245,13 @@ export async function POST(
           finalScore: result.finalScore,
           reason: result.reason,
           whyNot: result.whyNot || null,
+          dimensions: {
+            budget: Math.round(result.dimensions.budget * 100) / 100,
+            commute: Math.round(result.dimensions.commute * 100) / 100,
+            childcare: Math.round(result.dimensions.childcare * 100) / 100,
+            safety: Math.round(result.dimensions.safety * 100) / 100,
+            school: Math.round(result.dimensions.school * 100) / 100,
+          },
           sources: {
             priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, "0")}`,
             safetyDate: safetyData?.dataDate ?? "N/A",

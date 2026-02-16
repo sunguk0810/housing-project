@@ -44,6 +44,10 @@ export interface RecommendationItem {
   readonly address: string;
   readonly lat: number;     // M3 KakaoMap marker latitude
   readonly lng: number;     // M3 KakaoMap marker longitude
+  readonly tradeType: TradeType;
+  readonly averagePrice: number;              // average price in 만원
+  readonly householdCount: number | null;
+  readonly areaMin: number | null;            // min area in ㎡
   readonly monthlyCost: number;
   readonly commuteTime1: number;
   readonly commuteTime2: number | null;
@@ -53,6 +57,13 @@ export interface RecommendationItem {
   readonly finalScore: number;
   readonly reason: string;
   readonly whyNot: string | null;
+  readonly dimensions: {
+    readonly budget: number;
+    readonly commute: number;
+    readonly childcare: number;
+    readonly safety: number;
+    readonly school: number;
+  };
   readonly sources: SourceInfo;
 }
 

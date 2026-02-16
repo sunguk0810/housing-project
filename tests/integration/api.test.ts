@@ -9,7 +9,7 @@ import { describe, it, expect, vi } from "vitest";
 // Chainable mock helper for Drizzle ORM select queries
 function createSelectChain(resolvedValue: unknown[] = []) {
   const chain: Record<string, unknown> = {};
-  for (const m of ["select", "from", "where", "orderBy", "limit", "innerJoin"]) {
+  for (const m of ["select", "selectDistinctOn", "from", "where", "orderBy", "limit", "innerJoin"]) {
     chain[m] = vi.fn().mockReturnValue(chain);
   }
   chain.then = (
@@ -34,6 +34,7 @@ vi.mock("@/db/connection", () => {
     db: {
       execute: mockExecute,
       select: vi.fn().mockReturnValue(createSelectChain([])),
+      selectDistinctOn: vi.fn().mockReturnValue(createSelectChain([])),
     },
     sql: {
       end: vi.fn(),
@@ -129,16 +130,18 @@ describe("POST /api/recommend", () => {
     // Mock DB to return some candidate rows via ORM select chain
     const { db } = await import("@/db/connection");
 
-    // 1st select: candidate apartments (2 rows)
-    vi.mocked(db.select).mockReturnValueOnce(createSelectChain([
+    // 1st selectDistinctOn: candidate apartments (2 rows)
+    vi.mocked(db.selectDistinctOn).mockReturnValueOnce(createSelectChain([
       {
         id: 1, aptCode: "A001", aptName: "Test Apt 1", address: "서울 강남구",
         longitude: 127.036, latitude: 37.5, builtYear: 2020,
+        householdCount: 1200, areaMin: 84,
         averagePrice: "20000", dealCount: 5, priceYear: 2026, priceMonth: 1,
       },
       {
         id: 2, aptCode: "A002", aptName: "Test Apt 2", address: "서울 서초구",
         longitude: 127.032, latitude: 37.48, builtYear: 2019,
+        householdCount: 980, areaMin: 59,
         averagePrice: "15000", dealCount: 3, priceYear: 2026, priceMonth: 1,
       },
     ]) as never);
@@ -223,6 +226,7 @@ describe("GET /api/health", () => {
         db: {
           execute: vi.fn().mockResolvedValue([]),
           select: vi.fn().mockReturnValue(createSelectChain([])),
+          selectDistinctOn: vi.fn().mockReturnValue(createSelectChain([])),
         },
         sql: mockSql,
       };
