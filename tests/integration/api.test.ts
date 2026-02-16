@@ -6,11 +6,35 @@ import { describe, it, expect, vi } from "vitest";
  * Source of Truth: M2 spec Section 8.2
  */
 
+// Chainable mock helper for Drizzle ORM select queries
+function createSelectChain(resolvedValue: unknown[] = []) {
+  const chain: Record<string, unknown> = {};
+  for (const m of ["select", "from", "where", "orderBy", "limit", "innerJoin"]) {
+    chain[m] = vi.fn().mockReturnValue(chain);
+  }
+  chain.then = (
+    resolve?: (v: unknown) => unknown,
+    reject?: (e: unknown) => unknown,
+  ) => {
+    try {
+      return Promise.resolve(resolve ? resolve(resolvedValue) : resolvedValue);
+    } catch (e) {
+      return reject ? Promise.resolve(reject(e)) : Promise.reject(e);
+    }
+  };
+  return chain;
+}
+
 // Mock all DB/external dependencies
 vi.mock("@/db/connection", () => {
-  const mockExecute = vi.fn().mockResolvedValue([]);
+  const mockExecute = vi.fn().mockResolvedValue(
+    Object.assign([], { command: "SELECT", count: 0, fields: [], rows: [] }),
+  );
   return {
-    db: { execute: mockExecute },
+    db: {
+      execute: mockExecute,
+      select: vi.fn().mockReturnValue(createSelectChain([])),
+    },
     sql: {
       end: vi.fn(),
     },
@@ -102,47 +126,31 @@ describe("POST /api/recommend", () => {
 
   // I-9: Results are sorted descending by finalScore
   it("I-9: recommendations are sorted by finalScore descending", async () => {
-    // Mock DB to return some candidate rows
+    // Mock DB to return some candidate rows via ORM select chain
     const { db } = await import("@/db/connection");
-    vi.mocked(db.execute).mockResolvedValueOnce(
-      Object.assign(
-        [
-          {
-            id: 1,
-            aptCode: "A001",
-            aptName: "Test Apt 1",
-            address: "서울 강남구",
-            longitude: 127.036,
-            latitude: 37.5,
-            builtYear: 2020,
-            averagePrice: 20000,
-            dealCount: 5,
-            priceYear: 2026,
-            priceMonth: 1,
-          },
-          {
-            id: 2,
-            aptCode: "A002",
-            aptName: "Test Apt 2",
-            address: "서울 서초구",
-            longitude: 127.032,
-            latitude: 37.48,
-            builtYear: 2019,
-            averagePrice: 15000,
-            dealCount: 3,
-            priceYear: 2026,
-            priceMonth: 1,
-          },
-        ],
-        { command: "SELECT", count: 2, fields: [], rows: [] },
-      ) as never,
-    );
-    // Mock subsequent calls for each candidate
+
+    // 1st select: candidate apartments (2 rows)
+    vi.mocked(db.select).mockReturnValueOnce(createSelectChain([
+      {
+        id: 1, aptCode: "A001", aptName: "Test Apt 1", address: "서울 강남구",
+        longitude: 127.036, latitude: 37.5, builtYear: 2020,
+        averagePrice: "20000", dealCount: 5, priceYear: 2026, priceMonth: 1,
+      },
+      {
+        id: 2, aptCode: "A002", aptName: "Test Apt 2", address: "서울 서초구",
+        longitude: 127.032, latitude: 37.48, builtYear: 2019,
+        averagePrice: "15000", dealCount: 3, priceYear: 2026, priceMonth: 1,
+      },
+    ]) as never);
+
+    // Subsequent selects (safety): default values
+    vi.mocked(db.select).mockReturnValue(createSelectChain([
+      { crimeLevel: 5, cctvDensity: 3, shelterCount: 5, dataDate: "2025-12-01" },
+    ]) as never);
+
+    // execute (school score): Raw SQL maintained
     vi.mocked(db.execute).mockResolvedValue(
-      Object.assign(
-        [{ avgScore: 50, crimeLevel: 5, cctvDensity: 3, shelterCount: 5, dataDate: "2025-12-01" }],
-        { command: "SELECT", count: 1, fields: [], rows: [] },
-      ) as never,
+      Object.assign([{ avgScore: 50 }], { command: "SELECT", count: 1, fields: [], rows: [] }) as never,
     );
 
     const { POST } = await import("@/app/api/recommend/route");
@@ -161,6 +169,12 @@ describe("POST /api/recommend", () => {
           data.recommendations[i + 1].finalScore,
         );
       }
+    }
+
+    // Verify lat/lng included in response
+    if (data.recommendations.length > 0) {
+      expect(data.recommendations[0]).toHaveProperty("lat");
+      expect(data.recommendations[0]).toHaveProperty("lng");
     }
   });
 });
@@ -183,9 +197,7 @@ describe("GET /api/apartments/[id]", () => {
   // I-5: Non-existent ID
   it("I-5: returns 404 for non-existent apartment", async () => {
     const { db } = await import("@/db/connection");
-    vi.mocked(db.execute).mockResolvedValueOnce(
-      Object.assign([], { command: "SELECT", count: 0, fields: [], rows: [] }) as never,
-    );
+    vi.mocked(db.select).mockReturnValueOnce(createSelectChain([]) as never);
 
     const { GET } = await import("@/app/api/apartments/[id]/route");
     const request = new Request("http://localhost/api/apartments/999999");
@@ -208,7 +220,10 @@ describe("GET /api/health", () => {
       const mockSql = vi.fn();
       (mockSql as unknown as { end: () => void }).end = vi.fn();
       return {
-        db: { execute: vi.fn().mockResolvedValue([]) },
+        db: {
+          execute: vi.fn().mockResolvedValue([]),
+          select: vi.fn().mockReturnValue(createSelectChain([])),
+        },
         sql: mockSql,
       };
     });

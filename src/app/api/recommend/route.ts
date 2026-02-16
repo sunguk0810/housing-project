@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { sql as sqlTag } from "drizzle-orm";
+import { eq, lte, desc, and, sql } from "drizzle-orm";
 import { db } from "@/db/connection";
+import { apartments, apartmentPrices, safetyStats } from "@/db/schema";
 import { recommendRequestSchema } from "@/lib/validators/recommend";
 import { calculateBudget } from "@/lib/engines/budget";
 import { calculateFinalScore } from "@/lib/engines/scoring";
@@ -94,26 +95,30 @@ export async function POST(
     });
 
     // Step 5: Spatial filter — apartments within budget
-    const candidateRows = await db.execute(sqlTag`
-      SELECT
-        a.id,
-        a.apt_code AS "aptCode",
-        a.apt_name AS "aptName",
-        a.address,
-        ST_X(a.location::geometry) AS longitude,
-        ST_Y(a.location::geometry) AS latitude,
-        a.built_year AS "builtYear",
-        p.average_price AS "averagePrice",
-        p.deal_count AS "dealCount",
-        p.year AS "priceYear",
-        p.month AS "priceMonth"
-      FROM apartments a
-      JOIN apartment_prices p ON a.id = p.apt_id
-      WHERE p.trade_type = ${input.tradeType}
-        AND CAST(p.average_price AS INTEGER) <= ${budget.maxPrice}
-      ORDER BY p.average_price DESC
-      LIMIT 50
-    `);
+    const candidateRows = await db
+      .select({
+        id: apartments.id,
+        aptCode: apartments.aptCode,
+        aptName: apartments.aptName,
+        address: apartments.address,
+        longitude: sql<number>`ST_X(${apartments.location}::geometry)`,
+        latitude: sql<number>`ST_Y(${apartments.location}::geometry)`,
+        builtYear: apartments.builtYear,
+        averagePrice: apartmentPrices.averagePrice,
+        dealCount: apartmentPrices.dealCount,
+        priceYear: apartmentPrices.year,
+        priceMonth: apartmentPrices.month,
+      })
+      .from(apartments)
+      .innerJoin(apartmentPrices, eq(apartments.id, apartmentPrices.aptId))
+      .where(
+        and(
+          eq(apartmentPrices.tradeType, input.tradeType),
+          lte(sql<number>`CAST(${apartmentPrices.averagePrice} AS INTEGER)`, budget.maxPrice),
+        ),
+      )
+      .orderBy(desc(apartmentPrices.averagePrice))
+      .limit(50);
 
     if (candidateRows.length === 0) {
       return NextResponse.json({
@@ -131,16 +136,16 @@ export async function POST(
       score: number;
     }> = [];
 
-    for (const row of candidateRows as Array<Record<string, unknown>>) {
-      const aptId = Number(row.id);
-      const aptLon = Number(row.longitude ?? 0);
-      const aptLat = Number(row.latitude ?? 0);
+    for (const row of candidateRows) {
+      const aptId = row.id;
+      const aptLon = row.longitude;
+      const aptLat = row.latitude;
 
       // Step 6: Childcare within 800m
       const childcareItems = await findNearbyChildcare(aptLon, aptLat, 800);
 
       // Step 7: School score — simplified to average nearby school scores
-      const schoolRows = await db.execute(sqlTag`
+      const schoolRows = await db.execute(sql`
         SELECT COALESCE(AVG(CAST(achievement_score AS REAL)), 0) AS "avgScore"
         FROM schools
         WHERE ST_DWithin(
@@ -154,16 +159,17 @@ export async function POST(
       );
 
       // Step 8: Safety mapping
-      const safetyRows = await db.execute(sqlTag`
-        SELECT
-          COALESCE(CAST(crime_rate AS REAL), 5) AS "crimeLevel",
-          COALESCE(CAST(cctv_density AS REAL), 2) AS "cctvDensity",
-          COALESCE(shelter_count, 3) AS "shelterCount",
-          data_date AS "dataDate"
-        FROM safety_stats
-        LIMIT 1
-      `);
-      const safetyData = safetyRows[0] as Record<string, unknown> | undefined;
+      const safetyRows = await db
+        .select({
+          crimeLevel: sql<number>`COALESCE(CAST(${safetyStats.crimeRate} AS REAL), 5)`,
+          cctvDensity: sql<number>`COALESCE(CAST(${safetyStats.cctvDensity} AS REAL), 2)`,
+          shelterCount: sql<number>`COALESCE(${safetyStats.shelterCount}, 3)`,
+          dataDate: safetyStats.dataDate,
+        })
+        .from(safetyStats)
+        .limit(1);
+
+      const safetyData = safetyRows[0];
 
       // Step 9: Commute times
       const commute1 = await getCommuteTime({
@@ -196,9 +202,9 @@ export async function POST(
         commuteTime1: commute1.timeMinutes,
         commuteTime2: commute2Time,
         childcareCount800m: childcareItems.length,
-        crimeLevel: Number(safetyData?.crimeLevel ?? 5),
-        cctvDensity: Number(safetyData?.cctvDensity ?? 2),
-        shelterCount: Number(safetyData?.shelterCount ?? 3),
+        crimeLevel: safetyData?.crimeLevel ?? 5,
+        cctvDensity: safetyData?.cctvDensity ?? 2,
+        shelterCount: safetyData?.shelterCount ?? 3,
         achievementScore: avgSchoolScore,
       };
 
@@ -207,16 +213,15 @@ export async function POST(
         input.weightProfile as WeightProfileKey,
       );
 
-      const priceYear = Number(row.priceYear ?? 2026);
-      const priceMonth = Number(row.priceMonth ?? 1);
-
       scoredCandidates.push({
         score: result.finalScore,
         item: {
           rank: 0, // Will be set after sorting
           aptId,
-          aptName: String(row.aptName ?? ""),
-          address: String(row.address ?? ""),
+          aptName: row.aptName,
+          address: row.address,
+          lat: aptLat,
+          lng: aptLon,
           monthlyCost: Math.round(monthlyCost),
           commuteTime1: commute1.timeMinutes,
           commuteTime2: job2Result ? commute2Time : null,
@@ -230,10 +235,8 @@ export async function POST(
           reason: result.reason,
           whyNot: result.whyNot || null,
           sources: {
-            priceDate: `${priceYear}-${String(priceMonth).padStart(2, "0")}`,
-            safetyDate: safetyData?.dataDate
-              ? String(safetyData.dataDate)
-              : "N/A",
+            priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, "0")}`,
+            safetyDate: safetyData?.dataDate ?? "N/A",
           },
         },
       });

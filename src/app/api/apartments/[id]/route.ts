@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { sql as sqlTag } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { db } from "@/db/connection";
+import { apartments, apartmentPrices, safetyStats } from "@/db/schema";
 import { apartmentIdSchema } from "@/lib/validators/apartment";
 import { findNearbyChildcare, findNearbySchools, findNearestGrid } from "@/lib/engines/spatial";
 import type {
@@ -40,23 +41,24 @@ export async function GET(
 
   try {
     // Step 2: Fetch apartment basic info
-    const aptRows = await db.execute(sqlTag`
-      SELECT
-        id,
-        apt_code AS "aptCode",
-        apt_name AS "aptName",
-        address,
-        built_year AS "builtYear",
-        household_count AS "householdCount",
-        area_min AS "areaMin",
-        area_max AS "areaMax",
-        ST_X(location::geometry) AS longitude,
-        ST_Y(location::geometry) AS latitude
-      FROM apartments
-      WHERE id = ${aptId}
-    `);
+    const aptRows = await db
+      .select({
+        id: apartments.id,
+        aptCode: apartments.aptCode,
+        aptName: apartments.aptName,
+        address: apartments.address,
+        builtYear: apartments.builtYear,
+        householdCount: apartments.householdCount,
+        areaMin: apartments.areaMin,
+        areaMax: apartments.areaMax,
+        longitude: sql<number>`ST_X(${apartments.location}::geometry)`,
+        latitude: sql<number>`ST_Y(${apartments.location}::geometry)`,
+      })
+      .from(apartments)
+      .where(eq(apartments.id, aptId));
 
-    if (aptRows.length === 0) {
+    const apt = aptRows[0];
+    if (!apt) {
       return NextResponse.json(
         {
           error: {
@@ -68,22 +70,23 @@ export async function GET(
       );
     }
 
-    const apt = aptRows[0] as Record<string, unknown>;
-    const aptLon = Number(apt.longitude ?? 0);
-    const aptLat = Number(apt.latitude ?? 0);
+    const aptLon = apt.longitude;
+    const aptLat = apt.latitude;
 
     // Step 3: Fetch prices
-    const priceRows = await db.execute(sqlTag`
-      SELECT
-        trade_type AS "tradeType",
-        year,
-        month,
-        average_price AS "averagePrice",
-        deal_count AS "dealCount"
-      FROM apartment_prices
-      WHERE apt_id = ${aptId}
-      ORDER BY year DESC, month DESC
-    `);
+    const priceRows = await db
+      .select({
+        tradeType: apartmentPrices.tradeType,
+        year: apartmentPrices.year,
+        month: apartmentPrices.month,
+        averagePrice: apartmentPrices.averagePrice,
+        dealCount: apartmentPrices.dealCount,
+      })
+      .from(apartmentPrices)
+      .where(eq(apartmentPrices.aptId, aptId))
+      .orderBy(desc(apartmentPrices.year), desc(apartmentPrices.month));
+
+    const firstPrice = priceRows[0];
 
     // Step 4: Nearby childcare (800m)
     const childcareItems = await findNearbyChildcare(aptLon, aptLat, 800);
@@ -92,38 +95,31 @@ export async function GET(
     const schoolItems = await findNearbySchools(aptLon, aptLat, 1500);
 
     // Step 6: Safety stats
-    // Extract region from address for safety lookup
-    const address = String(apt.address ?? "");
-    const safetyRows = await db.execute(sqlTag`
-      SELECT
-        region_code AS "regionCode",
-        region_name AS "regionName",
-        calculated_score AS "calculatedScore",
-        crime_rate AS "crimeRate",
-        cctv_density AS "cctvDensity",
-        shelter_count AS "shelterCount",
-        data_date AS "dataDate"
-      FROM safety_stats
-      LIMIT 1
-    `);
+    const safetyRows = await db
+      .select({
+        regionCode: safetyStats.regionCode,
+        regionName: safetyStats.regionName,
+        calculatedScore: safetyStats.calculatedScore,
+        crimeRate: safetyStats.crimeRate,
+        cctvDensity: safetyStats.cctvDensity,
+        shelterCount: safetyStats.shelterCount,
+        dataDate: safetyStats.dataDate,
+      })
+      .from(safetyStats)
+      .limit(1);
 
-    const safety =
-      safetyRows.length > 0
-        ? (() => {
-            const s = safetyRows[0] as Record<string, unknown>;
-            return {
-              regionCode: String(s.regionCode ?? ""),
-              regionName: s.regionName ? String(s.regionName) : null,
-              calculatedScore: s.calculatedScore
-                ? Number(s.calculatedScore)
-                : null,
-              crimeRate: s.crimeRate ? Number(s.crimeRate) : null,
-              cctvDensity: s.cctvDensity ? Number(s.cctvDensity) : null,
-              shelterCount: s.shelterCount ? Number(s.shelterCount) : null,
-              dataDate: s.dataDate ? String(s.dataDate) : null,
-            };
-          })()
-        : null;
+    const s = safetyRows[0];
+    const safety = s
+      ? {
+          regionCode: s.regionCode,
+          regionName: s.regionName,
+          calculatedScore: s.calculatedScore ? Number(s.calculatedScore) : null,
+          crimeRate: s.crimeRate ? Number(s.crimeRate) : null,
+          cctvDensity: s.cctvDensity ? Number(s.cctvDensity) : null,
+          shelterCount: s.shelterCount,
+          dataDate: s.dataDate,
+        }
+      : null;
 
     // Step 7: Commute grid
     const grid = await findNearestGrid(aptLon, aptLat);
@@ -131,22 +127,20 @@ export async function GET(
     // Assemble response
     const response: ApartmentDetailResponse = {
       apartment: {
-        id: Number(apt.id),
-        aptCode: String(apt.aptCode ?? ""),
-        aptName: String(apt.aptName ?? ""),
-        address,
-        builtYear: apt.builtYear ? Number(apt.builtYear) : null,
-        householdCount: apt.householdCount
-          ? Number(apt.householdCount)
-          : null,
-        areaMin: apt.areaMin ? Number(apt.areaMin) : null,
-        areaMax: apt.areaMax ? Number(apt.areaMax) : null,
-        prices: priceRows.map((r: Record<string, unknown>) => ({
-          tradeType: String(r.tradeType) as "sale" | "jeonse",
-          year: Number(r.year),
-          month: Number(r.month),
+        id: apt.id,
+        aptCode: apt.aptCode,
+        aptName: apt.aptName,
+        address: apt.address,
+        builtYear: apt.builtYear,
+        householdCount: apt.householdCount,
+        areaMin: apt.areaMin,
+        areaMax: apt.areaMax,
+        prices: priceRows.map((r) => ({
+          tradeType: (r.tradeType ?? "") as "sale" | "jeonse",
+          year: r.year ?? 0,
+          month: r.month ?? 0,
           averagePrice: Number(r.averagePrice ?? 0),
-          dealCount: Number(r.dealCount ?? 0),
+          dealCount: r.dealCount ?? 0,
         })),
       },
       nearby: {
@@ -164,16 +158,12 @@ export async function GET(
         toPangyo: grid?.toPangyoTime ?? null,
       },
       sources: {
-        priceDate:
-          priceRows.length > 0
-            ? `${(priceRows[0] as Record<string, unknown>).year}-${String((priceRows[0] as Record<string, unknown>).month).padStart(2, "0")}`
-            : "N/A",
+        priceDate: firstPrice
+          ? `${firstPrice.year}-${String(firstPrice.month ?? 0).padStart(2, "0")}`
+          : "N/A",
         safetyDate: safety?.dataDate ?? null,
       },
     };
-
-    // Suppress unused variable warning
-    void address;
 
     return NextResponse.json(response);
   } catch (err: unknown) {

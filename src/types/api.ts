@@ -42,6 +42,8 @@ export interface RecommendationItem {
   readonly aptId: number;
   readonly aptName: string;
   readonly address: string;
+  readonly lat: number;     // M3 KakaoMap marker latitude
+  readonly lng: number;     // M3 KakaoMap marker longitude
   readonly monthlyCost: number;
   readonly commuteTime1: number;
   readonly commuteTime2: number | null;
