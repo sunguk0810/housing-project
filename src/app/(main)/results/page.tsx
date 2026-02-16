@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Map } from "lucide-react";
 
 import { SESSION_KEYS } from "@/lib/constants";
 import { useTracking } from "@/hooks/useTracking";
 import { PropertyCard } from "@/components/card/PropertyCard";
 import { CardSelector } from "@/components/card/CardSelector";
 import { KakaoMap } from "@/components/map/KakaoMap";
+import { CompareBar } from "@/components/layout/CompareBar";
+import { MapBottomSheet } from "@/components/map/MapBottomSheet";
+import { MapScoreLegend } from "@/components/map/MapScoreLegend";
+import { MapSortOverlay } from "@/components/map/MapSortOverlay";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
 import { Skeleton } from "@/components/feedback/Skeleton";
 import type { RecommendResponse, RecommendationItem } from "@/types/api";
@@ -40,6 +45,8 @@ export default function ResultsPage() {
   const [selectedAptId, setSelectedAptId] = useState<number | null>(null);
   const [visitedIds, setVisitedIds] = useState<Set<number>>(new Set());
   const [sortBy, setSortBy] = useState<SortOption>("score");
+  const [showMap, setShowMap] = useState(false);
+  const cardListRef = useRef<HTMLDivElement>(null);
 
   useTracking({ name: "result_view", count: data?.recommendations.length ?? 0 });
 
@@ -51,8 +58,17 @@ export default function ResultsPage() {
         router.replace("/search");
         return;
       }
-      const parsed: RecommendResponse = JSON.parse(stored);
-      setData(parsed);
+      const parsed: unknown = JSON.parse(stored);
+      if (
+        !parsed ||
+        typeof parsed !== "object" ||
+        !("recommendations" in parsed) ||
+        !Array.isArray((parsed as Record<string, unknown>).recommendations)
+      ) {
+        router.replace("/search");
+        return;
+      }
+      setData(parsed as RecommendResponse);
 
       // Load visited IDs
       const visitedStored = sessionStorage.getItem(SESSION_KEYS.visitedApts);
@@ -70,6 +86,16 @@ export default function ResultsPage() {
     if (!data) return [];
     return sortItems(data.recommendations, sortBy);
   }, [data, sortBy]);
+
+  // D1: Scroll to top on sort change
+  const handleSortChange = useCallback((sort: SortOption) => {
+    setSortBy(sort);
+    if (cardListRef.current && window.matchMedia("(min-width: 1024px)").matches) {
+      cardListRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
 
   const handleCardClick = useCallback((aptId: number) => {
     setSelectedAptId(aptId);
@@ -117,6 +143,48 @@ export default function ResultsPage() {
     );
   }
 
+  // Mobile fullscreen map mode
+  if (showMap && data) {
+    return (
+      <div className="relative lg:hidden" style={{ height: "calc(100vh - 56px)" }}>
+        {/* Fullscreen map */}
+        <KakaoMap
+          items={data.recommendations}
+          selectedId={selectedAptId}
+          visitedIds={visitedIds}
+          onMarkerClick={handleMarkerClick}
+          className="h-full w-full"
+        />
+
+        {/* Score legend overlay — top right */}
+        <MapScoreLegend className="absolute right-3 top-[50px]" />
+
+        {/* Sort chip overlay — top left */}
+        <MapSortOverlay value={sortBy} onChange={handleSortChange} className="absolute left-3 top-[50px]" />
+
+        {/* Back to list button */}
+        <button
+          onClick={() => setShowMap(false)}
+          className="absolute left-3 top-3 z-2 flex items-center gap-1 rounded-[var(--radius-s7-md)] bg-[var(--color-surface)] px-[var(--space-3)] py-[var(--space-2)] text-[length:var(--text-caption)] font-medium shadow-[var(--shadow-s7-md)]"
+        >
+          <Map size={14} /> 목록으로
+        </button>
+
+        {/* Compare bar — absolute positioning in fullscreen map */}
+        <CompareBar className="absolute bottom-0 left-0 right-0 z-4" />
+
+        {/* Bottom sheet */}
+        <MapBottomSheet
+          items={sortedItems}
+          totalCount={data.recommendations.length}
+          sourceDate={data.recommendations[0]?.sources.priceDate}
+          selectedId={selectedAptId}
+          onItemClick={handleMarkerClick}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-[var(--space-4)] py-[var(--space-6)]">
       {/* Header with back button */}
@@ -144,13 +212,24 @@ export default function ResultsPage() {
 
       {/* Sort chips */}
       <div className="mb-[var(--space-3)]">
-        <CardSelector value={sortBy} onChange={setSortBy} />
+        <CardSelector value={sortBy} onChange={handleSortChange} />
       </div>
+
+      {/* D2: Mobile map/list toggle */}
+      <button
+        onClick={() => setShowMap(true)}
+        className="mb-[var(--space-3)] flex items-center gap-1 text-[length:var(--text-body-sm)] text-[var(--color-primary)] lg:hidden"
+      >
+        <Map size={16} /> 지도로 보기
+      </button>
 
       {/* Responsive layout: mobile=vertical, desktop=side-by-side */}
       <div className="grid gap-[var(--space-4)] lg:grid-cols-[minmax(480px,2fr)_3fr]">
         {/* Card list */}
-        <div className="order-2 space-y-[var(--space-3)] lg:order-1 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto">
+        <div
+          ref={cardListRef}
+          className="space-y-[var(--space-3)] lg:order-1 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto"
+        >
           {sortedItems.map((item) => (
             <PropertyCard
               key={item.aptId}
@@ -166,17 +245,20 @@ export default function ResultsPage() {
           </p>
         </div>
 
-        {/* Map */}
-        <div className="order-1 lg:order-2 lg:sticky lg:top-20 lg:h-[calc(100vh-12rem)]">
+        {/* Map — desktop only */}
+        <div className="hidden lg:order-2 lg:sticky lg:top-20 lg:block lg:h-[calc(100vh-12rem)]">
           <KakaoMap
             items={data.recommendations}
             selectedId={selectedAptId}
             visitedIds={visitedIds}
             onMarkerClick={handleMarkerClick}
-            className="h-[300px] w-full lg:h-full"
+            className="h-full w-full"
           />
         </div>
       </div>
+
+      {/* Compare bar */}
+      <CompareBar />
     </div>
   );
 }
