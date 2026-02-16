@@ -4,29 +4,29 @@ import { cn } from "@/lib/utils";
 import { SORT_OPTIONS } from "@/lib/constants";
 import type { SortOption } from "@/types/ui";
 
-interface CardSelectorProps {
+interface MapSortOverlayProps {
   value: SortOption;
   onChange: (value: SortOption) => void;
   className?: string;
 }
 
-export function CardSelector({ value, onChange, className }: CardSelectorProps) {
+export function MapSortOverlay({ value, onChange, className }: MapSortOverlayProps) {
   return (
-    <div className={cn("flex gap-[var(--space-2)]", className)}>
+    <div className={cn("z-2 flex max-w-[200px] flex-wrap gap-[var(--space-1)]", className)}>
       {SORT_OPTIONS.map((opt) => (
         <button
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            "rounded-[var(--radius-s7-full)] border-[1.5px] px-[var(--space-3)] py-1",
-            "text-[length:var(--text-caption)] font-medium transition-colors",
+            "rounded-[var(--radius-s7-full)] border-[1.5px] px-[var(--space-2)] py-0.5",
+            "text-[11px] font-medium shadow-[var(--shadow-s7-sm)] transition-colors",
             value === opt.value
               ? "border-[var(--color-brand-500)] bg-[var(--color-brand-500)] text-white"
-              : "border-[var(--color-border)] bg-transparent text-[var(--color-on-surface)] hover:border-[var(--color-brand-400)]",
+              : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-on-surface)]",
           )}
         >
-          {opt.label}
+          {opt.shortLabel}
         </button>
       ))}
     </div>

@@ -45,6 +45,8 @@
 | 33  | 2026-02-16_claude-code_m3-implementation-spec.md | 2026-02-16 | claude-code | PHASE3 | in_progress | M3 Frontend 구현 설계서 (10섹션, 59파일, 1781줄) |
 | 34  | 2026-02-16_claude-code_showcase-production-upgrade.md | 2026-02-16 | claude-code | PHASE2 | done | 쇼케이스 16페이지 프로덕션 수준 고도화 (5 Phase) |
 | 35  | 2026-02-16_claude-code_m3-results-card-dedup.md | 2026-02-16 | claude-code | PHASE3 | done | /results PropertyCard 쇼케이스 매칭 + API 데이터 중복 수정 |
+| 36  | 2026-02-16_claude-code_m3-design-system-mobile-matching.md | 2026-02-16 | claude-code | PHASE3 | done | /results + /complex/[id] 디자인 시스템 모바일 렌더링 전체 매칭 |
+| 37  | 2026-02-16_claude-code_m3-code-review-fixes.md | 2026-02-16 | claude-code | PHASE3 | done | M3 코드 리뷰 조치 6배치 (보안/아키텍처/컴플라이언스/React/테스트/DRY) |
 
 ## Archive
 
