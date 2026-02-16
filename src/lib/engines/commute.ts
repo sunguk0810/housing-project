@@ -1,5 +1,6 @@
 import type { CommuteInput, CommuteResult } from "@/types/engine";
 import { getRedis } from "@/lib/redis";
+import { sanitizeCacheKey } from "@/lib/sanitize";
 import { findNearestGrid } from "./spatial";
 import { haversine } from "./normalize";
 
@@ -20,7 +21,6 @@ const BUSINESS_DISTRICTS: Record<
   PANGYO: { lon: 127.1112, lat: 37.3948, column: "toPangyoTime" },
 };
 
-const GRID_MATCH_DISTANCE_KM = 0.5;
 const DISTRICT_MATCH_DISTANCE_KM = 2;
 const CACHE_TTL_SECONDS = 86400; // 24 hours
 
@@ -40,23 +40,16 @@ function matchBusinessDistrict(
 export async function getCommuteTime(
   input: CommuteInput,
 ): Promise<CommuteResult> {
-  // Stage 1: Grid lookup
+  // Stage 1: Grid lookup — findNearestGrid uses KNN <-> for closest match
   const districtKey = matchBusinessDistrict(input.destLon, input.destLat);
   if (districtKey) {
     const grid = await findNearestGrid(input.aptLon, input.aptLat);
     if (grid) {
-      const aptToGrid = haversine(
-        { x: input.aptLon, y: input.aptLat },
-        { x: input.aptLon, y: input.aptLat }, // grid distance check is implicit via DB ordering
-      );
-      if (aptToGrid <= GRID_MATCH_DISTANCE_KM || true) {
-        // findNearestGrid already returns the closest point
-        const column =
-          BUSINESS_DISTRICTS[districtKey].column as keyof typeof grid;
-        const time = grid[column];
-        if (typeof time === "number") {
-          return { timeMinutes: time, source: "grid" };
-        }
+      const column =
+        BUSINESS_DISTRICTS[districtKey].column as keyof typeof grid;
+      const time = grid[column];
+      if (typeof time === "number") {
+        return { timeMinutes: time, source: "grid" };
       }
     }
   }
@@ -64,7 +57,7 @@ export async function getCommuteTime(
   // Stage 2: Redis cache
   const redis = getRedis();
   if (redis) {
-    const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${input.destLabel}`;
+    const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${sanitizeCacheKey(input.destLabel)}`;
     try {
       const cached = await redis.get(cacheKey);
       if (cached !== null) {
@@ -81,7 +74,7 @@ export async function getCommuteTime(
       const odsayTime = await callODsayApi(input);
       // Cache result
       if (redis) {
-        const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${input.destLabel}`;
+        const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${sanitizeCacheKey(input.destLabel)}`;
         redis.setex(cacheKey, CACHE_TTL_SECONDS, String(odsayTime)).catch(() => {
           // Ignore cache write failures
         });
