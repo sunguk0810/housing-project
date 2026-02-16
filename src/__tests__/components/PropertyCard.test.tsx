@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import { PropertyCard } from "@/components/card/PropertyCard";
+import { CompareProvider } from "@/contexts/CompareContext";
 import type { RecommendationItem } from "@/types/api";
 
 // Mock next/link
@@ -9,6 +10,10 @@ vi.mock("next/link", () => ({
     <a href={href}>{children}</a>
   ),
 }));
+
+function renderWithProviders(ui: React.ReactElement) {
+  return render(<CompareProvider>{ui}</CompareProvider>);
+}
 
 const mockItem: RecommendationItem = {
   rank: 1,
@@ -45,7 +50,7 @@ const mockItem: RecommendationItem = {
 
 describe("PropertyCard", () => {
   it("renders apartment name and address", () => {
-    render(
+    renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
     expect(screen.getByText("테스트 아파트")).toBeInTheDocument();
@@ -53,7 +58,7 @@ describe("PropertyCard", () => {
   });
 
   it("displays rank badge with accent for top 3", () => {
-    render(
+    renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
     const rankBadge = screen.getByTestId("rank-badge");
@@ -63,7 +68,7 @@ describe("PropertyCard", () => {
 
   it("displays neutral badge for rank > 3", () => {
     const item4 = { ...mockItem, rank: 4 };
-    render(
+    renderWithProviders(
       <PropertyCard item={item4} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
     const rankBadge = screen.getByTestId("rank-badge");
@@ -72,18 +77,19 @@ describe("PropertyCard", () => {
   });
 
   it("shows all 5 dimension scores including school", () => {
-    render(
+    renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
-    expect(screen.getByText("예산")).toBeInTheDocument();
-    expect(screen.getByText("통근")).toBeInTheDocument();
-    expect(screen.getByText("보육")).toBeInTheDocument();
-    expect(screen.getByText("안전")).toBeInTheDocument();
-    expect(screen.getByText("학군")).toBeInTheDocument();
+    expect(screen.getByText(/💰 예산/)).toBeInTheDocument();
+    // "🚇 통근" appears in both score grid and commute row
+    expect(screen.getAllByText(/🚇/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/🏫 보육/)).toBeInTheDocument();
+    expect(screen.getByText(/🛡️ 안전/)).toBeInTheDocument();
+    expect(screen.getByText(/📚 학군/)).toBeInTheDocument();
   });
 
   it("shows trade type and price", () => {
-    render(
+    renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
     expect(screen.getByText(/전세/)).toBeInTheDocument();
@@ -91,7 +97,7 @@ describe("PropertyCard", () => {
   });
 
   it("shows household count and area", () => {
-    render(
+    renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
     expect(screen.getByText(/1,200세대/)).toBeInTheDocument();
@@ -99,17 +105,17 @@ describe("PropertyCard", () => {
   });
 
   it("shows commute time", () => {
-    render(
+    renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
-    expect(screen.getByText(/통근 30분/)).toBeInTheDocument();
+    expect(screen.getByText(/🚇 통근 30분/)).toBeInTheDocument();
   });
 
   it("shows dual commute times when commuteTime2 exists", () => {
     const dualCommute = { ...mockItem, commuteTime2: 58 };
-    render(
+    renderWithProviders(
       <PropertyCard item={dualCommute} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
-    expect(screen.getByText(/직장1 30분 · 직장2 58분/)).toBeInTheDocument();
+    expect(screen.getByText(/🚇 직장1 30분 · 직장2 58분/)).toBeInTheDocument();
   });
 });

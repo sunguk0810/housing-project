@@ -13,7 +13,10 @@
     .ob-tab.active { background: var(--color-brand-500); color: #FFF; border-color: var(--color-brand-500); }
     .ob-card { padding: var(--space-4); background: var(--color-surface); border: 1.5px solid var(--color-border); border-radius: var(--radius-xl); cursor: pointer; transition: all var(--duration-fast) var(--ease-smooth); text-align: center; }
     .ob-card:hover { border-color: var(--color-brand-400); }
-    .ob-card.selected { border-color: var(--color-brand-500); background: var(--color-brand-50); }
+    .ob-card.selected { border-color: var(--color-brand-500); background: var(--color-brand-50); position: relative; }
+    .ob-card.selected::after { content: '✓'; position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; background: var(--color-brand-500); color: #FFF; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+    @keyframes obCardBounce { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    .ob-card.selecting { animation: obCardBounce 250ms var(--ease-spring); }
     .ob-quick-btn { padding: 6px 12px; border-radius: var(--radius-full); border: 1px solid var(--color-border); background: var(--color-surface); font-size: 12px; font-family: var(--font-sans); cursor: pointer; }
     .ob-quick-btn:hover { border-color: var(--color-brand-400); }
     @keyframes analysisFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -26,7 +29,7 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -47,14 +50,11 @@
 
       <div class="phone-frame">
         <!-- Status bar -->
-        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
-          <span>9:41</span>
-          <span>📶 🔋</span>
-        </div>
+        <div data-status-bar></div>
 
         <!-- Header with back -->
         <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);">
-          <span style="font-size:20px;cursor:pointer;">←</span>
+          <span style="cursor:pointer;display:inline-flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg></span>
           <span style="font-size:var(--text-body-sm);font-weight:600;flex:1;">조건 입력</span>
         </div>
 
@@ -95,7 +95,7 @@
 
             <div style="padding:var(--space-3);background:var(--color-brand-50);border-radius:var(--radius-lg);border:1px solid var(--color-brand-200);margin-bottom:var(--space-4);">
               <div style="font-size:var(--text-body-sm);display:flex;align-items:center;gap:var(--space-2);">
-                <span>🔒</span>
+                <span class="score-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                 <div>
                   <div style="font-weight:600;color:var(--color-brand-700);">입력 정보는 분석 후 즉시 삭제됩니다</div>
                   <div style="font-size:11px;color:var(--color-brand-600);margin-top:2px;">서버에 저장되지 않으며 세션 종료 시 완전 삭제</div>
@@ -116,15 +116,15 @@
 
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-6);">
               <div class="ob-card selected">
-                <div style="font-size:28px;margin-bottom:var(--space-2);">🏠</div>
+                <div style="margin-bottom:var(--space-2);color:var(--color-brand-500);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
                 <div style="font-size:var(--text-body-sm);font-weight:600;">매매</div>
               </div>
               <div class="ob-card">
-                <div style="font-size:28px;margin-bottom:var(--space-2);">🏢</div>
+                <div style="margin-bottom:var(--space-2);color:var(--color-brand-500);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg></div>
                 <div style="font-size:var(--text-body-sm);font-weight:600;">전세</div>
               </div>
               <div class="ob-card">
-                <div style="font-size:28px;margin-bottom:var(--space-2);">🏨</div>
+                <div style="margin-bottom:var(--space-2);color:var(--color-brand-500);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
                 <div style="font-size:var(--text-body-sm);font-weight:600;">월세</div>
               </div>
             </div>
@@ -143,7 +143,7 @@
             </div>
 
             <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
-              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+              <span class="score-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 입력 정보는 분석 후 즉시 삭제됩니다
             </div>
           </div>
           <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
@@ -160,7 +160,7 @@
             <div style="margin-bottom:var(--space-4);">
               <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 1 (필수)</div>
               <div style="display:flex;align-items:center;border:1.5px solid var(--color-brand-500);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
-                <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);">🔍</span>
+                <span style="margin-right:var(--space-2);color:var(--color-on-surface-muted);display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
                 <span style="font-size:var(--text-body);color:var(--color-on-surface);">삼성역</span>
               </div>
             </div>
@@ -168,7 +168,7 @@
             <div style="margin-bottom:var(--space-4);">
               <div style="font-size:var(--text-body-sm);font-weight:600;margin-bottom:var(--space-2);">직장 2 (선택)</div>
               <div style="display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);background:var(--color-surface);">
-                <span style="margin-right:var(--space-2);color:var(--color-neutral-300);">🔍</span>
+                <span style="margin-right:var(--space-2);color:var(--color-neutral-300);display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
                 <span style="font-size:var(--text-body);color:var(--color-neutral-400);">두 번째 직장은 선택사항입니다</span>
               </div>
             </div>
@@ -179,7 +179,7 @@
             </label>
 
             <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
-              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+              <span class="score-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 입력 정보는 분석 후 즉시 삭제됩니다
             </div>
           </div>
           <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
@@ -230,7 +230,7 @@
             </div>
 
             <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
-              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+              <span class="score-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 입력 정보는 분석 후 즉시 삭제됩니다
             </div>
           </div>
           <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
@@ -273,11 +273,11 @@
             </div>
 
             <div style="font-size:var(--text-caption);color:var(--color-brand-600);display:flex;align-items:center;gap:4px;">
-              🔒 입력 정보는 분석 후 즉시 삭제됩니다
+              <span class="score-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 입력 정보는 분석 후 즉시 삭제됩니다
             </div>
           </div>
           <div style="padding:var(--space-4);border-top:1px solid var(--color-border);background:var(--color-surface);">
-            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;" onclick="showObStep(5)">분석 시작</button>
+            <button class="btn btn-primary" style="width:100%;padding:var(--space-4);font-size:var(--text-body);font-weight:700;" onclick="showObStep(5)">분석 시작하기</button>
           </div>
         </div>
 
@@ -300,28 +300,28 @@
 
             <div style="display:flex;flex-direction:column;gap:var(--space-4);text-align:left;width:100%;max-width:280px;">
               <div class="analysis-step" id="aStep1" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon1">💰</span>
+                <span class="score-icon" id="aIcon1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg></span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">예산 범위 분석</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">DSR, 자기자본 기반 한도 계산</div>
                 </div>
               </div>
               <div class="analysis-step" id="aStep2" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon2">🚇</span>
+                <span class="score-icon" id="aIcon2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/></svg></span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">통근 경로 분석</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">대중교통 최적 경로 탐색</div>
                 </div>
               </div>
               <div class="analysis-step" id="aStep3" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon3">🛡️</span>
+                <span class="score-icon" id="aIcon3"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">생활 환경 평가</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">보육 / 안전 시설 반경 분석</div>
                 </div>
               </div>
               <div class="analysis-step" id="aStep4" style="display:flex;align-items:center;gap:var(--space-3);">
-                <span style="font-size:20px;width:28px;text-align:center;" id="aIcon4">✨</span>
+                <span class="score-icon" id="aIcon4"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></span>
                 <div>
                   <div style="font-size:var(--text-body-sm);font-weight:600;">종합 점수 산출</div>
                   <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">4개 카테고리 가중 평균</div>
@@ -330,14 +330,14 @@
             </div>
 
             <div id="analysisDoneBtn" style="margin-top:var(--space-6);display:none;">
-              <button class="btn btn-primary" style="padding:var(--space-3) var(--space-6);font-size:var(--text-body);font-weight:700;">결과 보기</button>
+              <a href="page-results.html" class="btn btn-primary" style="padding:var(--space-3) var(--space-6);font-size:var(--text-body);font-weight:700;text-decoration:none;">결과 보기</a>
             </div>
           </div>
         </div>
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
   <script>
@@ -398,10 +398,10 @@
         document.getElementById(steps[i]).classList.remove('show');
         // Reset icons
         var iconEl = document.getElementById(icons[i]);
-        if (i === 0 && iconEl) iconEl.textContent = '\uD83D\uDCB0';
-        if (i === 1 && iconEl) iconEl.textContent = '\uD83D\uDE87';
-        if (i === 2 && iconEl) iconEl.textContent = '\uD83D\uDEE1\uFE0F';
-        if (i === 3 && iconEl) iconEl.textContent = '\u2728';
+        if (i === 0 && iconEl) iconEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>';
+        if (i === 1 && iconEl) iconEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/></svg>';
+        if (i === 2 && iconEl) iconEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+        if (i === 3 && iconEl) iconEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21"/></svg>';
       }
       if (ring) ring.style.strokeDashoffset = circumference;
       if (pct) pct.textContent = '0%';
@@ -419,13 +419,13 @@
             // Mark previous steps as done
             for (var k = 0; k < idx; k++) {
               var prevIcon = document.getElementById(icons[k]);
-              if (prevIcon) prevIcon.textContent = '\u2713';
+              if (prevIcon) prevIcon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
             }
             // On last step, show done button
             if (idx === steps.length - 1) {
               setTimeout(function() {
                 var lastIcon = document.getElementById(icons[steps.length - 1]);
-                if (lastIcon) lastIcon.textContent = '\u2713';
+                if (lastIcon) lastIcon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
                 if (doneBtn) doneBtn.style.display = 'block';
               }, 600);
             }

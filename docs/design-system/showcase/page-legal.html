@@ -12,7 +12,7 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -23,14 +23,11 @@
 
       <div class="phone-frame">
         <!-- Status bar -->
-        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
-          <span>9:41</span>
-          <span>📶 🔋</span>
-        </div>
+        <div data-status-bar></div>
 
         <!-- Header -->
         <div style="display:flex;align-items:center;padding:var(--space-3) var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-border);">
-          <span style="font-size:20px;cursor:pointer;">←</span>
+          <a href="page-landing.html" style="font-size:20px;cursor:pointer;text-decoration:none;color:var(--color-on-surface);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg></a>
           <span style="font-size:var(--text-subtitle);font-weight:600;flex:1;">이용약관</span>
         </div>
 
@@ -52,7 +49,7 @@
               ② 서비스에서 제공하는 분석 결과, 점수, 순위 등은 <strong>참고용 정보</strong>이며, 부동산 거래에 관한 최종 의사결정의 근거로 사용될 수 없습니다.
             </p>
             <p style="color:var(--color-on-surface);margin-top:var(--space-2);">
-              ③ 서비스는 부동산 <strong>알선, 자문, 감정평가</strong>를 하지 않으며, 이용자와 제3자 간의 거래에 관여하지 않습니다.
+              ③ 서비스는 부동산 <strong>자문, 감정평가</strong>를 하지 않으며, 이용자와 제3자 간의 거래에 관여하지 않습니다.
             </p>
           </div>
 
@@ -70,24 +67,18 @@
           <div style="border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4);">
             <div style="font-weight:600;margin-bottom:var(--space-3);">관련 문서</div>
             <div style="display:flex;flex-direction:column;gap:var(--space-2);">
-              <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">개인정보처리방침 →</a>
-              <a style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">위치정보 이용약관 →</a>
+              <a href="page-privacy.html" style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">개인정보처리방침 →</a>
+              <a href="page-location-terms.html" style="color:var(--color-brand-500);text-decoration:underline;cursor:pointer;">위치정보 이용약관 →</a>
             </div>
           </div>
         </div>
 
         <!-- Bottom Nav -->
-        <div class="phone-bottom-nav">
-          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
-          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
-          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
-          <a class="nav-item"><span class="nav-icon">📊</span>비교</a>
-          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
-        </div>
+        <div data-bottom-nav=""></div>
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
 </body>

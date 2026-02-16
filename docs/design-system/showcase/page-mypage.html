@@ -12,7 +12,7 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -23,10 +23,7 @@
 
       <div class="phone-frame">
         <!-- Status bar -->
-        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
-          <span>9:41</span>
-          <span style="display:flex;gap:4px;">📶 🔋</span>
-        </div>
+        <div data-status-bar></div>
 
         <!-- Profile -->
         <div style="padding:var(--space-6) var(--space-4);text-align:center;">
@@ -91,17 +88,11 @@
         </div>
 
         <!-- Bottom Nav -->
-        <div class="phone-bottom-nav">
-          <a class="nav-item"><span class="nav-icon">🏠</span>홈</a>
-          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
-          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
-          <a class="nav-item"><span class="nav-icon">📋</span>보드</a>
-          <a class="nav-item active"><span class="nav-icon">👤</span>MY</a>
-        </div>
+        <div data-bottom-nav="mypage"></div>
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
 </body>

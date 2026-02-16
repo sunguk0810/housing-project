@@ -1,4 +1,13 @@
 export type {
+  ScoreGrade,
+  ChildPlan,
+  StepDefinition,
+  ConsentState,
+  SortOption,
+  MapMarkerState,
+} from "./ui";
+
+export type {
   TradeType,
   WeightProfile,
   Coordinate,

@@ -12,56 +12,108 @@
     <header class="showcase-header">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <h1>집콕신혼 디자인 시스템</h1>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()">🌙 Dark</button>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleDark()"></button>
     </header>
     <nav class="showcase-sidebar" id="sidebar"></nav>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <main class="showcase-content">
 
       <h1 class="section-header">Landing (/)</h1>
-      <p class="section-desc">§4.3 — CTA + 가치 제안 + 면책 푸터 + BottomNav</p>
+      <p class="section-desc">§4.3 — CTA + 가치 제안 + How-it-works + 소셜 프루프 + 면책 푸터 + BottomNav</p>
 
       <div class="phone-frame">
-        <!-- Status bar simulation -->
-        <div style="height:44px;padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:600;">
-          <span>9:41</span>
-          <span style="display:flex;gap:4px;">📶 🔋</span>
-        </div>
+        <div data-status-bar></div>
 
         <!-- Hero -->
-        <div style="padding:var(--space-8) var(--space-4);background:linear-gradient(135deg,var(--color-brand-600),var(--color-brand-400));color:#FFF;text-align:center;">
+        <div style="padding:var(--space-8) var(--space-4) var(--space-6);background:linear-gradient(135deg,var(--color-brand-600),var(--color-brand-400));color:#FFF;text-align:center;">
           <div style="font-size:14px;font-weight:600;opacity:0.85;margin-bottom:var(--space-2);">신혼부부 주거 분석 플랫폼</div>
           <div style="font-size:var(--text-heading);font-weight:var(--text-heading-weight);line-height:1.3;margin-bottom:var(--space-3);">
             집콕신혼
           </div>
-          <div style="font-size:var(--text-body-sm);opacity:0.9;line-height:1.5;margin-bottom:var(--space-6);">
+          <div style="font-size:var(--text-body-sm);opacity:0.9;line-height:1.5;margin-bottom:var(--space-4);">
             예산·통근·보육·안전<br>4가지 기준으로 분석하는<br>우리 부부 맞춤 주거지
           </div>
-          <button class="btn btn-accent" style="width:100%;max-width:300px;padding:var(--space-4);font-size:var(--text-body);font-weight:700;box-shadow:var(--shadow-lg);">
+          <!-- Social proof -->
+          <div style="display:inline-flex;align-items:center;gap:var(--space-2);padding:6px 14px;background:rgba(255,255,255,0.15);border-radius:var(--radius-full);font-size:12px;font-weight:600;margin-bottom:var(--space-5);">
+            <span class="icon-inline" style="color:#FFF;opacity:0.9;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+            </span> 12,000+ 신혼부부 분석 완료
+          </div>
+          <br>
+          <a href="page-onboarding.html" class="btn btn-accent" style="width:100%;max-width:300px;padding:var(--space-4);font-size:var(--text-body);font-weight:700;box-shadow:var(--shadow-lg);text-decoration:none;">
             3가지만 입력하면 바로 분석 결과
-          </button>
+          </a>
         </div>
 
-        <!-- Value Props -->
-        <div style="padding:var(--space-6) var(--space-4);">
+        <!-- How it works -->
+        <div class="fade-in-on-scroll" style="padding:var(--space-6) var(--space-4);">
+          <div style="font-size:var(--text-subtitle);font-weight:600;text-align:center;margin-bottom:var(--space-5);">이렇게 분석해요</div>
+          <div style="display:flex;align-items:flex-start;justify-content:center;gap:0;">
+            <div class="how-it-works-step">
+              <div class="step-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+              </div>
+              <div style="font-size:12px;font-weight:700;">조건 입력</div>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">직장·예산·대출</div>
+            </div>
+            <div class="how-it-works-connector">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+            <div class="how-it-works-step">
+              <div class="step-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <div style="font-size:12px;font-weight:700;">AI 분석</div>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">4가지 기준 평가</div>
+            </div>
+            <div class="how-it-works-connector">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+            <div class="how-it-works-step">
+              <div class="step-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <div style="font-size:12px;font-weight:700;">맞춤 결과</div>
+              <div style="font-size:11px;color:var(--color-on-surface-muted);">순위별 단지 안내</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Value Props (4 items) -->
+        <div class="fade-in-on-scroll" style="padding:0 var(--space-4) var(--space-6);">
           <div style="font-size:var(--text-subtitle);font-weight:600;text-align:center;margin-bottom:var(--space-4);">핵심 분석 기준</div>
           <div style="display:flex;flex-direction:column;gap:var(--space-3);">
             <div style="display:flex;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);">
-              <span style="font-size:28px;">💰</span>
+              <span class="icon-inline" style="color:var(--color-brand-500);flex-shrink:0;padding-top:2px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+              </span>
               <div>
                 <div style="font-size:var(--text-body-sm);font-weight:600;">예산 분석</div>
                 <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">소득·자산·대출 기반 적정 예산 범위 분석</div>
               </div>
             </div>
             <div style="display:flex;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);">
-              <span style="font-size:28px;">🚇</span>
+              <span class="icon-inline" style="color:var(--color-brand-500);flex-shrink:0;padding-top:2px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/></svg>
+              </span>
               <div>
                 <div style="font-size:var(--text-body-sm);font-weight:600;">통근 분석</div>
                 <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">직장 2곳까지 대중교통 통근 시간 분석</div>
               </div>
             </div>
             <div style="display:flex;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);">
-              <span style="font-size:28px;">🛡️</span>
+              <span class="icon-inline" style="color:var(--color-brand-500);flex-shrink:0;padding-top:2px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+              </span>
+              <div>
+                <div style="font-size:var(--text-body-sm);font-weight:600;">보육 분석</div>
+                <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">어린이집·유치원·소아과 반경 분석</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);">
+              <span class="icon-inline" style="color:var(--color-brand-500);flex-shrink:0;padding-top:2px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </span>
               <div>
                 <div style="font-size:var(--text-body-sm);font-weight:600;">안전 분석</div>
                 <div style="font-size:var(--text-caption);color:var(--color-on-surface-muted);">CCTV·가로등·경찰서 등 안전 편의시설 분석</div>
@@ -70,35 +122,61 @@
           </div>
         </div>
 
-        <!-- Trust -->
-        <div style="padding:0 var(--space-4) var(--space-4);">
-          <div style="display:flex;gap:var(--space-2);justify-content:center;flex-wrap:wrap;">
-            <span class="source-tag">📊 공공데이터 기반</span>
-            <span class="source-tag">🔒 개인정보 미저장</span>
+        <!-- Stats section -->
+        <div class="fade-in-on-scroll" style="padding:0 var(--space-4) var(--space-6);">
+          <div style="background:var(--color-surface-elevated);border-radius:var(--radius-xl);padding:var(--space-5) var(--space-4);border:1px solid var(--color-border);">
+            <div class="stats-row">
+              <div class="stat-item">
+                <div class="stat-number">24</div>
+                <div class="stat-label">비교 단지</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">12종</div>
+                <div class="stat-label">공공데이터</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">4가지</div>
+                <div class="stat-label">분석 기준</div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Trust -->
+        <div class="fade-in-on-scroll" style="padding:0 var(--space-4) var(--space-4);">
+          <div style="display:flex;gap:var(--space-2);justify-content:center;flex-wrap:wrap;">
+            <span class="source-tag"><span class="score-icon" style="margin-right:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> 공공데이터 기반</span>
+            <span class="source-tag"><span class="score-icon" style="margin-right:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 개인정보 미저장</span>
+            <span class="source-tag"><span class="score-icon" style="margin-right:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg></span> 2026.02 기준</span>
+          </div>
+        </div>
+
+        <!-- CTA repeat -->
+        <div class="fade-in-on-scroll" style="padding:0 var(--space-4) var(--space-6);text-align:center;">
+          <a href="page-onboarding.html" class="btn btn-primary" style="width:100%;max-width:300px;padding:var(--space-4);font-size:var(--text-body);font-weight:700;text-decoration:none;">
+            무료 분석 시작하기
+          </a>
+          <div style="font-size:11px;color:var(--color-on-surface-muted);margin-top:var(--space-2);">가입 없이 바로 분석 가능</div>
         </div>
 
         <!-- Footer Disclaimer -->
         <div style="text-align:center;padding:var(--space-4);border-top:1px solid var(--color-border);font-size:11px;color:var(--color-on-surface-muted);line-height:1.7;">
           본 서비스는 공공데이터 기반 정보 분석 플랫폼입니다<br>
-          부동산 중개·알선·자문 서비스가 아닙니다<br>
-          <span style="color:var(--color-neutral-400);margin-top:4px;display:inline-block;">
-            이용약관 · 개인정보처리방침 · 위치정보 이용약관
-          </span>
+          부동산 중개·자문 서비스가 아닙니다<br>
+          <div style="color:var(--color-neutral-400);margin-top:4px;display:flex;justify-content:center;gap:var(--space-2);flex-wrap:wrap;">
+            <a href="page-legal.html" style="color:inherit;text-decoration:underline;cursor:pointer;">이용약관</a>
+            <span>·</span>
+            <a href="page-privacy.html" style="color:inherit;text-decoration:underline;cursor:pointer;">개인정보처리방침</a>
+            <span>·</span>
+            <a href="page-location-terms.html" style="color:inherit;text-decoration:underline;cursor:pointer;">위치정보 이용약관</a>
+          </div>
         </div>
 
-        <!-- Bottom Nav -->
-        <div class="phone-bottom-nav">
-          <a class="nav-item active"><span class="nav-icon">🏠</span>홈</a>
-          <a class="nav-item"><span class="nav-icon">🔍</span>검색</a>
-          <a class="nav-item"><span class="nav-icon">🗺️</span>지도</a>
-          <a class="nav-item"><span class="nav-icon">📊</span>비교</a>
-          <a class="nav-item"><span class="nav-icon">👤</span>MY</a>
-        </div>
+        <div data-bottom-nav="landing"></div>
       </div>
 
     </main>
-    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()">⛶ 풀스크린</button>
+    <button class="fullscreen-toggle" id="fullscreenBtn" onclick="toggleFullscreen()"></button>
   </div>
   <script src="showcase.js"></script>
 </body>
