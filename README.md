@@ -2,7 +2,7 @@
 
 > 서울/경기/인천 맞벌이 신혼부부를 위한 데이터 기반 주거지 분석 안내 서비스
 
-**현재 상태** — 기준일 2026-02-14: M1(Foundation) 완료, M2(Data + Engine) 진입 준비
+**현재 상태** — 기준일 2026-02-17: M1~M3 완료, M4(Polish + Ship) 진행 중
 
 ---
 
@@ -86,16 +86,32 @@ pnpm dev
 ```
 housing-project/
 ├── src/
-│   ├── app/          # Next.js App Router
-│   ├── lib/          # 공유 유틸리티
-│   └── styles/       # 디자인 토큰
+│   ├── app/            # Next.js App Router (라우트 + 페이지)
+│   ├── components/     # UI 컴포넌트
+│   │   ├── card/       # PropertyCard 등
+│   │   ├── compare/    # 비교 페이지 컴포넌트
+│   │   ├── complex/    # 단지 상세 컴포넌트
+│   │   ├── feedback/   # Skeleton, Toast 등
+│   │   ├── input/      # StepWizard, 입력 폼
+│   │   ├── layout/     # CompareBar, Header 등
+│   │   ├── map/        # KakaoMap, BottomSheet
+│   │   ├── score/      # CircularGauge, ScoreBar
+│   │   ├── trust/      # DataSourceTag, 면책 고지
+│   │   └── ui/         # shadcn/ui 기반 공통 UI
+│   ├── contexts/       # CompareContext 등 전역 상태
+│   ├── db/             # Drizzle ORM 스키마 + 커넥션
+│   ├── etl/            # ETL 어댑터 + 러너
+│   ├── hooks/          # Custom Hooks
+│   ├── lib/            # 유틸리티, 엔진, 포매터
+│   ├── styles/         # 디자인 토큰
+│   └── types/          # TypeScript 타입 정의
 ├── db/
-│   ├── schema.sql    # DB 스키마 (PHASE1 S2 파생)
-│   └── migrate.sh    # 마이그레이션 스크립트
-├── docs/             # PHASE 문서 + Plan 기록
-├── scripts/          # 유틸리티 스크립트
-├── compose.yml       # Docker (PostgreSQL + Redis)
-└── .env.example      # 환경변수 템플릿
+│   ├── schema.sql      # DB 스키마 (PHASE1 S2 파생)
+│   └── migrate.sh      # 마이그레이션 스크립트
+├── docs/               # PHASE 문서 + Plan 기록
+├── scripts/            # 유틸리티 스크립트
+├── compose.yml         # Docker (PostgreSQL + Redis)
+└── .env.example        # 환경변수 템플릿
 ```
 
 ---
@@ -110,6 +126,7 @@ housing-project/
 | `pnpm lint`              | ESLint 검사                   |
 | `pnpm format`            | Prettier 포맷팅 적용          |
 | `pnpm format:check`      | Prettier 포맷팅 검사          |
+| `pnpm prepare`           | Husky Git hooks 설치          |
 | `docker compose up -d`   | Docker 컨테이너 실행          |
 | `docker compose down`    | Docker 컨테이너 중지          |
 | `docker compose down -v` | Docker 컨테이너 + 볼륨 초기화 |
@@ -180,19 +197,39 @@ housing-project/
 
 ---
 
+## 주요 기능
+
+- **5단계 입력 퍼널**: 주거 유형 → 직장 위치 → 소득 정보 → 지출·가중치 → 분석 실행
+- **분석 결과 지도/리스트**: 카카오맵 기반 지도 뷰 + 스크롤 리스트 (정렬/필터)
+- **단지 상세 분석**: 5차원(예산/통근/보육/안전/학군) 점수 + 가격 이력 + 인프라 정보
+- **단지 비교**: 최대 3개 단지 병렬 비교 (레이더 차트 + 테이블)
+- **이벤트 트래킹**: GTM/GA4 연동 (10+ 이벤트 자동 추적)
+- **컴플라이언스**: 5접점 면책 고지, 출처 표기, 금지 문구 자동 검사
+
 ## 현재 상태
 
-> 기준일 2026-02-14 기준
+> 기준일 2026-02-17 기준
 
 **M1 (Foundation) 완료**
 
 - Next.js 16.x + TypeScript strict 모드 초기 설정
 - PostgreSQL 16 + PostGIS 3.4 Docker 인프라 구축
-- DB 스키마 마이그레이션 (`db/schema.sql` + `db/migrate.sh`)
-- S7 디자인 토큰 Tailwind v4 매핑 + shadcn 충돌 분리
-- ESLint 9 + Prettier + `.env.example` 정비
-- Husky pre-commit + SoT 위반 자동 검사 게이트
+- DB 스키마 마이그레이션 + S7 디자인 토큰 Tailwind v4 매핑
+- ESLint 9 + Prettier + Husky pre-commit 게이트
 
-**다음 단계**: M2 (Data + Engine)
+**M2 (Data + Engine) 완료**
 
-> 본 README는 `PHASE2_build.md` M4 산출물(89행)을 M1 시점에 의도적으로 선작성한 것이며, M2~M4 진행에 따라 점진 갱신합니다.
+- Drizzle ORM 스키마 + PostGIS customType + 커넥션 풀
+- Mock 데이터 755건 + Seed 스크립트
+- 예산/통근/보육/안전/학군 스코어링 엔진
+- ETL 어댑터 5종 + Zod 검증 + API 라우트 3종
+
+**M3 (Frontend) 완료**
+
+- 5단계 입력 퍼널 (StepWizard + 동의 UI)
+- 결과 페이지 (지도 + 리스트 + 정렬)
+- 단지 상세 페이지 (/complex/[id])
+- 비교 페이지 (/compare) — 레이더 차트 + 비교 테이블
+- 이벤트 트래킹 (GTM/GA4) + 면책/컴플라이언스 UI
+
+**다음 단계**: M4 (Polish + Ship)
