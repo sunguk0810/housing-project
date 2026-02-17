@@ -1,0 +1,27 @@
+'use client';
+
+import { CHILD_PLAN_OPTIONS } from '@/lib/constants';
+import { EmojiCardSelector } from './EmojiCardSelector';
+import type { ChildPlan } from '@/types/ui';
+
+interface FamilyPlanSelectorProps {
+  value?: ChildPlan;
+  onChange: (value: ChildPlan) => void;
+}
+
+export function FamilyPlanSelector({ value, onChange }: FamilyPlanSelectorProps) {
+  return (
+    <div className="space-y-[var(--space-3)]">
+      <p className="text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
+        자녀 계획을 선택해주세요
+      </p>
+      <EmojiCardSelector
+        options={CHILD_PLAN_OPTIONS}
+        value={value}
+        onSelect={onChange}
+        columns="3"
+        ariaLabel="자녀 계획 선택"
+      />
+    </div>
+  );
+}

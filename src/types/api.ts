@@ -9,7 +9,7 @@
 // Common Types
 // ============================================================
 
-export type TradeType = "sale" | "jeonse";
+export type TradeType = "sale" | "jeonse" | "monthly";
 export type WeightProfile = "balanced" | "budget_focused" | "commute_focused";
 
 export interface Coordinate {

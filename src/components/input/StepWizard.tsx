@@ -1,224 +1,169 @@
-"use client";
+'use client';
 
-import { Fragment, useState, useCallback } from "react";
-import { ChevronLeft, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { STEP_DEFINITIONS, SESSION_KEYS } from "@/lib/constants";
-import { trackEvent } from "@/lib/tracking";
-import { useStepForm } from "@/hooks/useStepForm";
-import { ConsentForm } from "@/components/trust/ConsentForm";
-import { Step1TradeChild } from "./steps/Step1TradeChild";
-import { Step2Jobs } from "./steps/Step2Jobs";
-import { Step3Income } from "./steps/Step3Income";
-import { Step4Loans } from "./steps/Step4Loans";
-import { Step5Analysis } from "./steps/Step5Analysis";
-import type { ConsentState } from "@/types/ui";
+import { useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
+import { SESSION_KEYS } from '@/lib/constants';
+import { trackEvent } from '@/lib/tracking';
+import { useStepForm } from '@/hooks/useStepForm';
+import { ProgressBar } from '@/components/onboarding/ProgressBar';
+import { BottomCTA } from '@/components/onboarding/BottomCTA';
+import { Step1BasicInfo } from './steps/Step1BasicInfo';
+import { Step2Workplace } from './steps/Step2Workplace';
+import { Step3Finance } from './steps/Step3Finance';
+import { Step4Priorities } from './steps/Step4Priorities';
+import { Step5Loading } from './steps/Step5Loading';
+import type { ConsentState } from '@/types/ui';
 
 export function StepWizard() {
-  const {
-    form,
-    currentStep,
-    goNext,
-    goPrev,
-    goToStep,
-    isFirstStep,
-    isLastInputStep,
-    isAnalysisStep,
-  } = useStepForm();
+  const { form, currentStep, goNext, goPrev, isFirstStep, isLastInputStep, isAnalysisStep } =
+    useStepForm();
 
-  const [consent, setConsent] = useState<ConsentState>({
-    terms: false,
-    privacy: false,
-    marketing: false,
+  const [consent, setConsent] = useState<ConsentState>(() => {
+    if (typeof window === 'undefined') return { terms: false, privacy: false, marketing: false };
+    const saved = sessionStorage.getItem(SESSION_KEYS.consent);
+    return saved === 'true'
+      ? { terms: true, privacy: true, marketing: false }
+      : { terms: false, privacy: false, marketing: false };
   });
 
-  const [consentDone, setConsentDone] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return sessionStorage.getItem(SESSION_KEYS.consent) === "true";
-  });
+  const [keypadOpen, setKeypadOpen] = useState(false);
 
-  const { watch, setValue, formState: { errors } } = form;
+  const { watch, setValue } = form;
   const values = watch();
 
   const canProceed = useCallback((): boolean => {
     switch (currentStep) {
       case 1:
-        return !!values.tradeType;
+        return !!values.tradeType && !!values.marriagePlannedAt;
       case 2:
-        return values.job1.length > 0;
+        return values.job1.length > 0 || values.job1Remote;
       case 3:
-        return true;
+        return consent.terms && consent.privacy;
       case 4:
-        return true;
+        return (
+          !!values.childPlan &&
+          values.livingAreas.length >= 1 &&
+          Object.values(values.priorityWeights).some((value) => value > 0)
+        );
       default:
         return false;
     }
-  }, [currentStep, values]);
+  }, [currentStep, values, consent]);
+
+  const handleKeypadToggle = useCallback((open: boolean) => {
+    setKeypadOpen(open);
+  }, []);
 
   function handleNext() {
     if (currentStep < 5) {
-      trackEvent({ name: "step_complete", step: currentStep });
+      trackEvent({ name: 'step_complete', step: currentStep });
     }
     goNext();
   }
 
-  // C2: Step0 consent screen
-  if (!consentDone) {
-    return (
-      <div className="mx-auto max-w-lg px-[var(--space-4)] py-[var(--space-6)]">
-        <h2 className="mb-[var(--space-4)] text-[length:var(--text-title)] font-semibold">
-          시작하기 전에
-        </h2>
-        <ConsentForm consent={consent} onChange={setConsent} />
-        <button
-          type="button"
-          disabled={!consent.terms || !consent.privacy}
-          onClick={() => {
-            sessionStorage.setItem(SESSION_KEYS.consent, "true");
-            setConsentDone(true);
-          }}
-          className="mt-[var(--space-6)] w-full rounded-[var(--radius-s7-md)] bg-[var(--color-primary)] py-[var(--space-3)] text-[var(--color-on-primary)] disabled:opacity-40"
-        >
-          동의하고 시작
-        </button>
-      </div>
-    );
-  }
-
+  // Step 5: Loading (full screen, no chrome)
   if (isAnalysisStep) {
-    return <Step5Analysis formData={values} onGoPrev={goPrev} />;
+    return <Step5Loading formData={values} onGoPrev={goPrev} />;
   }
 
   return (
     <div className="mx-auto max-w-lg px-[var(--space-4)] py-[var(--space-6)] pb-24">
-      {/* C3: Numbered step bar + B2: a11y group */}
-      <div
-        role="group"
-        aria-label={`온보딩 진행 (4단계 중 ${currentStep}단계)`}
-        className="mb-[var(--space-6)]"
-      >
-        <div className="flex items-center justify-center gap-[var(--space-1)]">
-          {STEP_DEFINITIONS.slice(0, 4).map((step, i) => (
-            <Fragment key={step.step}>
-              {i > 0 && (
-                <div
-                  className={cn(
-                    "h-0.5 w-6",
-                    currentStep > i
-                      ? "bg-[var(--color-primary)]"
-                      : "bg-[var(--color-neutral-300)]",
-                  )}
-                />
-              )}
-              <button
-                type="button"
-                onClick={() => currentStep > step.step ? goToStep(step.step) : undefined}
-                disabled={currentStep <= step.step}
-                aria-current={currentStep === step.step ? "step" : undefined}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors",
-                  currentStep === step.step
-                    ? "bg-[var(--color-primary)] text-white"
-                    : currentStep > step.step
-                      ? "bg-[var(--color-brand-100)] text-[var(--color-primary)] hover:bg-[var(--color-brand-200)]"
-                      : "bg-[var(--color-neutral-200)] text-[var(--color-neutral-400)] cursor-default",
-                )}
-              >
-                {currentStep > step.step ? "\u2713" : step.step}
-              </button>
-            </Fragment>
-          ))}
-        </div>
-        <p className="mt-[var(--space-2)] text-center text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-          {STEP_DEFINITIONS[currentStep - 1]?.title}
-        </p>
-      </div>
+      {/* Progress bar */}
+      <ProgressBar currentStep={currentStep} totalSteps={4} className="mb-[var(--space-6)]" />
 
-      {/* Step header */}
+      {/* Step title */}
       <div className="mb-[var(--space-6)]">
-        <h2 className="text-[length:var(--text-title)] font-semibold">
-          {STEP_DEFINITIONS[currentStep - 1]?.title}
-        </h2>
-        <p className="mt-1 text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
-          {STEP_DEFINITIONS[currentStep - 1]?.description}
+        <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+          {currentStep} / 4
         </p>
       </div>
 
-      {/* Step content */}
-      <div className="mb-[var(--space-8)]">
+      {/* Step content with fade transition */}
+      <div
+        key={currentStep}
+        className={cn('mb-[var(--space-8)]', 'animate-[fadeSlideIn_300ms_ease-out]')}
+      >
         {currentStep === 1 && (
-          <Step1TradeChild
+          <Step1BasicInfo
             tradeType={values.tradeType}
-            childPlan={values.childPlan}
-            onTradeTypeChange={(v) => setValue("tradeType", v)}
-            onChildPlanChange={(v) => setValue("childPlan", v)}
+            marriagePlannedAt={values.marriagePlannedAt}
+            onTradeTypeChange={(v) => setValue('tradeType', v)}
+            onMarriagePlannedAtChange={(v) => setValue('marriagePlannedAt', v)}
+            onAutoAdvance={handleNext}
           />
         )}
         {currentStep === 2 && (
-          <Step2Jobs
+          <Step2Workplace
             job1={values.job1}
             job2={values.job2}
-            onJob1Change={(v) => setValue("job1", v)}
-            onJob2Change={(v) => setValue("job2", v)}
-            job1Error={errors.job1?.message}
+            job1Remote={values.job1Remote}
+            job2Remote={values.job2Remote}
+            onJob1Change={(v) => setValue('job1', v)}
+            onJob2Change={(v) => setValue('job2', v)}
+            onJob1RemoteChange={(v) => setValue('job1Remote', v)}
+            onJob2RemoteChange={(v) => setValue('job2Remote', v)}
           />
         )}
         {currentStep === 3 && (
-          <Step3Income
+          <Step3Finance
             cash={values.cash}
             income={values.income}
-            onCashChange={(v) => setValue("cash", v)}
-            onIncomeChange={(v) => setValue("income", v)}
-            cashError={errors.cash?.message}
-            incomeError={errors.income?.message}
+            loans={values.loans}
+            monthlyBudget={values.monthlyBudget}
+            onCashChange={(v) => setValue('cash', v)}
+            onIncomeChange={(v) => setValue('income', v)}
+            onLoansChange={(v) => setValue('loans', v)}
+            onMonthlyBudgetChange={(v) => setValue('monthlyBudget', v)}
+            consent={consent}
+            onConsentChange={setConsent}
+            onKeypadToggle={handleKeypadToggle}
           />
         )}
         {currentStep === 4 && (
-          <Step4Loans
-            loans={values.loans}
-            monthlyBudget={values.monthlyBudget}
-            weightProfile={values.weightProfile}
-            onLoansChange={(v) => setValue("loans", v)}
-            onMonthlyBudgetChange={(v) => setValue("monthlyBudget", v)}
-            onWeightProfileChange={(v) => setValue("weightProfile", v)}
-            loansError={errors.loans?.message}
-            monthlyBudgetError={errors.monthlyBudget?.message}
+          <Step4Priorities
+            priorityWeights={values.priorityWeights}
+            livingAreas={values.livingAreas}
+            childPlan={values.childPlan}
+            onPriorityWeightsChange={(v) => setValue('priorityWeights', v)}
+            onLivingAreasChange={(v) => setValue('livingAreas', v)}
+            onChildPlanChange={(v) => setValue('childPlan', v)}
           />
         )}
       </div>
 
-      {/* C5: Bottom CTA bar with safe area padding */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-4)] py-[var(--space-3)] pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto flex max-w-lg items-center gap-[var(--space-3)]">
-          {!isFirstStep && (
-            <button
-              type="button"
-              onClick={goPrev}
-              aria-label="이전 단계로"
-              className="flex items-center gap-1 rounded-[var(--radius-s7-md)] px-[var(--space-4)] py-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)] hover:bg-[var(--color-surface-sunken)]"
-            >
-              <ChevronLeft size={16} />
-              이전
-            </button>
+      {/* Bottom CTA — hidden for Step 1 (auto-advance) */}
+      {currentStep !== 1 && (
+        <BottomCTA
+          label={isLastInputStep ? '분석 시작' : '다음'}
+          disabled={!canProceed()}
+          onClick={handleNext}
+          showBack={!isFirstStep}
+          onBack={goPrev}
+          className={cn(
+            'transition-opacity duration-200',
+            currentStep === 3 && keypadOpen ? 'pointer-events-none opacity-0' : 'opacity-100',
           )}
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={!canProceed()}
-            aria-label={isLastInputStep ? "분석 시작하기" : "다음 단계로"}
-            className={cn(
-              "ml-auto flex items-center gap-[var(--space-2)] rounded-[var(--radius-s7-md)]",
-              "px-[var(--space-6)] py-[var(--space-3)] font-medium transition-colors",
-              canProceed()
-                ? "bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:bg-[var(--color-primary-hover)]"
-                : "cursor-not-allowed bg-[var(--color-neutral-200)] text-[var(--color-neutral-400)]",
-            )}
-          >
-            {isLastInputStep ? "분석 시작" : "다음"}
-            <ArrowRight size={16} />
-          </button>
-        </div>
-      </div>
+        />
+      )}
+
+      {/* Step 1: back/next for when user returns via back button */}
+      {currentStep === 1 && values.marriagePlannedAt && (
+        <BottomCTA label="다음" disabled={!canProceed()} onClick={handleNext} showBack={false} />
+      )}
+
+      {/* Fade/slide animation keyframes */}
+      <style jsx global>{`
+        @keyframes fadeSlideIn {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }

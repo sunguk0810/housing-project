@@ -48,8 +48,10 @@ export function formatPrice(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만`;
 }
 
-export function formatTradeTypeLabel(tradeType: "sale" | "jeonse"): string {
-  return tradeType === "jeonse" ? "전세" : "매매";
+export function formatTradeTypeLabel(tradeType: "sale" | "jeonse" | "monthly"): string {
+  if (tradeType === "jeonse") return "전세";
+  if (tradeType === "monthly") return "월세";
+  return "매매";
 }
 
 /**

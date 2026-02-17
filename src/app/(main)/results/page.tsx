@@ -13,10 +13,14 @@ import { CompareBar } from "@/components/layout/CompareBar";
 import { MapBottomSheet } from "@/components/map/MapBottomSheet";
 import { MapScoreLegend } from "@/components/map/MapScoreLegend";
 import { MapSortOverlay } from "@/components/map/MapSortOverlay";
+import { RefreshPill } from "@/components/map/RefreshPill";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
-import { Skeleton } from "@/components/feedback/Skeleton";
+import { PropertyCardSkeleton } from "@/components/feedback/Skeleton";
+import { LoadMoreButton } from "@/components/results/LoadMoreButton";
 import type { RecommendResponse, RecommendationItem } from "@/types/api";
 import type { SortOption } from "@/types/ui";
+
+const PAGE_SIZE = 10;
 
 function sortItems(
   items: ReadonlyArray<RecommendationItem>,
@@ -46,9 +50,18 @@ export default function ResultsPage() {
   const [visitedIds, setVisitedIds] = useState<Set<number>>(new Set());
   const [sortBy, setSortBy] = useState<SortOption>("score");
   const [showMap, setShowMap] = useState(false);
+  const [page, setPage] = useState(1);
+  const [boundsChanged, setBoundsChanged] = useState(false);
   const cardListRef = useRef<HTMLDivElement>(null);
 
   useTracking({ name: "result_view", count: data?.recommendations.length ?? 0 });
+
+  // Mobile defaults to map+bottom sheet view (design spec: map-first mobile UX)
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      setShowMap(true);
+    }
+  }, []);
 
   // Load results from sessionStorage
   useEffect(() => {
@@ -87,9 +100,16 @@ export default function ResultsPage() {
     return sortItems(data.recommendations, sortBy);
   }, [data, sortBy]);
 
-  // D1: Scroll to top on sort change
+  // Paginated items for desktop card list
+  const visibleItems = useMemo(
+    () => sortedItems.slice(0, page * PAGE_SIZE),
+    [sortedItems, page],
+  );
+
+  // Reset page when sort changes
   const handleSortChange = useCallback((sort: SortOption) => {
     setSortBy(sort);
+    setPage(1);
     if (cardListRef.current && window.matchMedia("(min-width: 1024px)").matches) {
       cardListRef.current.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -109,29 +129,44 @@ export default function ResultsPage() {
 
   const handleMarkerClick = useCallback((aptId: number) => {
     setSelectedAptId(aptId);
-    // Scroll card into view
+    // Scroll card into view (desktop)
     const el = document.querySelector(`[data-testid="property-card-${aptId}"]`);
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
+  const handleBoundsChange = useCallback(() => {
+    setBoundsChanged(true);
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    setBoundsChanged(false);
+    // Future: re-filter list based on current map bounds
+  }, []);
+
+  const handleLoadMore = useCallback(() => {
+    setPage((prev) => prev + 1);
+  }, []);
+
+  // Loading state
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl px-[var(--space-4)] py-[var(--space-6)]">
-        <div className="space-y-[var(--space-4)]">
+      <div className="mx-auto max-w-6xl px-[var(--space-4)] py-[var(--space-6)]">
+        <div className="space-y-[var(--space-3)]">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-36 w-full" />
+            <PropertyCardSkeleton key={i} />
           ))}
         </div>
       </div>
     );
   }
 
+  // Empty state
   if (!data || data.recommendations.length === 0) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-[var(--space-4)]">
         <p className="text-[length:var(--text-title)] font-semibold">분석 결과가 없습니다</p>
         <p className="mt-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
-          검색 조건을 변경해 다시 시도해주세요.
+          조건을 변경해 다시 시도해주세요.
         </p>
         <button
           onClick={() => router.push("/search")}
@@ -153,11 +188,12 @@ export default function ResultsPage() {
           selectedId={selectedAptId}
           visitedIds={visitedIds}
           onMarkerClick={handleMarkerClick}
+          onBoundsChange={handleBoundsChange}
           className="h-full w-full"
         />
 
-        {/* Score legend overlay — top right */}
-        <MapScoreLegend className="absolute right-3 top-[50px]" />
+        {/* Score legend overlay — top right (per design reference) */}
+        <MapScoreLegend className="absolute top-[50px] right-3" />
 
         {/* Sort chip overlay — top left */}
         <MapSortOverlay value={sortBy} onChange={handleSortChange} className="absolute left-3 top-[50px]" />
@@ -170,21 +206,28 @@ export default function ResultsPage() {
           <Map size={14} /> 목록으로
         </button>
 
-        {/* Compare bar — absolute positioning in fullscreen map */}
-        <CompareBar className="absolute bottom-0 left-0 right-0 z-4" />
+        {/* RefreshPill — top center */}
+        <RefreshPill
+          visible={boundsChanged}
+          onClick={handleRefresh}
+          className="absolute left-1/2 top-3 z-2 -translate-x-1/2"
+        />
 
-        {/* Bottom sheet */}
+        {/* Bottom sheet (CompareBar is rendered inside the sheet) */}
         <MapBottomSheet
           items={sortedItems}
           totalCount={data.recommendations.length}
           sourceDate={data.recommendations[0]?.sources.priceDate}
           selectedId={selectedAptId}
           onItemClick={handleMarkerClick}
+          sortBy={sortBy}
+          onSortChange={handleSortChange}
         />
       </div>
     );
   }
 
+  // Default: responsive layout
   return (
     <div className="mx-auto max-w-6xl px-[var(--space-4)] py-[var(--space-6)]">
       {/* Header with back button */}
@@ -197,7 +240,7 @@ export default function ResultsPage() {
           &larr;
         </button>
         <h1 className="flex-1 text-[length:var(--text-subtitle)] font-semibold">
-          분석 결과 <span className="text-[var(--color-brand-500)]">{data.recommendations.length}</span>개
+          분석 결과 <span className="text-[var(--color-brand-500)]">{data.recommendations.length}</span>건
         </h1>
       </div>
 
@@ -215,7 +258,7 @@ export default function ResultsPage() {
         <CardSelector value={sortBy} onChange={handleSortChange} />
       </div>
 
-      {/* D2: Mobile map/list toggle */}
+      {/* Mobile map/list toggle */}
       <button
         onClick={() => setShowMap(true)}
         className="mb-[var(--space-3)] flex items-center gap-1 text-[length:var(--text-body-sm)] text-[var(--color-primary)] lg:hidden"
@@ -223,36 +266,54 @@ export default function ResultsPage() {
         <Map size={16} /> 지도로 보기
       </button>
 
-      {/* Responsive layout: mobile=vertical, desktop=side-by-side */}
-      <div className="grid gap-[var(--space-4)] lg:grid-cols-[minmax(480px,2fr)_3fr]">
-        {/* Card list */}
+      {/* Responsive layout: mobile=vertical, desktop=40:60 side-by-side */}
+      <div className="grid gap-[var(--space-4)] lg:grid-cols-[40%_60%]">
+        {/* Card list — left panel */}
         <div
           ref={cardListRef}
           className="space-y-[var(--space-3)] lg:order-1 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto"
         >
-          {sortedItems.map((item) => (
+          {visibleItems.map((item, index) => (
             <PropertyCard
               key={item.aptId}
               item={item}
               isSelected={selectedAptId === item.aptId}
               onHover={() => setSelectedAptId(item.aptId)}
               onClick={() => handleCardClick(item.aptId)}
+              style={{
+                animation: `fadeIn 300ms var(--ease-out-default) ${index * 100}ms both`,
+              }}
             />
           ))}
+
+          {/* Load more button */}
+          <LoadMoreButton
+            currentCount={visibleItems.length}
+            totalCount={sortedItems.length}
+            onClick={handleLoadMore}
+          />
+
           {/* Disclaimer */}
           <p className="mt-[var(--space-4)] text-center text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
             공공데이터 기반 참고용 분석이며 실거래를 보장하지 않습니다
           </p>
         </div>
 
-        {/* Map — desktop only */}
-        <div className="hidden lg:order-2 lg:sticky lg:top-20 lg:block lg:h-[calc(100vh-12rem)]">
+        {/* Map — desktop only, right panel */}
+        <div className="relative hidden lg:order-2 lg:sticky lg:top-20 lg:block lg:h-[calc(100vh-12rem)]">
           <KakaoMap
             items={data.recommendations}
             selectedId={selectedAptId}
             visitedIds={visitedIds}
             onMarkerClick={handleMarkerClick}
+            onBoundsChange={handleBoundsChange}
             className="h-full w-full"
+          />
+          <MapScoreLegend className="absolute bottom-3 right-3" />
+          <RefreshPill
+            visible={boundsChanged}
+            onClick={handleRefresh}
+            className="absolute left-1/2 top-3 -translate-x-1/2"
           />
         </div>
       </div>

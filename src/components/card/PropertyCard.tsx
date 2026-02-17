@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { CircularGauge } from "@/components/score/CircularGauge";
 import { formatPrice, formatTradeTypeLabel, formatCommuteTime } from "@/lib/format";
-import { getScoreGrade } from "@/lib/score-utils";
+import { getScoreGrade, GRADE_LABELS } from "@/lib/score-utils";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
 import { useCompare } from "@/contexts/CompareContext";
 import type { RecommendationItem } from "@/types/api";
@@ -16,16 +16,17 @@ interface PropertyCardProps {
   onHover: () => void;
   onClick: () => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const DIMENSION_KEYS = ["budget", "commute", "childcare", "safety", "school"] as const;
+// Card shows 4 dimensions (2×2 grid). school is shown on detail page only.
+const DIMENSION_KEYS = ["budget", "commute", "childcare", "safety"] as const;
 
 const DIMENSION_LABELS: Record<(typeof DIMENSION_KEYS)[number], { emoji: string; label: string }> = {
   budget: { emoji: "\u{1F4B0}", label: "\uC608\uC0B0" },
   commute: { emoji: "\u{1F687}", label: "\uD1B5\uADFC" },
   childcare: { emoji: "\u{1F3EB}", label: "\uBCF4\uC721" },
   safety: { emoji: "\u{1F6E1}\uFE0F", label: "\uC548\uC804" },
-  school: { emoji: "\u{1F4DA}", label: "\uD559\uAD70" },
 };
 
 export const PropertyCard = memo(function PropertyCard({
@@ -34,6 +35,7 @@ export const PropertyCard = memo(function PropertyCard({
   onHover,
   onClick,
   className,
+  style,
 }: PropertyCardProps) {
   const isTop3 = item.rank <= 3;
   const { addItem, removeItem, isComparing, canAdd } = useCompare();
@@ -51,8 +53,8 @@ export const PropertyCard = memo(function PropertyCard({
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-s7-lg)] border p-[var(--space-4)] transition-all cursor-pointer",
-        "hover:-translate-y-0.5 hover:shadow-[var(--shadow-s7-md)] hover:border-[var(--color-brand-200)] active:translate-y-0 active:scale-[0.98]",
+        "rounded-[var(--radius-s7-xl)] border p-[var(--space-4)] shadow-[var(--shadow-s7-sm)] transition-all cursor-pointer",
+        "hover:-translate-y-0.5 hover:shadow-[var(--shadow-s7-md)] hover:border-[var(--color-neutral-300)] active:translate-y-0 active:scale-[0.98]",
         isSelected
           ? "border-[var(--color-accent)] shadow-[var(--shadow-s7-md)]"
           : "border-[var(--color-border)]",
@@ -61,6 +63,7 @@ export const PropertyCard = memo(function PropertyCard({
       onMouseEnter={onHover}
       onClick={onClick}
       data-testid={`property-card-${item.aptId}`}
+      style={style}
     >
       {/* Row 1: Rank badge + name + gauge */}
       <div className="flex items-start justify-between">
@@ -84,7 +87,7 @@ export const PropertyCard = memo(function PropertyCard({
             {item.aptName}
           </Link>
         </div>
-        <CircularGauge score={item.finalScore} size="mini" />
+        <CircularGauge score={item.finalScore} size="card" />
       </div>
 
       {/* Row 2: Address + householdCount + areaMin */}
@@ -102,11 +105,12 @@ export const PropertyCard = memo(function PropertyCard({
         <DataSourceTag type="date" label={item.sources.priceDate} />
       </div>
 
-      {/* Row 4: 5-dimension score grid (2-col) */}
+      {/* Row 4: 4-dimension score grid (2×2) with grade labels */}
       <div className="mt-[var(--space-2)] grid grid-cols-2 gap-1">
         {DIMENSION_KEYS.map((dim) => {
-          const score = Math.round((item.dimensions[dim] ?? 0) * 100);
-          const grade = getScoreGrade(score);
+          const dimScore = Math.round((item.dimensions[dim] ?? 0) * 100);
+          const grade = getScoreGrade(dimScore);
+          const gradeLabel = GRADE_LABELS[grade];
           const { emoji, label } = DIMENSION_LABELS[dim];
           return (
             <span
@@ -118,8 +122,14 @@ export const PropertyCard = memo(function PropertyCard({
                 className="font-semibold tabular-nums"
                 style={{ color: `var(--color-score-${grade})` }}
               >
-                {score}
+                {dimScore}
               </b>
+              <span
+                className="ml-0.5 text-[10px] font-semibold"
+                style={{ color: `var(--color-score-${grade})` }}
+              >
+                {gradeLabel}
+              </span>
             </span>
           );
         })}

@@ -1,11 +1,16 @@
-"use client";
+'use client';
 
-import { Home, FileText, Baby, HelpCircle, Ban } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { trackEvent } from "@/lib/tracking";
-import { useRef } from "react";
-import type { TradeType } from "@/types/api";
-import type { ChildPlan } from "@/types/ui";
+/**
+ * @deprecated Use Step1BasicInfo instead.
+ * Kept only for backward compatibility with legacy previews.
+ */
+
+import { Home, FileText, Baby, HelpCircle, Ban } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { trackEvent } from '@/lib/tracking';
+import { useRef } from 'react';
+import type { TradeType } from '@/types/api';
+import type { ChildPlan } from '@/types/ui';
 
 interface Step1Props {
   tradeType: TradeType;
@@ -15,14 +20,14 @@ interface Step1Props {
 }
 
 const TRADE_OPTIONS: Array<{ value: TradeType; label: string; icon: React.ElementType }> = [
-  { value: "sale", label: "매매", icon: Home },
-  { value: "jeonse", label: "전세", icon: FileText },
+  { value: 'sale', label: '매매', icon: Home },
+  { value: 'jeonse', label: '전세', icon: FileText },
 ];
 
 const CHILD_OPTIONS: Array<{ value: ChildPlan; label: string; icon: React.ElementType }> = [
-  { value: "yes", label: "계획있음", icon: Baby },
-  { value: "maybe", label: "고민중", icon: HelpCircle },
-  { value: "no", label: "없음", icon: Ban },
+  { value: 'yes', label: '계획있음', icon: Baby },
+  { value: 'maybe', label: '고민중', icon: HelpCircle },
+  { value: 'no', label: '없음', icon: Ban },
 ];
 
 export function Step1TradeChild({
@@ -36,7 +41,7 @@ export function Step1TradeChild({
   function handleFirstInteraction() {
     if (!tracked.current) {
       tracked.current = true;
-      trackEvent({ name: "min_input_start" });
+      trackEvent({ name: 'min_input_start' });
     }
   }
 
@@ -56,20 +61,26 @@ export function Step1TradeChild({
                 onTradeTypeChange(value);
               }}
               className={cn(
-                "flex flex-col items-center gap-[var(--space-2)] rounded-[var(--radius-s7-lg)] border p-[var(--space-4)] transition-all",
+                'flex flex-col items-center gap-[var(--space-2)] rounded-[var(--radius-s7-lg)] border p-[var(--space-4)] transition-all',
                 tradeType === value
-                  ? "border-[var(--color-primary)] bg-[var(--color-brand-50)] shadow-[var(--shadow-s7-sm)]"
-                  : "border-[var(--color-border)] hover:border-[var(--color-neutral-400)]",
+                  ? 'border-[var(--color-primary)] bg-[var(--color-brand-50)] shadow-[var(--shadow-s7-sm)]'
+                  : 'border-[var(--color-border)] hover:border-[var(--color-neutral-400)]',
               )}
             >
               <Icon
                 size={24}
-                className={tradeType === value ? "text-[var(--color-primary)]" : "text-[var(--color-on-surface-muted)]"}
+                className={
+                  tradeType === value
+                    ? 'text-[var(--color-primary)]'
+                    : 'text-[var(--color-on-surface-muted)]'
+                }
               />
               <span
                 className={cn(
-                  "text-[length:var(--text-body-sm)] font-medium",
-                  tradeType === value ? "text-[var(--color-primary)]" : "text-[var(--color-on-surface)]",
+                  'text-[length:var(--text-body-sm)] font-medium',
+                  tradeType === value
+                    ? 'text-[var(--color-primary)]'
+                    : 'text-[var(--color-on-surface)]',
                 )}
               >
                 {label}
@@ -93,20 +104,26 @@ export function Step1TradeChild({
                 onChildPlanChange(value);
               }}
               className={cn(
-                "flex flex-col items-center gap-[var(--space-2)] rounded-[var(--radius-s7-lg)] border p-[var(--space-4)] transition-all",
+                'flex flex-col items-center gap-[var(--space-2)] rounded-[var(--radius-s7-lg)] border p-[var(--space-4)] transition-all',
                 childPlan === value
-                  ? "border-[var(--color-primary)] bg-[var(--color-brand-50)] shadow-[var(--shadow-s7-sm)]"
-                  : "border-[var(--color-border)] hover:border-[var(--color-neutral-400)]",
+                  ? 'border-[var(--color-primary)] bg-[var(--color-brand-50)] shadow-[var(--shadow-s7-sm)]'
+                  : 'border-[var(--color-border)] hover:border-[var(--color-neutral-400)]',
               )}
             >
               <Icon
                 size={24}
-                className={childPlan === value ? "text-[var(--color-primary)]" : "text-[var(--color-on-surface-muted)]"}
+                className={
+                  childPlan === value
+                    ? 'text-[var(--color-primary)]'
+                    : 'text-[var(--color-on-surface-muted)]'
+                }
               />
               <span
                 className={cn(
-                  "text-[length:var(--text-body-sm)] font-medium",
-                  childPlan === value ? "text-[var(--color-primary)]" : "text-[var(--color-on-surface)]",
+                  'text-[length:var(--text-body-sm)] font-medium',
+                  childPlan === value
+                    ? 'text-[var(--color-primary)]'
+                    : 'text-[var(--color-on-surface)]',
                 )}
               >
                 {label}

@@ -21,10 +21,22 @@ interface ComparePageData {
 
 const EMPTY_PAGE_DATA: ComparePageData = { items: [], hasResults: false };
 
+// Cache getSnapshot result to satisfy useSyncExternalStore's Object.is() comparison.
+// Without caching, each call returns a new object reference → infinite re-render loop.
+let cachedRaw: string | null = null;
+let cachedResult: ComparePageData = EMPTY_PAGE_DATA;
+
 function parseSessionResults(): ComparePageData {
   try {
     const stored = sessionStorage.getItem(SESSION_KEYS.results);
-    if (!stored) return EMPTY_PAGE_DATA;
+    // Return cached result if underlying data hasn't changed
+    if (stored === cachedRaw) return cachedResult;
+    cachedRaw = stored;
+
+    if (!stored) {
+      cachedResult = EMPTY_PAGE_DATA;
+      return cachedResult;
+    }
     const raw: unknown = JSON.parse(stored);
     if (
       !raw ||
@@ -32,14 +44,17 @@ function parseSessionResults(): ComparePageData {
       !("recommendations" in raw) ||
       !Array.isArray((raw as Record<string, unknown>).recommendations)
     ) {
-      return EMPTY_PAGE_DATA;
+      cachedResult = EMPTY_PAGE_DATA;
+      return cachedResult;
     }
-    return {
+    cachedResult = {
       items: (raw as RecommendResponse).recommendations,
       hasResults: true,
     };
+    return cachedResult;
   } catch {
-    return EMPTY_PAGE_DATA;
+    cachedResult = EMPTY_PAGE_DATA;
+    return cachedResult;
   }
 }
 

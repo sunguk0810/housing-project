@@ -1,19 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useEffect, useState } from "react";
+import { Drawer as DrawerPrimitive } from "vaul";
 import { cn } from "@/lib/utils";
-import { getScoreGrade } from "@/lib/score-utils";
-import { formatPrice, formatTradeTypeLabel } from "@/lib/format";
-import { DataSourceTag } from "@/components/trust/DataSourceTag";
+import { PropertyCard } from "@/components/card/PropertyCard";
+import { CardSelector } from "@/components/card/CardSelector";
+import { CompareBar } from "@/components/layout/CompareBar";
 import type { RecommendationItem } from "@/types/api";
-
-type SheetState = "peek" | "half" | "expanded";
-
-const SHEET_HEIGHTS: Record<SheetState, string> = {
-  peek: "17%",
-  half: "40%",
-  expanded: "72%",
-};
+import type { SortOption } from "@/types/ui";
 
 interface MapBottomSheetProps {
   items: ReadonlyArray<RecommendationItem>;
@@ -21,112 +15,113 @@ interface MapBottomSheetProps {
   sourceDate?: string;
   selectedId: number | null;
   onItemClick: (aptId: number) => void;
+  sortBy: SortOption;
+  onSortChange: (sort: SortOption) => void;
 }
+
+const SNAP_POINTS = [0.25, 0.5, 0.9] as const;
 
 export function MapBottomSheet({
   items,
   totalCount,
-  sourceDate,
   selectedId,
   onItemClick,
+  sortBy,
+  onSortChange,
 }: MapBottomSheetProps) {
-  const [state, setState] = useState<SheetState>("peek");
-  const dragStartY = useRef<number | null>(null);
+  const [activeSnap, setActiveSnap] = useState<number | string>(SNAP_POINTS[0]);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const handleDragEnd = (e: React.TouchEvent) => {
-    const touch = e.changedTouches[0];
-    if (dragStartY.current === null) return;
-    const deltaY = dragStartY.current - touch.clientY;
-    dragStartY.current = null;
-    if (deltaY > 40) {
-      // Swipe up
-      setState((prev) =>
-        prev === "peek" ? "half" : prev === "half" ? "expanded" : prev,
-      );
-    } else if (deltaY < -40) {
-      // Swipe down
-      setState((prev) =>
-        prev === "expanded" ? "half" : prev === "half" ? "peek" : prev,
-      );
-    }
-  };
+  // Scroll selected card into view
+  useEffect(() => {
+    if (selectedId === null || !scrollRef.current) return;
+    const el = scrollRef.current.querySelector(`[data-testid="property-card-${selectedId}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [selectedId]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    dragStartY.current = e.touches[0].clientY;
+  const handleClose = () => {
+    setActiveSnap(SNAP_POINTS[0]);
   };
 
   return (
-    <div
-      className="absolute bottom-0 left-0 right-0 z-3 bg-[var(--color-surface)] transition-[height] duration-300 ease-out"
-      style={{
-        height: SHEET_HEIGHTS[state],
-        borderRadius: "16px 16px 0 0",
-        boxShadow: "0 -4px 20px rgba(0,0,0,0.1)",
+    <DrawerPrimitive.Root
+      open
+      modal={false}
+      snapPoints={[...SNAP_POINTS]}
+      activeSnapPoint={activeSnap}
+      setActiveSnapPoint={(snap) => {
+        if (snap != null) setActiveSnap(snap);
       }}
     >
-      {/* Handle bar */}
-      <div
-        className="flex justify-center py-[10px]"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleDragEnd}
-      >
-        <div className="h-1 w-10 rounded-[var(--radius-s7-full)] bg-[var(--color-neutral-400)]" />
-      </div>
-
-      {/* Content */}
-      <div
-        className="overflow-y-auto px-[var(--space-4)]"
-        style={{ maxHeight: "calc(100% - 24px)" }}
-      >
-        {/* Header */}
-        <div className="mb-[var(--space-3)] flex items-center justify-between">
-          <p className="text-[length:var(--text-body-sm)] font-bold">
-            분석 결과 <span className="text-[var(--color-brand-500)]">{totalCount}</span>개
-          </p>
-          {sourceDate && (
-            <DataSourceTag type="public" label={`공공데이터 기반 · ${sourceDate} 기준`} />
+      <DrawerPrimitive.Portal>
+        {/* No Overlay — non-modal for map touch passthrough */}
+        <DrawerPrimitive.Content
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-30 flex flex-col",
+            "rounded-t-[var(--radius-s7-xl)] bg-[var(--color-surface)]",
+            "shadow-[0_-4px_20px_rgb(0_0_0/0.1)]",
           )}
-        </div>
+          style={{ maxHeight: "90vh" }}
+        >
+          {/* Drag handle */}
+          <div className="flex justify-center py-[var(--space-3)]">
+            <div
+              className="h-1 w-10 rounded-[var(--radius-s7-full)] bg-[var(--color-neutral-400)]"
+              aria-hidden="true"
+            />
+          </div>
 
-        {/* Mini card list */}
-        <div className="flex flex-col gap-[var(--space-3)]">
-          {items.map((item) => {
-            const grade = getScoreGrade(item.finalScore);
-            return (
+          {/* Sticky header */}
+          <div className="sticky top-0 z-10 bg-[var(--color-surface)] px-[var(--space-4)] pb-[var(--space-3)]">
+            <div className="flex items-center justify-between">
+              <p className="text-[length:var(--text-body-sm)] font-bold">
+                분석 결과{" "}
+                <span className="text-[var(--color-brand-500)]">{totalCount}</span>건
+              </p>
               <button
-                key={item.aptId}
                 type="button"
-                onClick={() => onItemClick(item.aptId)}
-                className={cn(
-                  "flex items-center justify-between rounded-[var(--radius-s7-lg)] border p-[var(--space-3)] text-left transition-colors",
-                  selectedId === item.aptId
-                    ? "border-[var(--color-brand-500)] bg-[var(--color-brand-50)]"
-                    : "border-[var(--color-border)] bg-[var(--color-surface)]",
-                )}
+                onClick={handleClose}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-on-surface-muted)] hover:bg-[var(--color-neutral-100)]"
+                aria-label="시트 접기"
               >
-                <div>
-                  <p className="text-[13px] font-bold">{item.aptName}</p>
-                  <p className="text-[11px] text-[var(--color-on-surface-muted)]">
-                    {formatTradeTypeLabel(item.tradeType)} {formatPrice(item.averagePrice)}
-                    {item.areaMin != null && ` · ${item.areaMin}㎡`}
-                  </p>
-                </div>
-                <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white"
-                  style={{ background: `var(--color-score-${grade})` }}
-                >
-                  {Math.round(item.finalScore)}
-                </div>
+                &times;
               </button>
-            );
-          })}
-        </div>
+            </div>
+            <div className="mt-[var(--space-2)]">
+              <CardSelector value={sortBy} onChange={onSortChange} />
+            </div>
+          </div>
 
-        {/* Disclaimer */}
-        <p className="py-[var(--space-3)] text-[10px] leading-relaxed text-[var(--color-on-surface-muted)]">
-          분석 결과는 참고용이며 실거래를 보장하지 않습니다
-        </p>
-      </div>
-    </div>
+          {/* Scrollable card list — only scrollable when expanded */}
+          <div
+            ref={scrollRef}
+            className={cn(
+              "flex-1 px-[var(--space-4)]",
+              activeSnap === SNAP_POINTS[2] ? "overflow-y-auto" : "overflow-hidden",
+            )}
+          >
+            <div className="flex flex-col gap-[var(--space-3)]">
+              {items.map((item) => (
+                <PropertyCard
+                  key={item.aptId}
+                  item={item}
+                  isSelected={selectedId === item.aptId}
+                  onHover={() => onItemClick(item.aptId)}
+                  onClick={() => onItemClick(item.aptId)}
+                />
+              ))}
+            </div>
+
+            {/* Disclaimer */}
+            <p className="py-[var(--space-3)] text-center text-[10px] leading-relaxed text-[var(--color-on-surface-muted)]">
+              공공데이터 기반 참고용 분석이며 실거래를 보장하지 않습니다
+            </p>
+          </div>
+
+          {/* CompareBar — drawer footer, moves with the sheet */}
+          <CompareBar className="relative bottom-auto z-auto" />
+        </DrawerPrimitive.Content>
+      </DrawerPrimitive.Portal>
+    </DrawerPrimitive.Root>
   );
 }

@@ -62,7 +62,7 @@ export function SafetySection({ safety, className }: SafetySectionProps) {
 
   const bars = [
     { label: "CCTV", level: cctvLevel, pct: getPercentage(safety.cctvDensity, 5) },
-    { label: "안전시설", level: shelterLevel, pct: getPercentage(safety.shelterCount, 10) },
+    { label: "민방위 대피소", level: shelterLevel, pct: getPercentage(safety.shelterCount, 10) },
   ];
 
   return (
@@ -86,7 +86,7 @@ export function SafetySection({ safety, className }: SafetySectionProps) {
       <div className="space-y-[var(--space-2)]">
         {bars.map((bar) => (
           <div key={bar.label} className="flex items-center gap-[var(--space-3)]">
-            <span className="w-16 shrink-0 text-[length:var(--text-caption)]">{bar.label}</span>
+            <span className="w-24 shrink-0 text-[length:var(--text-caption)]">{bar.label}</span>
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-neutral-200)]">
               <div
                 className={cn("h-full rounded-full transition-all duration-500 ease-out", LEVEL_BAR_COLORS[bar.level])}

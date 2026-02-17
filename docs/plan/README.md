@@ -48,6 +48,8 @@
 | 36  | 2026-02-16_claude-code_m3-design-system-mobile-matching.md | 2026-02-16 | claude-code | PHASE3 | done | /results + /complex/[id] 디자인 시스템 모바일 렌더링 전체 매칭 |
 | 37  | 2026-02-16_claude-code_m3-code-review-fixes.md | 2026-02-16 | claude-code | PHASE3 | done | M3 코드 리뷰 조치 6배치 (보안/아키텍처/컴플라이언스/React/테스트/DRY) |
 | 38  | 2026-02-17_claude-code_phase2-unimplemented-items.md | 2026-02-17 | claude-code | PHASE2 | done | PHASE2 미구현 4건 해소 (비교 페이지, GTM, README, plan 종료) |
+| 39  | 2026-02-17_codex_onboarding-prompt-alignment-implementation.md | 2026-02-17 | codex | PHASE3 | done | /search 온보딩 프롬프트 정합 구현 + E2E UI/UX 검증 체계 구축 |
+| 40  | 2026-02-17_claude-code_detail-page-gap-improvement.md | 2026-02-17 | claude-code | PHASE2 | done | 상세 페이지 갭 6건 해소 (BUG-1 + GAP-1/2/4/5/6) |
 
 ## Archive
 
