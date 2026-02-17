@@ -45,11 +45,11 @@ describe("recommendRequestSchema", () => {
     }
   });
 
-  // V-3: Invalid tradeType rejected
+  // V-3: Invalid tradeType rejected (monthly is now valid; "rent" is truly invalid)
   it("V-3: rejects invalid tradeType", () => {
     const result = recommendRequestSchema.safeParse({
       ...validInput,
-      tradeType: "monthly",
+      tradeType: "rent",
     });
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -57,7 +57,7 @@ describe("recommendRequestSchema", () => {
         e.path.includes("tradeType"),
       );
       expect(tradeError).toBeDefined();
-      expect(tradeError?.message).toContain("sale 또는 jeonse");
+      expect(tradeError?.message).toContain("sale, jeonse, monthly");
     }
   });
 
