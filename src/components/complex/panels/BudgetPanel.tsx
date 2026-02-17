@@ -2,11 +2,13 @@
 
 import { useState, useMemo } from "react";
 import { Wallet } from "lucide-react";
+import dynamic from "next/dynamic";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
 import { ProgressiveDisclosure } from "@/components/complex/ProgressiveDisclosure";
 import { InsightCard } from "@/components/complex/InsightCard";
-import { PriceChart } from "@/components/complex/PriceChart";
 import { PeriodTabs } from "@/components/complex/PeriodTabs";
+
+const PriceChart = dynamic(() => import("@/components/complex/PriceChart").then((m) => ({ default: m.PriceChart })), { ssr: false });
 import { PriceTable } from "@/components/complex/PriceTable";
 import { formatAmount, formatDate } from "@/lib/format";
 import { getBudgetLabel, getScoreGrade, GRADE_LABELS } from "@/lib/score-utils";

@@ -13,8 +13,9 @@ import type { RecommendationItem } from "@/types/api";
 interface PropertyCardProps {
   item: RecommendationItem;
   isSelected: boolean;
-  onHover: () => void;
-  onClick: () => void;
+  /** Called with aptId so parent can use a stable useCallback without wrapping per-item */
+  onHover: (aptId: number) => void;
+  onClick: (aptId: number) => void;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -60,8 +61,8 @@ export const PropertyCard = memo(function PropertyCard({
           : "border-[var(--color-border)]",
         className,
       )}
-      onMouseEnter={onHover}
-      onClick={onClick}
+      onMouseEnter={() => onHover(item.aptId)}
+      onClick={() => onClick(item.aptId)}
       data-testid={`property-card-${item.aptId}`}
       style={style}
     >

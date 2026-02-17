@@ -3,13 +3,15 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Map } from "lucide-react";
+import dynamic from "next/dynamic";
 
 import { SESSION_KEYS } from "@/lib/constants";
 import { useTracking } from "@/hooks/useTracking";
 import { PropertyCard } from "@/components/card/PropertyCard";
 import { CardSelector } from "@/components/card/CardSelector";
-import { KakaoMap } from "@/components/map/KakaoMap";
 import { CompareBar } from "@/components/layout/CompareBar";
+
+const KakaoMap = dynamic(() => import("@/components/map/KakaoMap").then((m) => ({ default: m.KakaoMap })), { ssr: false });
 import { MapBottomSheet } from "@/components/map/MapBottomSheet";
 import { MapScoreLegend } from "@/components/map/MapScoreLegend";
 import { MapSortOverlay } from "@/components/map/MapSortOverlay";
@@ -141,6 +143,10 @@ export default function ResultsPage() {
   const handleRefresh = useCallback(() => {
     setBoundsChanged(false);
     // Future: re-filter list based on current map bounds
+  }, []);
+
+  const handleCardHover = useCallback((aptId: number) => {
+    setSelectedAptId(aptId);
   }, []);
 
   const handleLoadMore = useCallback(() => {
@@ -278,8 +284,8 @@ export default function ResultsPage() {
               key={item.aptId}
               item={item}
               isSelected={selectedAptId === item.aptId}
-              onHover={() => setSelectedAptId(item.aptId)}
-              onClick={() => handleCardClick(item.aptId)}
+              onHover={handleCardHover}
+              onClick={handleCardClick}
               style={{
                 animation: `fadeIn 300ms var(--ease-out-default) ${index * 100}ms both`,
               }}

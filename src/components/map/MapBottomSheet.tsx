@@ -106,8 +106,8 @@ export function MapBottomSheet({
                   key={item.aptId}
                   item={item}
                   isSelected={selectedId === item.aptId}
-                  onHover={() => onItemClick(item.aptId)}
-                  onClick={() => onItemClick(item.aptId)}
+                  onHover={onItemClick}
+                  onClick={onItemClick}
                 />
               ))}
             </div>

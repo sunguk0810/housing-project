@@ -3,14 +3,19 @@
 import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { useCompare } from "@/contexts/CompareContext";
 import { trackEvent } from "@/lib/tracking";
 import { CircularGauge } from "@/components/score/CircularGauge";
 import { ScoreBar } from "@/components/score/ScoreBar";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
-import { CompareRadarChart, COMPARE_COLORS } from "@/components/compare/CompareRadarChart";
 import { SESSION_KEYS, DISCLAIMER_TEXTS } from "@/lib/constants";
+
+const CompareRadarChart = dynamic(() => import("@/components/compare/CompareRadarChart").then((m) => ({ default: m.CompareRadarChart })), { ssr: false });
+
+// Design token colors matching CompareRadarChart.COMPARE_COLORS
+const COMPARE_COLORS = ["#0891B2", "#F97316", "#8B5CF6"] as const;
 import { formatPrice, formatTradeTypeLabel, formatCommuteTime } from "@/lib/format";
 import type { RecommendResponse, RecommendationItem } from "@/types/api";
 
