@@ -23,7 +23,7 @@
 | 결과-문의 전환율       | `inquiry_click`           | 클릭 수 | `result_view`           | go >= 8%, pending 5-8%, no-go < 5% | result_view >= 100           |
 | 결과 노출률 (가드레일) | `result_view`             | 노출 수 | `min_input_complete`    | >= 70%                             | min_input_complete >= 100    |
 
-### 추적 이벤트 전체 목록 (10개)
+### 추적 이벤트 전체 목록 (11개)
 
 | #   | 이벤트명                  | 설명                                        |
 | --- | ------------------------- | ------------------------------------------- |
@@ -37,6 +37,7 @@
 | 8   | `outlink_click`           | 결과 카드의 외부 매물 상세 페이지 링크 클릭 |
 | 9   | `consent_shown`           | 동의 UI 노출                                |
 | 10  | `consent_accepted`        | 동의 완료                                   |
+| 11  | `compare_view`            | 비교 페이지 조회 (비교 항목 수 기록)        |
 
 > ※ `policy_version`은 `consent_accepted` 이벤트의 속성(property)으로 기록한다 [가정] (docs/legacy_docs/step4_mvp_plan.md:61 참조, 독립 이벤트 vs 속성은 설계 해석)
 

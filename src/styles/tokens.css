@@ -85,6 +85,7 @@
   --color-compare-1: #0891b2;
   --color-compare-2: #f97316;
   --color-compare-3: #8b5cf6;
+  --color-highlight-row: rgb(8 145 178 / 0.08);
 
   --text-display: 2rem;
   --text-display-lh: 1.25;

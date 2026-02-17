@@ -40,13 +40,14 @@
 | 28  | 2026-02-15_claude-code_showcase-enhancement.md | 2026-02-15 | claude-code | PHASE2 | done | Showcase HTML 고도화 — 4변형 토큰·다크모드·Semantic 시각화 |
 | 29  | 2026-02-15_claude-code_showcase-fullscreen-pages.md | 2026-02-15 | claude-code | PHASE2 | done | 풀스크린 프리뷰 + 전체 16개 페이지 쇼케이스 완성 |
 | 30  | 2026-02-15_claude-code_m2-implementation-spec.md | 2026-02-15 | claude-code | PHASE2 | done | M2 Data+Engine 구현 상세 설계 (10개 섹션, 52파일 맵) |
-| 31  | 2026-02-15_claude-code_m2-ralph-loop-sessions.md | 2026-02-15 | claude-code | PHASE2 | in_progress | M2 Ralph Loop 5세션 실행 (54파일 자율 구현) |
+| 31  | 2026-02-15_claude-code_m2-ralph-loop-sessions.md | 2026-02-15 | claude-code | PHASE2 | done | M2 Ralph Loop 5세션 실행 (54파일 자율 구현) |
 | 32  | 2026-02-16_claude-code_m2-orm-refactor.md | 2026-02-16 | claude-code | PHASE2 | in_progress | M2 Raw SQL -> Drizzle ORM Query Builder 전환 설계 |
-| 33  | 2026-02-16_claude-code_m3-implementation-spec.md | 2026-02-16 | claude-code | PHASE3 | in_progress | M3 Frontend 구현 설계서 (10섹션, 59파일, 1781줄) |
+| 33  | 2026-02-16_claude-code_m3-implementation-spec.md | 2026-02-16 | claude-code | PHASE3 | done | M3 Frontend 구현 설계서 (10섹션, 59파일, 1781줄) |
 | 34  | 2026-02-16_claude-code_showcase-production-upgrade.md | 2026-02-16 | claude-code | PHASE2 | done | 쇼케이스 16페이지 프로덕션 수준 고도화 (5 Phase) |
 | 35  | 2026-02-16_claude-code_m3-results-card-dedup.md | 2026-02-16 | claude-code | PHASE3 | done | /results PropertyCard 쇼케이스 매칭 + API 데이터 중복 수정 |
 | 36  | 2026-02-16_claude-code_m3-design-system-mobile-matching.md | 2026-02-16 | claude-code | PHASE3 | done | /results + /complex/[id] 디자인 시스템 모바일 렌더링 전체 매칭 |
 | 37  | 2026-02-16_claude-code_m3-code-review-fixes.md | 2026-02-16 | claude-code | PHASE3 | done | M3 코드 리뷰 조치 6배치 (보안/아키텍처/컴플라이언스/React/테스트/DRY) |
+| 38  | 2026-02-17_claude-code_phase2-unimplemented-items.md | 2026-02-17 | claude-code | PHASE2 | done | PHASE2 미구현 4건 해소 (비교 페이지, GTM, README, plan 종료) |
 
 ## Archive
 
