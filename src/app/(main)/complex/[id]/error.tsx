@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
@@ -14,12 +16,20 @@ export default function ComplexDetailError({ reset }: ErrorProps) {
       <p className="mt-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
         단지 정보를 불러오는 중 문제가 발생했습니다.
       </p>
-      <button
-        onClick={reset}
-        className="mt-[var(--space-6)] rounded-[var(--radius-s7-md)] bg-[var(--color-primary)] px-[var(--space-6)] py-[var(--space-3)] text-[var(--color-on-primary)]"
-      >
-        다시 시도
-      </button>
+      <div className="mt-[var(--space-6)] flex gap-[var(--space-3)]">
+        <button
+          onClick={reset}
+          className="rounded-[var(--radius-s7-md)] bg-[var(--color-primary)] px-[var(--space-6)] py-[var(--space-3)] text-[var(--color-on-primary)]"
+        >
+          다시 시도
+        </button>
+        <Link
+          href="/results"
+          className="rounded-[var(--radius-s7-md)] border border-[var(--color-neutral-300)] px-[var(--space-6)] py-[var(--space-3)] text-[var(--color-on-surface)]"
+        >
+          분석 결과로
+        </Link>
+      </div>
     </div>
   );
 }

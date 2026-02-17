@@ -31,7 +31,7 @@ export function Tooltip({ content, className }: TooltipProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="rounded-full p-0.5 text-[var(--color-on-surface-muted)] hover:text-[var(--color-on-surface)] transition-colors"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-[var(--color-on-surface-muted)] hover:text-[var(--color-on-surface)] transition-colors"
         aria-label="추가 정보"
         aria-expanded={open}
       >

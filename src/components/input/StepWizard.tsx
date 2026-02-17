@@ -151,19 +151,6 @@ export function StepWizard() {
         <BottomCTA label="다음" disabled={!canProceed()} onClick={handleNext} showBack={false} />
       )}
 
-      {/* Fade/slide animation keyframes */}
-      <style jsx global>{`
-        @keyframes fadeSlideIn {
-          from {
-            opacity: 0;
-            transform: translateX(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }
