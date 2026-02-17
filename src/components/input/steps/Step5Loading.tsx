@@ -53,7 +53,9 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
         // marriagePlannedAt/livingAreas are kept in session only for future expansion.
         const apiPayload = {
           ...rest,
-          job1: job1Remote ? '' : rest.job1,
+          job1Remote,
+          job2Remote,
+          job1: rest.job1,
           job2: job2Remote ? '' : rest.job2,
           weightProfile: priorityWeightsToWeightProfile(priorityWeights),
         };

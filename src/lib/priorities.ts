@@ -65,17 +65,17 @@ export function priorityWeightsToWeightProfile(weights: PriorityWeights): Weight
   const normalized = normalizePriorityWeights(weights);
 
   if (
-    normalized.budget >= normalized.commute &&
-    normalized.budget >= normalized.childcare &&
-    normalized.budget >= normalized.safety
+    normalized.budget > normalized.commute &&
+    normalized.budget > normalized.childcare &&
+    normalized.budget > normalized.safety
   ) {
     return 'budget_focused';
   }
 
   if (
-    normalized.commute >= normalized.budget &&
-    normalized.commute >= normalized.childcare &&
-    normalized.commute >= normalized.safety
+    normalized.commute > normalized.budget &&
+    normalized.commute > normalized.childcare &&
+    normalized.commute > normalized.safety
   ) {
     return 'commute_focused';
   }

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export interface KakaoLocalPlace {
   readonly id: string;
@@ -24,7 +24,7 @@ interface UseKakaoLocalSearchReturn {
 const DEBOUNCE_MS = 300;
 
 export function useKakaoLocalSearch(): UseKakaoLocalSearchReturn {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<readonly KakaoLocalPlace[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,13 +50,12 @@ export function useKakaoLocalSearch(): UseKakaoLocalSearchReturn {
       abortRef.current = controller;
 
       try {
-        const res = await fetch(
-          `/api/kakao-local?query=${encodeURIComponent(keyword.trim())}`,
-          { signal: controller.signal },
-        );
+        const res = await fetch(`/api/kakao-local?query=${encodeURIComponent(keyword.trim())}`, {
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
-          throw new Error("검색에 실패했습니다.");
+          throw new Error('검색에 실패했습니다.');
         }
 
         const data = await res.json();
@@ -66,7 +65,7 @@ export function useKakaoLocalSearch(): UseKakaoLocalSearchReturn {
             placeName: doc.place_name,
             addressName: doc.address_name,
             roadAddressName: doc.road_address_name,
-            categoryGroupName: doc.category_group_name ?? "",
+            categoryGroupName: doc.category_group_name ?? '',
             x: doc.x,
             y: doc.y,
           }),
@@ -74,8 +73,8 @@ export function useKakaoLocalSearch(): UseKakaoLocalSearchReturn {
         setResults(places);
         setError(null);
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") return;
-        setError(err instanceof Error ? err.message : "검색에 실패했습니다.");
+        if (err instanceof Error && err.name === 'AbortError') return;
+        setError(err instanceof Error ? err.message : '검색에 실패했습니다.');
         setResults([]);
       } finally {
         setIsLoading(false);
@@ -84,9 +83,10 @@ export function useKakaoLocalSearch(): UseKakaoLocalSearchReturn {
   }, []);
 
   const clear = useCallback(() => {
-    setQuery("");
+    setQuery('');
     setResults([]);
     setError(null);
+    setIsLoading(false);
     if (timerRef.current) clearTimeout(timerRef.current);
     if (abortRef.current) abortRef.current.abort();
   }, []);
