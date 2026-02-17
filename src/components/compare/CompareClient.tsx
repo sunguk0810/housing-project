@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,13 +19,12 @@ interface ComparePageData {
   readonly hasResults: boolean;
 }
 
+const EMPTY_PAGE_DATA: ComparePageData = { items: [], hasResults: false };
+
 function parseSessionResults(): ComparePageData {
-  if (typeof window === "undefined") {
-    return { items: [], hasResults: false };
-  }
   try {
     const stored = sessionStorage.getItem(SESSION_KEYS.results);
-    if (!stored) return { items: [], hasResults: false };
+    if (!stored) return EMPTY_PAGE_DATA;
     const raw: unknown = JSON.parse(stored);
     if (
       !raw ||
@@ -33,15 +32,22 @@ function parseSessionResults(): ComparePageData {
       !("recommendations" in raw) ||
       !Array.isArray((raw as Record<string, unknown>).recommendations)
     ) {
-      return { items: [], hasResults: false };
+      return EMPTY_PAGE_DATA;
     }
     return {
       items: (raw as RecommendResponse).recommendations,
       hasResults: true,
     };
   } catch {
-    return { items: [], hasResults: false };
+    return EMPTY_PAGE_DATA;
   }
+}
+
+// useSyncExternalStore: SSR returns EMPTY, client reads sessionStorage (no hydration mismatch)
+const noop = () => () => {};
+
+function useSessionPageData(): ComparePageData {
+  return useSyncExternalStore(noop, parseSessionResults, () => EMPTY_PAGE_DATA);
 }
 
 /**
@@ -70,18 +76,18 @@ interface RowConfig {
 export function CompareClient() {
   const { items: compareItems, removeItem } = useCompare();
 
-  // Lazy-init: read sessionStorage once
-  const [pageData] = useState<ComparePageData>(parseSessionResults);
+  // useSyncExternalStore: SSR returns empty, client reads sessionStorage (no hydration mismatch)
+  const pageData = useSessionPageData();
 
   // Join: filter sessionStorage results to only those in compare list
   const resolvedItems = pageData.items.filter((r) =>
     compareItems.some((c) => c.aptId === r.aptId),
   );
 
-  // Track after hydration so count reflects actual resolved items (PR #10 review)
+  // Track once after mount — include count: 0 for empty states (PR #10 review)
   const tracked = useRef(false);
   useEffect(() => {
-    if (!tracked.current && resolvedItems.length > 0) {
+    if (!tracked.current) {
       tracked.current = true;
       trackEvent({ name: "compare_view", count: resolvedItems.length });
     }
