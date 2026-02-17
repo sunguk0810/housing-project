@@ -15,7 +15,8 @@ export type TrackingEvent =
   | { name: "concierge_unique_view"; aptId: number }
   | { name: "concierge_contact_click"; aptId: number }
   | { name: "inquiry_click"; aptId: number }
-  | { name: "outlink_click"; aptId: number; url: string };
+  | { name: "outlink_click"; aptId: number; url: string }
+  | { name: "compare_view"; count: number };
 
 declare global {
   interface Window {
