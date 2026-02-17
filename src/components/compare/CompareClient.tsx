@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCompare } from "@/contexts/CompareContext";
-import { useTracking } from "@/hooks/useTracking";
+import { trackEvent } from "@/lib/tracking";
 import { CircularGauge } from "@/components/score/CircularGauge";
 import { ScoreBar } from "@/components/score/ScoreBar";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
@@ -70,8 +70,6 @@ interface RowConfig {
 export function CompareClient() {
   const { items: compareItems, removeItem } = useCompare();
 
-  useTracking({ name: "compare_view", count: compareItems.length });
-
   // Lazy-init: read sessionStorage once
   const [pageData] = useState<ComparePageData>(parseSessionResults);
 
@@ -79,6 +77,15 @@ export function CompareClient() {
   const resolvedItems = pageData.items.filter((r) =>
     compareItems.some((c) => c.aptId === r.aptId),
   );
+
+  // Track after hydration so count reflects actual resolved items (PR #10 review)
+  const tracked = useRef(false);
+  useEffect(() => {
+    if (!tracked.current && resolvedItems.length > 0) {
+      tracked.current = true;
+      trackEvent({ name: "compare_view", count: resolvedItems.length });
+    }
+  }, [resolvedItems.length]);
 
   // Empty states (3 cases per plan)
   if (resolvedItems.length === 0) {
