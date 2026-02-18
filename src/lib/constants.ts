@@ -150,13 +150,3 @@ export const LIVING_AREA_OPTIONS: ReadonlyArray<{
   { value: 'gwanghwamun', label: '광화문권' },
   { value: 'jamsil', label: '잠실권' },
 ];
-
-export const PRIORITY_SLIDER_OPTIONS: ReadonlyArray<{
-  readonly key: PriorityKey;
-  readonly label: string;
-}> = [
-  { key: 'commute', label: '통근' },
-  { key: 'childcare', label: '육아' },
-  { key: 'safety', label: '안전' },
-  { key: 'budget', label: '가성비' },
-];
