@@ -2,6 +2,7 @@
 
 import { BarChart3, Train, Building2, Calendar, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 type SourceType = "public" | "transit" | "childcare" | "date" | "info";
 
@@ -31,18 +32,18 @@ export function DataSourceTag({ type, label, className }: DataSourceTagProps) {
   const Icon = ICON_MAP[type];
 
   return (
-    <span
+    <Badge
+      variant="outline"
       className={cn(
-        "inline-flex items-center gap-1 rounded-[var(--radius-s7-full)]",
-        "border border-[var(--color-border)] bg-[var(--color-surface-sunken)]",
-        "px-[var(--space-2)] py-0.5 text-[length:var(--text-caption)]",
-        "text-[var(--color-on-surface-muted)]",
+        "bg-[var(--color-surface-sunken)] text-[var(--color-on-surface-muted)]",
+        "border-[var(--color-border)] text-[length:var(--text-caption)] font-medium",
+        "rounded-[var(--radius-s7-full)] px-[var(--space-2)] py-0.5",
         className,
       )}
       data-disclaimer="data-source"
     >
       <Icon size={12} />
       {label || LABELS[type]}
-    </span>
+    </Badge>
   );
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const HIDDEN_PATHS = ["/search", "/results"];
+const HIDDEN_PATHS: string[] = [];
 
 export function Header() {
   const pathname = usePathname();

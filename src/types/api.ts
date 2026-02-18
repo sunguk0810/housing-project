@@ -191,4 +191,5 @@ export type ApiErrorCode =
   | 'ADDRESS_NOT_FOUND'
   | 'INVALID_PARAMETER'
   | 'APARTMENT_NOT_FOUND'
+  | 'RATE_LIMITED'
   | 'INTERNAL_ERROR';

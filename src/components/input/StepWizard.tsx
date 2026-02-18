@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { SESSION_KEYS } from '@/lib/constants';
 import { trackEvent } from '@/lib/tracking';
@@ -15,6 +16,7 @@ import { Step5Loading } from './steps/Step5Loading';
 import type { ConsentState } from '@/types/ui';
 
 export function StepWizard() {
+  const router = useRouter();
   const { form, currentStep, goNext, goPrev, isFirstStep, isLastInputStep, isAnalysisStep } =
     useStepForm();
 
@@ -34,7 +36,7 @@ export function StepWizard() {
   const canProceed = useCallback((): boolean => {
     switch (currentStep) {
       case 1:
-        return !!values.tradeType && !!values.marriagePlannedAt;
+        return !!values.tradeType;
       case 2:
         return values.job1.length > 0 || values.job1Remote;
       case 3:
@@ -43,7 +45,7 @@ export function StepWizard() {
         return (
           !!values.childPlan &&
           values.livingAreas.length >= 1 &&
-          Object.values(values.priorityWeights).some((value) => value > 0)
+          !!values.weightProfile
         );
       default:
         return false;
@@ -86,10 +88,7 @@ export function StepWizard() {
         {currentStep === 1 && (
           <Step1BasicInfo
             tradeType={values.tradeType}
-            marriagePlannedAt={values.marriagePlannedAt}
             onTradeTypeChange={(v) => setValue('tradeType', v)}
-            onMarriagePlannedAtChange={(v) => setValue('marriagePlannedAt', v)}
-            onAutoAdvance={handleNext}
           />
         )}
         {currentStep === 2 && (
@@ -121,35 +120,28 @@ export function StepWizard() {
         )}
         {currentStep === 4 && (
           <Step4Priorities
-            priorityWeights={values.priorityWeights}
+            weightProfile={values.weightProfile}
             livingAreas={values.livingAreas}
             childPlan={values.childPlan}
-            onPriorityWeightsChange={(v) => setValue('priorityWeights', v)}
+            onWeightProfileChange={(v) => setValue('weightProfile', v)}
             onLivingAreasChange={(v) => setValue('livingAreas', v)}
             onChildPlanChange={(v) => setValue('childPlan', v)}
           />
         )}
       </div>
 
-      {/* Bottom CTA — hidden for Step 1 (auto-advance) */}
-      {currentStep !== 1 && (
-        <BottomCTA
-          label={isLastInputStep ? '분석 시작' : '다음'}
-          disabled={!canProceed()}
-          onClick={handleNext}
-          showBack={!isFirstStep}
-          onBack={goPrev}
-          className={cn(
-            'transition-opacity duration-200',
-            currentStep === 3 && keypadOpen ? 'pointer-events-none opacity-0' : 'opacity-100',
-          )}
-        />
-      )}
-
-      {/* Step 1: back/next for when user returns via back button */}
-      {currentStep === 1 && values.marriagePlannedAt && (
-        <BottomCTA label="다음" disabled={!canProceed()} onClick={handleNext} showBack={false} />
-      )}
+      {/* Bottom CTA — always visible with back/next */}
+      <BottomCTA
+        label={isLastInputStep ? '분석 시작' : '다음'}
+        disabled={!canProceed()}
+        onClick={handleNext}
+        showBack
+        onBack={isFirstStep ? () => router.back() : goPrev}
+        className={cn(
+          'transition-opacity duration-200',
+          currentStep === 3 && keypadOpen ? 'pointer-events-none opacity-0' : 'opacity-100',
+        )}
+      />
 
     </div>
   );

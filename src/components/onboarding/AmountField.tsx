@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { formatAmount } from "@/lib/format";
-import { QUICK_AMOUNT_BUTTONS } from "@/lib/constants";
+import { Switch } from "@/components/ui/switch";
 
 interface AmountFieldProps {
   label: string;
@@ -12,18 +12,11 @@ interface AmountFieldProps {
   onFocus: () => void;
   /** Exception text like "소득 없어요" */
   exceptionLabel?: string;
-  onException?: () => void;
+  /** Bidirectional toggle: checked=true → exception ON, checked=false → OFF */
+  onExceptionToggle?: (checked: boolean) => void;
   isException?: boolean;
-  /** Compact mode: inactive fields show inline layout at 20px */
-  compact?: boolean;
   className?: string;
 }
-
-const quickButtons = [
-  QUICK_AMOUNT_BUTTONS.small,
-  QUICK_AMOUNT_BUTTONS.medium,
-  QUICK_AMOUNT_BUTTONS.large,
-] as const;
 
 export function AmountField({
   label,
@@ -31,101 +24,101 @@ export function AmountField({
   active,
   onFocus,
   exceptionLabel,
-  onException,
+  onExceptionToggle,
   isException,
-  compact,
   className,
 }: AmountFieldProps) {
-  const ref = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const displayValue = value > 0 ? value.toLocaleString("ko-KR") : "0";
   const converted = value > 0 ? formatAmount(value) : "";
 
-  // Auto-scroll active field into view in compact mode
   useEffect(() => {
-    if (compact && active && ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (active && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [compact, active]);
+  }, [active]);
 
-  const isCompactInactive = compact && !active;
+  const ariaLabel = `${label}, 현재 값: ${isException ? exceptionLabel : displayValue + "만원"}`;
 
   return (
-    <div className={cn("transition-all duration-200 ease-out", className)}>
-      <button
-        ref={ref}
-        type="button"
+    <div
+      ref={ref}
+      className={cn(
+        "overflow-hidden rounded-[var(--radius-s7-lg)] border transition-all duration-150",
+        isException
+          ? "border-[var(--color-neutral-200)] bg-[var(--color-surface-sunken)]"
+          : active
+            ? "border-[var(--color-brand-400)] bg-[var(--color-surface)] shadow-[var(--shadow-s7-base)]"
+            : "border-[var(--color-border)] bg-[var(--color-surface)]",
+        className,
+      )}
+    >
+      {/* Value area — tap to open keypad */}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onFocus}
-        className={cn(
-          "w-full text-left transition-all duration-200 ease-out",
-          "pb-[var(--space-2)] pt-[var(--space-1)]",
-          isCompactInactive
-            ? "flex items-center justify-between border-b border-[var(--color-neutral-200)]"
-            : "border-b-2",
-          !isCompactInactive &&
-            (active
-              ? "border-[var(--color-primary)]"
-              : "border-[var(--color-neutral-300)]"),
-        )}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onFocus();
+          }
+        }}
+        aria-label={ariaLabel}
+        className="flex w-full cursor-pointer items-baseline justify-between px-[var(--space-4)] py-[var(--space-3)] text-left"
       >
+        {/* Label */}
         <span
           className={cn(
-            "font-medium transition-all duration-200 ease-out",
-            isCompactInactive
-              ? "text-[14px] text-[var(--color-on-surface-muted)]"
-              : "block text-[length:var(--text-caption)]",
-            !isCompactInactive &&
-              (active
-                ? "text-[var(--color-primary)]"
-                : "text-[var(--color-on-surface-muted)]"),
+            "shrink-0 text-[length:var(--text-caption)] font-medium",
+            isException
+              ? "text-[var(--color-neutral-400)]"
+              : active
+                ? "text-[var(--color-brand-500)]"
+                : "text-[var(--color-on-surface-muted)]",
           )}
         >
           {label}
         </span>
-        <span
-          className={cn(
-            "tabular-nums transition-all duration-200 ease-out",
-            isCompactInactive
-              ? "text-[20px] font-normal text-[var(--color-on-surface)]"
-              : "block font-bold",
-            !isCompactInactive &&
-              (isException
-                ? "text-[24px] text-[var(--color-on-surface-muted)]"
-                : "text-[36px] text-[var(--color-on-surface)]"),
-          )}
-        >
-          {isException ? exceptionLabel : displayValue}
-          {!isException && (
-            <span
-              className={cn(
-                "font-normal text-[var(--color-on-surface-muted)]",
-                isCompactInactive ? "ml-0.5 text-[14px]" : "ml-1 text-[18px]",
-              )}
-            >
-              만원
+
+        {/* Value */}
+        <span className="text-right">
+          {isException ? (
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-neutral-400)]">
+              {exceptionLabel}
             </span>
+          ) : (
+            <>
+              <span className="text-[length:var(--text-title)] font-bold tabular-nums text-[var(--color-on-surface)]">
+                {displayValue}
+              </span>
+              <span className="ml-0.5 text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+                만원
+              </span>
+              {converted && (
+                <span className="ml-[var(--space-2)] text-[length:var(--text-caption)] text-[var(--color-neutral-400)]">
+                  ({converted})
+                </span>
+              )}
+            </>
           )}
         </span>
-      </button>
+      </div>
 
-      {/* Unit conversion display — hidden in compact inactive mode */}
-      {converted && !isException && !isCompactInactive && (
-        <p className="mt-[var(--space-1)] text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-          = {converted}
-        </p>
-      )}
-
-      {/* Exception button — hidden in compact inactive mode */}
-      {exceptionLabel && onException && !isException && !isCompactInactive && (
-        <button
-          type="button"
-          onClick={onException}
-          className="mt-[var(--space-1)] text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)] underline underline-offset-2"
-        >
-          {exceptionLabel}
-        </button>
+      {/* Switch row — only for exception-capable fields */}
+      {exceptionLabel && onExceptionToggle && (
+        <div className="border-t border-[var(--color-border)] px-[var(--space-4)] py-[var(--space-2)]">
+          <label className="flex cursor-pointer items-center gap-[var(--space-2)]">
+            <Switch
+              checked={!!isException}
+              onCheckedChange={onExceptionToggle}
+            />
+            <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+              {exceptionLabel}
+            </span>
+          </label>
+        </div>
       )}
     </div>
   );
 }
-
-export { quickButtons as QUICK_BUTTONS };

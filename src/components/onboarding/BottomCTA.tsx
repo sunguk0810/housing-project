@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BottomCTAProps {
@@ -37,12 +38,13 @@ export function BottomCTA({
             onClick={onBack}
             aria-label="이전 단계로"
             className={cn(
-              "min-h-[44px] rounded-[var(--radius-s7-md)]",
-              "px-[var(--space-4)] py-[var(--space-3)]",
+              "inline-flex min-h-[44px] items-center gap-[var(--space-1)] rounded-[var(--radius-s7-md)]",
+              "px-[var(--space-3)] py-[var(--space-3)]",
               "text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]",
               "hover:bg-[var(--color-surface-sunken)]",
             )}
           >
+            <ChevronLeft size={18} />
             이전
           </button>
         )}
@@ -51,7 +53,7 @@ export function BottomCTA({
           onClick={onClick}
           disabled={disabled}
           className={cn(
-            "ml-auto min-h-[44px] flex-1 rounded-[var(--radius-s7-md)]",
+            "ml-auto inline-flex min-h-[44px] flex-1 items-center justify-center gap-[var(--space-1)] rounded-[var(--radius-s7-md)]",
             "px-[var(--space-6)] py-[var(--space-3)] font-medium",
             "transition-colors",
             disabled
@@ -60,6 +62,7 @@ export function BottomCTA({
           )}
         >
           {label}
+          <ChevronRight size={18} />
         </button>
       </div>
     </div>

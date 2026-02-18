@@ -13,7 +13,7 @@ describe('useStepForm', () => {
     expect(result.current.isFirstStep).toBe(true);
   });
 
-  it('provides default form values', () => {
+  it('provides default form values with weightProfile balanced', () => {
     const { result } = renderHook(() => useStepForm());
     const values = result.current.form.getValues();
     expect(values.tradeType).toBeUndefined();
@@ -21,7 +21,7 @@ describe('useStepForm', () => {
     expect(values.childPlan).toBeUndefined();
     expect(values.job1).toBe('');
     expect(values.cash).toBe(0);
-    expect(values.priorityWeights.commute).toBe(25);
+    expect(values.weightProfile).toBe('balanced');
     expect(values.livingAreas).toEqual([]);
   });
 
@@ -73,7 +73,7 @@ describe('useStepForm', () => {
     expect(result.current.isLastInputStep).toBe(true);
   });
 
-  it('saves form data to sessionStorage', () => {
+  it('saves form data to sessionStorage with schemaVersion 3', () => {
     const { result } = renderHook(() => useStepForm());
 
     act(() => {
@@ -85,12 +85,13 @@ describe('useStepForm', () => {
     expect(stored).toBeTruthy();
     if (stored) {
       const parsed = JSON.parse(stored);
-      expect(parsed.schemaVersion).toBe(2);
+      expect(parsed.schemaVersion).toBe(3);
       expect(parsed.data.cash).toBe(5000);
+      expect(parsed.data.weightProfile).toBe('balanced');
     }
   });
 
-  it('restores from legacy sessionStorage and migrates data', () => {
+  it('restores from legacy v1 sessionStorage and migrates to weightProfile', () => {
     sessionStorage.setItem(
       'hc_form_data',
       JSON.stringify({
@@ -112,11 +113,10 @@ describe('useStepForm', () => {
     expect(values.cash).toBe(10000);
     expect(values.childPlan).toBe('yes');
     expect(values.marriagePlannedAt).toBeUndefined();
-    expect(values.priorityWeights.budget).toBe(60);
-    expect(values.priorityWeights.commute).toBe(20);
+    expect(values.weightProfile).toBe('budget_focused');
   });
 
-  it('restores from v2 session payload', () => {
+  it('restores from v2 session payload and migrates priorityWeights to weightProfile', () => {
     sessionStorage.setItem(
       'hc_form_data',
       JSON.stringify({
@@ -149,6 +149,69 @@ describe('useStepForm', () => {
     expect(values.tradeType).toBe('monthly');
     expect(values.marriagePlannedAt).toBe('within_6m');
     expect(values.livingAreas).toEqual(['gangnam']);
-    expect(values.priorityWeights.commute).toBe(40);
+    expect(values.weightProfile).toBe('commute_focused');
+  });
+
+  it('restores from v2 balanced weights to balanced profile', () => {
+    sessionStorage.setItem(
+      'hc_form_data',
+      JSON.stringify({
+        schemaVersion: 2,
+        data: {
+          tradeType: 'jeonse',
+          marriagePlannedAt: undefined,
+          childPlan: 'no',
+          job1: '강남역',
+          job2: '',
+          job1Remote: false,
+          job2Remote: false,
+          cash: 20000,
+          income: 800,
+          loans: 0,
+          monthlyBudget: 300,
+          priorityWeights: {
+            commute: 25,
+            childcare: 25,
+            safety: 25,
+            budget: 25,
+          },
+          livingAreas: [],
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useStepForm());
+    const values = result.current.form.getValues();
+    expect(values.weightProfile).toBe('balanced');
+  });
+
+  it('restores from v3 session payload directly', () => {
+    sessionStorage.setItem(
+      'hc_form_data',
+      JSON.stringify({
+        schemaVersion: 3,
+        data: {
+          tradeType: 'sale',
+          marriagePlannedAt: 'within_1y',
+          childPlan: 'yes',
+          job1: '판교역',
+          job2: '',
+          job1Remote: false,
+          job2Remote: false,
+          cash: 30000,
+          income: 1000,
+          loans: 500,
+          monthlyBudget: 400,
+          weightProfile: 'commute_focused',
+          livingAreas: ['pangyo'],
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useStepForm());
+    const values = result.current.form.getValues();
+    expect(values.tradeType).toBe('sale');
+    expect(values.weightProfile).toBe('commute_focused');
+    expect(values.livingAreas).toEqual(['pangyo']);
   });
 });

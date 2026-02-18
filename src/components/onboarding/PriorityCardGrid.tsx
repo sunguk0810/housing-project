@@ -1,6 +1,7 @@
 "use client";
 
 import { PRIORITY_OPTIONS } from "@/lib/constants";
+import { PRIORITY_ICONS } from "./card-icons";
 import { EmojiCardSelector } from "./EmojiCardSelector";
 import type { PriorityKey } from "@/types/ui";
 
@@ -9,6 +10,11 @@ interface PriorityCardGridProps {
   onChange: (values: PriorityKey[]) => void;
   className?: string;
 }
+
+const OPTIONS_WITH_ICONS = PRIORITY_OPTIONS.map((opt) => ({
+  ...opt,
+  icon: PRIORITY_ICONS[opt.value],
+}));
 
 export function PriorityCardGrid({
   values,
@@ -21,7 +27,7 @@ export function PriorityCardGrid({
         중요한 순서대로 눌러주세요 (최대 3개)
       </p>
       <EmojiCardSelector
-        options={PRIORITY_OPTIONS}
+        options={OPTIONS_WITH_ICONS}
         values={values as PriorityKey[]}
         onMultiSelect={onChange}
         maxSelect={3}

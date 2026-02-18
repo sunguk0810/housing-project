@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface LoadMoreButtonProps {
   currentCount: number;
@@ -18,18 +19,18 @@ export function LoadMoreButton({
   if (currentCount >= totalCount) return null;
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="outline"
       onClick={onClick}
       className={cn(
-        "w-full rounded-[var(--radius-s7-xl)] border border-[var(--color-brand-500)]",
-        "px-[var(--space-4)] py-[var(--space-3)]",
+        "w-full rounded-[var(--radius-s7-xl)] border-[var(--color-brand-500)]",
+        "px-[var(--space-4)] py-[var(--space-3)] h-auto",
         "text-[length:var(--text-body-sm)] font-semibold text-[var(--color-brand-500)]",
-        "transition-colors hover:bg-[var(--color-brand-50)] active:scale-[0.98]",
+        "hover:bg-[var(--color-brand-50)] active:scale-[0.98]",
         className,
       )}
     >
       결과 더 보기 ({currentCount}/{totalCount})
-    </button>
+    </Button>
   );
 }

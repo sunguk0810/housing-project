@@ -5,12 +5,52 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SESSION_KEYS } from '@/lib/constants';
-import { prioritiesToPriorityWeights } from '@/lib/priorities';
+import { prioritiesToPriorityWeights, priorityWeightsToWeightProfile } from '@/lib/priorities';
+import type { PriorityWeights } from '@/types/ui';
 
-const FORM_SCHEMA_VERSION = 2;
-const priorityWeightSchema = z.number().int().min(0).max(100);
+const FORM_SCHEMA_VERSION = 3;
 
 const stepFormSchema = z.object({
+  tradeType: z.enum(['sale', 'jeonse', 'monthly']).optional(),
+  marriagePlannedAt: z.enum(['within_6m', 'within_1y', 'undecided']).optional(),
+  childPlan: z.enum(['yes', 'maybe', 'no']).optional(),
+  job1: z.string(),
+  job2: z.string(),
+  job1Remote: z.boolean(),
+  job2Remote: z.boolean(),
+  cash: z.number().int().min(0).max(5_000_000),
+  income: z.number().int().min(0).max(1_000_000),
+  loans: z.number().int().min(0).max(5_000_000),
+  monthlyBudget: z.number().int().min(0).max(10_000),
+  weightProfile: z.enum(['balanced', 'budget_focused', 'commute_focused']),
+  livingAreas: z
+    .array(z.enum(['gangnam', 'yeouido', 'pangyo', 'magok', 'gwanghwamun', 'jamsil']))
+    .max(3),
+});
+
+export type StepFormData = z.infer<typeof stepFormSchema>;
+
+const TOTAL_STEPS = 5;
+
+const DEFAULT_VALUES: StepFormData = {
+  tradeType: undefined,
+  marriagePlannedAt: undefined,
+  childPlan: undefined,
+  job1: '',
+  job2: '',
+  job1Remote: false,
+  job2Remote: false,
+  cash: 0,
+  income: 0,
+  loans: 0,
+  monthlyBudget: 0,
+  weightProfile: 'balanced',
+  livingAreas: [],
+};
+
+// v2 schema for migration
+const priorityWeightSchema = z.number().int().min(0).max(100);
+const v2DataSchema = z.object({
   tradeType: z.enum(['sale', 'jeonse', 'monthly']).optional(),
   marriagePlannedAt: z.enum(['within_6m', 'within_1y', 'undecided']).optional(),
   childPlan: z.enum(['yes', 'maybe', 'no']).optional(),
@@ -33,31 +73,7 @@ const stepFormSchema = z.object({
     .max(3),
 });
 
-export type StepFormData = z.infer<typeof stepFormSchema>;
-
-const TOTAL_STEPS = 5;
-
-const DEFAULT_VALUES: StepFormData = {
-  tradeType: undefined,
-  marriagePlannedAt: undefined,
-  childPlan: undefined,
-  job1: '',
-  job2: '',
-  job1Remote: false,
-  job2Remote: false,
-  cash: 0,
-  income: 0,
-  loans: 0,
-  monthlyBudget: 0,
-  priorityWeights: {
-    commute: 25,
-    childcare: 25,
-    safety: 25,
-    budget: 25,
-  },
-  livingAreas: [],
-};
-
+// Legacy v1 schema
 const legacyStepFormSchema = z.object({
   tradeType: z.enum(['sale', 'jeonse', 'monthly']).optional(),
   childPlan: z.enum(['yes', 'maybe', 'no']).optional(),
@@ -91,6 +107,10 @@ interface UseStepFormReturn {
   saveToSession: () => void;
 }
 
+function migrateV2ToV3(weights: PriorityWeights): StepFormData['weightProfile'] {
+  return priorityWeightsToWeightProfile(weights);
+}
+
 function restoreFromSession(): StepFormData | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -98,15 +118,61 @@ function restoreFromSession(): StepFormData | null {
     if (!item) return null;
     const raw = JSON.parse(item) as unknown;
 
-    const v2Result = stepFormSessionSchema.safeParse(raw);
-    if (v2Result.success) return v2Result.data.data;
+    // v3: current schema
+    const v3Result = stepFormSessionSchema.safeParse(raw);
+    if (v3Result.success) return v3Result.data.data;
 
-    const directV2Result = stepFormSchema.safeParse(raw);
-    if (directV2Result.success) return directV2Result.data;
+    // v3 direct (no wrapper)
+    const directV3Result = stepFormSchema.safeParse(raw);
+    if (directV3Result.success) return directV3Result.data;
 
+    // v2: priorityWeights → weightProfile migration
+    const v2Wrapped = z.object({ schemaVersion: z.literal(2), data: v2DataSchema }).safeParse(raw);
+    if (v2Wrapped.success) {
+      const d = v2Wrapped.data.data;
+      return {
+        tradeType: d.tradeType,
+        marriagePlannedAt: d.marriagePlannedAt,
+        childPlan: d.childPlan,
+        job1: d.job1,
+        job2: d.job2,
+        job1Remote: d.job1Remote,
+        job2Remote: d.job2Remote,
+        cash: d.cash,
+        income: d.income,
+        loans: d.loans,
+        monthlyBudget: d.monthlyBudget,
+        weightProfile: migrateV2ToV3(d.priorityWeights),
+        livingAreas: d.livingAreas,
+      };
+    }
+
+    // v2 direct (no wrapper)
+    const directV2Result = v2DataSchema.safeParse(raw);
+    if (directV2Result.success) {
+      const d = directV2Result.data;
+      return {
+        tradeType: d.tradeType,
+        marriagePlannedAt: d.marriagePlannedAt,
+        childPlan: d.childPlan,
+        job1: d.job1,
+        job2: d.job2,
+        job1Remote: d.job1Remote,
+        job2Remote: d.job2Remote,
+        cash: d.cash,
+        income: d.income,
+        loans: d.loans,
+        monthlyBudget: d.monthlyBudget,
+        weightProfile: migrateV2ToV3(d.priorityWeights),
+        livingAreas: d.livingAreas,
+      };
+    }
+
+    // v1: legacy priorities[] → priorityWeights → weightProfile
     const legacyResult = legacyStepFormSchema.safeParse(raw);
     if (legacyResult.success) {
       const legacy = legacyResult.data;
+      const weights = prioritiesToPriorityWeights(legacy.priorities ?? []);
       return {
         tradeType: legacy.tradeType,
         marriagePlannedAt: DEFAULT_VALUES.marriagePlannedAt,
@@ -119,7 +185,7 @@ function restoreFromSession(): StepFormData | null {
         income: legacy.income ?? DEFAULT_VALUES.income,
         loans: legacy.loans ?? DEFAULT_VALUES.loans,
         monthlyBudget: legacy.monthlyBudget ?? DEFAULT_VALUES.monthlyBudget,
-        priorityWeights: prioritiesToPriorityWeights(legacy.priorities ?? []),
+        weightProfile: priorityWeightsToWeightProfile(weights),
         livingAreas: DEFAULT_VALUES.livingAreas,
       };
     }

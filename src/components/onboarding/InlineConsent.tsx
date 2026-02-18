@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 import { POLICY_VERSION, SESSION_KEYS } from "@/lib/constants";
 import { trackEvent } from "@/lib/tracking";
-import { BlurredPreviewCard } from "./BlurredPreviewCard";
 import type { ConsentState } from "@/types/ui";
 
 interface InlineConsentProps {
@@ -46,13 +47,11 @@ export function InlineConsent({
   }, []);
 
   const allChecked = consent.terms && consent.privacy && consent.marketing;
-  const requiredDone = consent.terms && consent.privacy;
 
-  function handleAllChange() {
-    const next = !allChecked;
-    const newConsent = { terms: next, privacy: next, marketing: next };
+  function handleAllChange(checked: boolean) {
+    const newConsent = { terms: checked, privacy: checked, marketing: checked };
     onChange(newConsent);
-    if (next) {
+    if (checked) {
       trackEvent({ name: "consent_accepted", policyVersion: POLICY_VERSION });
       sessionStorage.setItem(SESSION_KEYS.consent, "true");
     }
@@ -69,79 +68,63 @@ export function InlineConsent({
 
   return (
     <div className={cn("space-y-[var(--space-3)]", className)}>
-      {/* Blurred preview card to motivate consent */}
-      {!requiredDone && <BlurredPreviewCard />}
-
       {/* All consent toggle */}
-      <button
-        type="button"
-        onClick={handleAllChange}
+      <div
         className={cn(
-          "flex w-full items-center gap-[var(--space-3)] rounded-[var(--radius-s7-md)]",
-          "border border-[var(--color-border)] px-[var(--space-4)] py-[var(--space-3)]",
-          "text-left transition-colors",
-          allChecked && "border-[var(--color-primary)] bg-[var(--color-brand-50)]",
+          "rounded-[var(--radius-s7-xl)] border px-[var(--space-4)] py-[var(--space-3)] transition-colors",
+          "border-[var(--color-border)]",
         )}
       >
-        <span
-          className={cn(
-            "flex h-5 w-5 items-center justify-center rounded border",
-            allChecked
-              ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
-              : "border-[var(--color-neutral-400)]",
-          )}
-        >
-          {allChecked && "✓"}
-        </span>
-        <span className="text-[length:var(--text-body-sm)] font-semibold text-[var(--color-on-surface)]">
-          전체 동의
-        </span>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded(!expanded);
-          }}
-          aria-expanded={expanded}
-          aria-label="동의 항목 펼치기"
-          className="ml-auto min-h-[44px] min-w-[44px] text-center text-[var(--color-on-surface-muted)]"
-        >
-          {expanded ? "▲" : "▼"}
-        </button>
-      </button>
-
-      {/* Individual items */}
-      {expanded && (
-        <div className="space-y-[var(--space-2)] pl-[var(--space-2)]">
-          {CONSENT_ITEMS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => handleItemChange(item.key)}
-              className="flex w-full items-center gap-[var(--space-3)] px-[var(--space-2)] py-[var(--space-2)] text-left"
-            >
-              <span
-                className={cn(
-                  "flex h-4 w-4 items-center justify-center rounded border text-[10px]",
-                  consent[item.key]
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
-                    : "border-[var(--color-neutral-400)]",
-                )}
-              >
-                {consent[item.key] && "✓"}
-              </span>
-              <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface)]">
-                {item.required ? (
-                  <span className="mr-1 text-[var(--color-error)]">[필수]</span>
-                ) : (
-                  <span className="mr-1 text-[var(--color-on-surface-muted)]">[선택]</span>
-                )}
-                {item.label}
-              </span>
-            </button>
-          ))}
+        <div className="flex items-center gap-[var(--space-3)]">
+          <Checkbox
+            id="consent-all"
+            checked={allChecked}
+            onCheckedChange={(checked) => handleAllChange(!!checked)}
+          />
+          <label
+            htmlFor="consent-all"
+            className="flex-1 cursor-pointer text-[length:var(--text-body-sm)] font-semibold text-[var(--color-on-surface)]"
+          >
+            전체 동의
+          </label>
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+            aria-label="동의 항목 펼치기"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-on-surface-muted)] hover:bg-[var(--color-neutral-100)]"
+          >
+            {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
         </div>
-      )}
+
+        {/* Individual items */}
+        {expanded && (
+          <div className="mt-[var(--space-3)] space-y-[var(--space-2)] border-t border-[var(--color-border)] pt-[var(--space-3)]">
+            {CONSENT_ITEMS.map((item) => (
+              <label
+                key={item.key}
+                htmlFor={`consent-${item.key}`}
+                className="flex cursor-pointer items-center gap-[var(--space-3)]"
+              >
+                <Checkbox
+                  id={`consent-${item.key}`}
+                  checked={consent[item.key]}
+                  onCheckedChange={() => handleItemChange(item.key)}
+                />
+                <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface)]">
+                  {item.required ? (
+                    <span className="mr-1 text-[var(--color-error)]">[필수]</span>
+                  ) : (
+                    <span className="mr-1 text-[var(--color-on-surface-muted)]">[선택]</span>
+                  )}
+                  {item.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

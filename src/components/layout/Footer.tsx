@@ -4,7 +4,7 @@ import { DISCLAIMER_TEXTS } from "@/lib/constants";
 export function Footer() {
   return (
     <footer
-      className="border-t border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-[var(--space-4)] py-[var(--space-8)]"
+      className="border-t border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-[var(--space-4)] pt-[var(--space-8)] pb-20 lg:pb-[var(--space-8)]"
     >
       <div className="mx-auto max-w-5xl">
         {/* Disclaimer touch-point 1 */}

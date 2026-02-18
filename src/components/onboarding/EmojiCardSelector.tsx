@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { EmojiCard } from './EmojiCard';
 
@@ -7,6 +8,8 @@ interface CardOption<T extends string> {
   readonly value: T;
   readonly label: string;
   readonly emoji: string;
+  readonly icon?: ReactNode;
+  readonly description?: string;
 }
 
 interface EmojiCardSelectorProps<T extends string> {
@@ -49,7 +52,6 @@ export function EmojiCardSelector<T extends string>({
     if (isMulti) {
       const idx = values.indexOf(optionValue);
       if (idx >= 0) {
-        // Deselect — renumber remaining
         const next = [...values];
         next.splice(idx, 1);
         onMultiSelect(next);
@@ -71,14 +73,22 @@ export function EmojiCardSelector<T extends string>({
         const isSelected = isMulti ? values.includes(opt.value) : value === opt.value;
         const numberBadge = isMulti ? values.indexOf(opt.value) + 1 || undefined : undefined;
 
+        const isDisabled = isMulti && !isSelected && values.length >= maxSelect;
+
         return (
           <EmojiCard
             key={opt.value}
             emoji={opt.emoji}
+            icon={opt.icon}
             label={opt.label}
+            description={opt.description}
             selected={isSelected}
             onClick={() => handleClick(opt.value)}
             numberBadge={numberBadge}
+            role={!isMulti ? 'radio' : undefined}
+            ariaChecked={!isMulti ? isSelected : undefined}
+            ariaPressed={isMulti ? isSelected : undefined}
+            disabled={isDisabled}
           />
         );
       })}

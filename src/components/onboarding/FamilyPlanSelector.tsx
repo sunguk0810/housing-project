@@ -1,6 +1,7 @@
 'use client';
 
 import { CHILD_PLAN_OPTIONS } from '@/lib/constants';
+import { CHILD_PLAN_ICONS } from './card-icons';
 import { EmojiCardSelector } from './EmojiCardSelector';
 import type { ChildPlan } from '@/types/ui';
 
@@ -9,6 +10,11 @@ interface FamilyPlanSelectorProps {
   onChange: (value: ChildPlan) => void;
 }
 
+const OPTIONS_WITH_ICONS = CHILD_PLAN_OPTIONS.map((opt) => ({
+  ...opt,
+  icon: CHILD_PLAN_ICONS[opt.value],
+}));
+
 export function FamilyPlanSelector({ value, onChange }: FamilyPlanSelectorProps) {
   return (
     <div className="space-y-[var(--space-3)]">
@@ -16,7 +22,7 @@ export function FamilyPlanSelector({ value, onChange }: FamilyPlanSelectorProps)
         자녀 계획을 선택해주세요
       </p>
       <EmojiCardSelector
-        options={CHILD_PLAN_OPTIONS}
+        options={OPTIONS_WITH_ICONS}
         value={value}
         onSelect={onChange}
         columns="3"

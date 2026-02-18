@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import { X, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useKakaoLocalSearch, type KakaoLocalPlace } from '@/hooks/useKakaoLocalSearch';
 import { SearchResults } from './SearchResults';
@@ -23,7 +24,6 @@ export function FullScreenSearch({
 
   useEffect(() => {
     if (open) {
-      // Small delay to wait for transition
       const t = setTimeout(() => inputRef.current?.focus(), 100);
       return () => clearTimeout(t);
     }
@@ -47,42 +47,45 @@ export function FullScreenSearch({
       role="dialog"
       aria-label="주소 검색"
     >
-      {/* Header */}
-      <div className="border-b border-[var(--color-border)] px-[var(--space-4)] pt-[var(--space-3)] pb-[var(--space-2)]">
-        <div className="mb-[var(--space-1)] text-[length:var(--text-caption)] font-medium text-[var(--color-primary)]">
-          직장 주소
-        </div>
-        <div className="flex items-center gap-[var(--space-3)] border-b-2 border-[var(--color-primary)] pb-[var(--space-2)]">
+      {/* Search bar header */}
+      <div className="bg-[var(--color-surface)] px-[var(--space-4)] pt-[var(--space-3)] pb-[var(--space-3)] shadow-[var(--shadow-s7-sm)]">
+        <div className="flex items-center gap-[var(--space-2)]">
+          {/* Close button */}
           <button
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center text-[var(--color-on-surface-muted)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[var(--color-on-surface-muted)] hover:bg-[var(--color-neutral-100)]"
           >
-            ✕
+            <X size={20} />
           </button>
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => search(e.target.value)}
-            placeholder={placeholder}
-            className={cn(
-              'flex-1 bg-transparent text-[length:var(--text-body)] text-[var(--color-on-surface)]',
-              'placeholder:text-[var(--color-neutral-400)]',
-              'outline-none',
+
+          {/* Search input bar */}
+          <div className="flex flex-1 items-center gap-[var(--space-2)] rounded-[var(--radius-s7-full)] bg-[var(--color-neutral-100)] px-[var(--space-4)] py-[var(--space-2)] dark:bg-[var(--color-surface-elevated)]">
+            <Search size={16} className="shrink-0 text-[var(--color-neutral-400)]" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => search(e.target.value)}
+              placeholder={placeholder}
+              className={cn(
+                'flex-1 bg-transparent text-[length:var(--text-body-sm)] text-[var(--color-on-surface)]',
+                'placeholder:text-[var(--color-neutral-400)]',
+                'outline-none',
+              )}
+            />
+            {query.length > 0 && (
+              <button
+                type="button"
+                onClick={clear}
+                aria-label="검색어 지우기"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-neutral-300)] text-white dark:bg-[var(--color-neutral-600)]"
+              >
+                <X size={12} />
+              </button>
             )}
-          />
-          {query.length > 0 && (
-            <button
-              type="button"
-              onClick={clear}
-              aria-label="검색어 지우기"
-              className="flex min-h-[44px] min-w-[44px] items-center justify-center text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]"
-            >
-              지우기
-            </button>
-          )}
+          </div>
         </div>
       </div>
 
@@ -93,6 +96,7 @@ export function FullScreenSearch({
           isLoading={isLoading}
           query={query}
           onSelect={handleSelect}
+          onSuggestionClick={search}
         />
       </div>
     </div>

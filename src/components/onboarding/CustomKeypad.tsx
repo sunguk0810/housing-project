@@ -34,7 +34,7 @@ export function CustomKeypad({
 
   return (
     <div
-      className={cn("grid grid-cols-3 gap-[var(--space-1)]", className)}
+      className={cn("grid grid-cols-3 gap-[6px]", className)}
       role="group"
       aria-label="숫자 키패드"
     >
@@ -45,12 +45,12 @@ export function CustomKeypad({
           onClick={() => handleKey(key)}
           aria-label={key === "⌫" ? "지우기" : key}
           className={cn(
-            "flex min-h-[44px] min-w-[44px] items-center justify-center",
+            "flex min-h-[48px] min-w-[44px] items-center justify-center",
             "rounded-[var(--radius-s7-md)] text-[length:var(--text-subtitle)] font-medium",
-            "transition-colors active:bg-[var(--color-neutral-200)]",
+            "transition-all active:scale-95",
             key === "⌫"
-              ? "text-[var(--color-on-surface-muted)]"
-              : "text-[var(--color-on-surface)]",
+              ? "bg-transparent text-[var(--color-on-surface-muted)] active:bg-[var(--color-neutral-200)]"
+              : "border border-[var(--color-neutral-200)] bg-[var(--color-surface)] text-[var(--color-on-surface)] active:bg-[var(--color-neutral-200)]",
           )}
         >
           {key}
