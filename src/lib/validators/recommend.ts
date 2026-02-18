@@ -7,9 +7,9 @@ import { z } from 'zod';
  * Units: cash/income/loans in 만원 (integer), monthlyBudget in 만원/월 (integer)
  */
 
-export const tradeTypeSchema = z.enum(['sale', 'jeonse', 'monthly'], {
+export const tradeTypeSchema = z.enum(['sale', 'jeonse'], {
   errorMap: () => ({
-    message: 'tradeType은 sale, jeonse, monthly만 허용됩니다.',
+    message: 'tradeType은 sale, jeonse만 허용됩니다.',
   }),
 });
 

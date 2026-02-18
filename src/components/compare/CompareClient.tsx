@@ -147,7 +147,7 @@ export function CompareClient() {
           <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">—</span>
         ),
       highlight: true,
-      getValue: (item) => (item.commuteTime2 !== null ? -(item.commuteTime2) : 0),
+      getValue: (item) => (item.commuteTime2 !== null ? -(item.commuteTime2) : -Infinity),
     },
   ];
 

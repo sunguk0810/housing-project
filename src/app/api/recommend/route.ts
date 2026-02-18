@@ -28,7 +28,7 @@ export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<RecommendResponse | ApiErrorResponse>> {
   // Rate limit: 10 requests / minute per IP (heavy pipeline — geocoding + DB + scoring)
-  if (isRateLimited(getClientIp(request), 10)) {
+  if (isRateLimited(`recommend:${getClientIp(request)}`, 10)) {
     return NextResponse.json(
       {
         error: {

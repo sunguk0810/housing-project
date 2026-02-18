@@ -118,7 +118,6 @@ export interface EmojiCardOption<T extends string = string> {
 export const TRADE_OPTIONS_V2: ReadonlyArray<EmojiCardOption<TradeType>> = [
   { value: 'sale', label: '매매', emoji: '🏠' },
   { value: 'jeonse', label: '전세', emoji: '🏢' },
-  { value: 'monthly', label: '월세', emoji: '🔑' },
 ];
 
 export const PRIORITY_OPTIONS: ReadonlyArray<EmojiCardOption<PriorityKey>> = [

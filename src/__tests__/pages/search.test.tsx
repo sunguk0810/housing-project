@@ -26,28 +26,18 @@ describe('SearchPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders trade type options', () => {
+  it('renders trade type options (sale and jeonse only)', () => {
     render(<SearchPage />);
     expect(screen.getByText('매매')).toBeInTheDocument();
     expect(screen.getByText('전세')).toBeInTheDocument();
-    expect(screen.getByText('월세')).toBeInTheDocument();
+    expect(screen.queryByText('월세')).not.toBeInTheDocument();
   });
 
-  it('reveals marriage plan options after trade type selection', async () => {
+  it('advances to step 2 after trade type selection and next click', async () => {
     const user = userEvent.setup();
     render(<SearchPage />);
-    await user.click(screen.getByRole('button', { name: /매매/ }));
-
-    expect(screen.getByText('6개월 내')).toBeInTheDocument();
-    expect(screen.getByText('1년 내')).toBeInTheDocument();
-    expect(screen.getByText('미정')).toBeInTheDocument();
-  });
-
-  it('auto-advances to step 2 after marriage selection', async () => {
-    const user = userEvent.setup();
-    render(<SearchPage />);
-    await user.click(screen.getByRole('button', { name: /매매/ }));
-    await user.click(await screen.findByRole('button', { name: /6개월 내/ }));
+    await user.click(screen.getByRole('radio', { name: /매매/ }));
+    await user.click(screen.getByRole('button', { name: /다음/ }));
 
     expect(
       await screen.findByRole('heading', {

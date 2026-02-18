@@ -80,11 +80,11 @@ export function BudgetPanel({ prices, dimensions, priceDate }: BudgetPanelProps)
             <DataSourceTag type="date" label={formatDate(priceDate)} />
           </div>
 
-          {/* Latest price summary */}
+          {/* Latest price summary (sortedPrices is ascending, last = newest) */}
           <div className="mb-[var(--space-3)] flex items-center gap-[var(--space-2)]">
             <span className="text-[length:var(--text-body-sm)] font-bold tabular-nums">
-              {safeTradeTypeLabel(prices[prices.length - 1].tradeType)}{" "}
-              {formatAmount(prices[prices.length - 1].averagePrice)}
+              {safeTradeTypeLabel(sortedPrices[sortedPrices.length - 1].tradeType)}{" "}
+              {formatAmount(sortedPrices[sortedPrices.length - 1].averagePrice)}
             </span>
             <DataSourceTag type="info" label="국토교통부 실거래가" />
           </div>

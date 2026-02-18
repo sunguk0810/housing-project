@@ -23,15 +23,16 @@ function evictExpired(): void {
 }
 
 /**
- * Returns true if the IP has exceeded maxRequests within the window.
+ * Returns true if the key has exceeded maxRequests within the window.
+ * Use a composite key (e.g. route + ip) to avoid cross-endpoint bucket collisions.
  */
-export function isRateLimited(ip: string, maxRequests: number): boolean {
+export function isRateLimited(key: string, maxRequests: number): boolean {
   evictExpired();
   const now = Date.now();
-  const entry = store.get(ip);
+  const entry = store.get(key);
 
   if (!entry || now > entry.resetAt) {
-    store.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    store.set(key, { count: 1, resetAt: now + WINDOW_MS });
     return false;
   }
 
