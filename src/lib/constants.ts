@@ -62,6 +62,7 @@ export const SORT_OPTIONS = [
 
 export interface AnalysisStep {
   readonly label: string;
+  readonly subLabel: string;
   readonly icon: LucideIcon;
   readonly iconBg: string;
   readonly iconColor: string;
@@ -71,31 +72,35 @@ export interface AnalysisStep {
 export const ANALYSIS_STEPS: readonly AnalysisStep[] = [
   {
     label: '입력 조건 분석',
+    subLabel: '입력값 검증 및 파싱 중...',
     icon: Building2,
     iconBg: '#CFFAFE',
     iconColor: '#0E7490',
-    durationMs: 1200,
+    durationMs: 2000,
   },
   {
     label: '통근 경로 계산',
+    subLabel: '대중교통 경로 탐색 중...',
     icon: Train,
     iconBg: '#EFF6FF',
     iconColor: '#1D4ED8',
-    durationMs: 1400,
+    durationMs: 2500,
   },
   {
     label: '예산 적합도 시뮬레이션',
+    subLabel: '소득 대비 상환 비율 산출 중...',
     icon: BarChart3,
     iconBg: '#FFFBEB',
     iconColor: '#B45309',
-    durationMs: 1600,
+    durationMs: 2000,
   },
   {
     label: '조건 부합 단지 탐색',
+    subLabel: '1,000여 개 단지 필터링 중...',
     icon: Map,
     iconBg: '#F0FDF4',
     iconColor: '#15803D',
-    durationMs: 1800,
+    durationMs: 1500,
   },
 ];
 

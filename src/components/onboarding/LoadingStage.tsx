@@ -3,9 +3,11 @@
 import type { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface LoadingStageItem {
   readonly label: string;
+  readonly subLabel?: string;
   readonly icon: LucideIcon;
   readonly iconBg?: string;
   readonly iconColor?: string;
@@ -23,8 +25,11 @@ export function LoadingStage({
   className,
 }: LoadingStageProps) {
   return (
-    <div className={cn("w-full max-w-sm space-y-[var(--space-4)]", className)}>
-      {stages.map(({ label, icon: Icon }, i) => {
+    <div
+      role="status"
+      className={cn("w-full max-w-sm space-y-[var(--space-2)]", className)}
+    >
+      {stages.map(({ label, subLabel, icon: Icon }, i) => {
         const isCompleted = i < activeIndex;
         const isCurrent = i === activeIndex;
         const isPending = i > activeIndex;
@@ -48,20 +53,20 @@ export function LoadingStage({
                     animation: "checkmark-pop 300ms ease-out",
                   }}
                 >
-                  <Check size={20} className="text-[var(--color-success)]" />
+                  <Check size={20} className="text-[var(--color-brand-500)]" />
                 </span>
               ) : (
                 <span
                   className={cn(
                     "flex h-8 w-8 items-center justify-center",
-                    isCurrent && "animate-pulse",
+                    isCurrent && "animate-[pulse_1.5s_ease-in-out_infinite]",
                   )}
                 >
                   <Icon
                     size={20}
                     className={cn(
                       isCurrent
-                        ? "text-[var(--color-brand-700)]"
+                        ? "text-[var(--color-neutral-700)]"
                         : "text-[var(--color-neutral-500)]",
                     )}
                   />
@@ -69,26 +74,36 @@ export function LoadingStage({
               )}
             </span>
 
-            <span
-              className={cn(
-                "text-[length:var(--text-body-sm)] font-medium",
-                isCompleted && "text-[var(--color-on-surface-muted)]",
-                isCurrent && "text-[var(--color-brand-700)]",
-                isPending && "text-[var(--color-on-surface-muted)]",
-              )}
-            >
-              {label}
-            </span>
+            <div className="flex flex-col gap-0.5">
+              <span
+                className={cn(
+                  "text-[length:var(--text-body-sm)] font-medium",
+                  isCompleted && "text-[var(--color-on-surface-muted)]",
+                  isCurrent && "text-[var(--color-neutral-800)]",
+                  isPending && "text-[var(--color-on-surface-muted)]",
+                )}
+              >
+                {label}
+              </span>
 
-            {isCurrent && (
-              <span className="ml-auto text-[length:var(--text-caption)] text-[var(--color-brand-700)]">
+              {isCurrent && subLabel && (
+                <Badge
+                  variant="secondary"
+                  className="animate-[fadeIn_300ms_ease-out] text-[10px] text-[var(--color-neutral-500)]"
+                >
+                  {subLabel}
+                </Badge>
+              )}
+            </div>
+
+            {isCurrent && !subLabel && (
+              <span className="ml-auto text-[length:var(--text-caption)] text-[var(--color-neutral-500)]">
                 진행 중...
               </span>
             )}
           </div>
         );
       })}
-
     </div>
   );
 }
