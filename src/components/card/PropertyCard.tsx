@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { CircularGauge } from "@/components/score/CircularGauge";
 import { formatPrice, formatTradeTypeLabel, formatCommuteTime } from "@/lib/format";
 import { useCompare } from "@/contexts/CompareContext";
+import { trackEvent } from "@/lib/tracking";
+import { CTA_LINKS } from "@/lib/constants";
 import type { RecommendationItem } from "@/types/api";
 
 interface PropertyCardProps {
@@ -162,6 +164,19 @@ export const PropertyCard = memo(function PropertyCard({
           );
         })}
       </p>
+
+      {/* Row 5: Inquiry CTA link */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          trackEvent({ name: "inquiry_click", aptId: item.aptId });
+          window.open(CTA_LINKS.inquiry, "_blank", "noopener,noreferrer");
+        }}
+        className="mt-2 self-start text-[length:var(--text-caption)] font-medium text-[var(--color-brand-500)] hover:underline"
+      >
+        안내 요청
+      </button>
     </div>
   );
 });

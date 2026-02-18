@@ -45,6 +45,12 @@ export const SESSION_KEYS = {
 
 export const POLICY_VERSION = '2026-02-16-v1';
 
+// CTA external links (placeholder — replace with actual URLs when ready)
+export const CTA_LINKS = {
+  concierge: 'https://example.com/concierge',
+  inquiry: 'https://example.com/inquiry',
+} as const;
+
 // FORBIDDEN_PHRASES: Defined in test files only (src/__tests__/compliance/)
 // to avoid compliance scan false-positives on the definition itself.
 
