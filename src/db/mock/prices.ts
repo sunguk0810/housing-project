@@ -62,6 +62,14 @@ export function generatePrices(apartmentCount: number): PriceInsert[] {
       } while (p > L);
       dealCount = Math.max(1, dealCount - 1);
 
+      // B-4: Area/floor statistics
+      const areaMin = Math.round(59 + rng() * 20); // 59~79㎡
+      const areaMax = Math.round(areaMin + 10 + rng() * 45); // +10~55㎡ → max ~134㎡
+      const areaAvg = Math.round((areaMin + areaMax) / 2);
+      const floorMin = Math.max(2, Math.round(rng() * 5 + 1)); // 2~6
+      const floorMax = Math.round(floorMin + 5 + rng() * 25); // +5~30 → max ~35
+      const floorAvg = Math.round((floorMin + floorMax) / 2);
+
       result.push({
         aptId,
         tradeType,
@@ -69,6 +77,12 @@ export function generatePrices(apartmentCount: number): PriceInsert[] {
         month: period.month,
         averagePrice: String(avgPrice),
         dealCount,
+        areaAvg: String(areaAvg),
+        areaMin: String(areaMin),
+        areaMax: String(areaMax),
+        floorAvg: String(floorAvg),
+        floorMin,
+        floorMax,
       });
     }
   }

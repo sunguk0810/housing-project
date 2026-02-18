@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Wallet } from "lucide-react";
+import { Wallet, Ruler, Layers } from "lucide-react";
 import dynamic from "next/dynamic";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
 import { ProgressiveDisclosure } from "@/components/complex/ProgressiveDisclosure";
@@ -34,6 +34,35 @@ interface BudgetPanelProps {
   priceDate: string;
 }
 
+function computeAreaFloorSummary(prices: ReadonlyArray<PriceHistoryItem>) {
+  const withArea = prices.filter((p) => p.areaAvg != null);
+  const withFloor = prices.filter((p) => p.floorAvg != null);
+
+  if (withArea.length === 0 && withFloor.length === 0) return null;
+
+  const areaMin = withArea.length > 0
+    ? Math.min(...withArea.map((p) => p.areaMin ?? Infinity))
+    : null;
+  const areaMax = withArea.length > 0
+    ? Math.max(...withArea.map((p) => p.areaMax ?? -Infinity))
+    : null;
+  const areaAvg = withArea.length > 0
+    ? Math.round(withArea.reduce((sum, p) => sum + (p.areaAvg ?? 0), 0) / withArea.length)
+    : null;
+
+  const floorMin = withFloor.length > 0
+    ? Math.min(...withFloor.map((p) => p.floorMin ?? Infinity))
+    : null;
+  const floorMax = withFloor.length > 0
+    ? Math.max(...withFloor.map((p) => p.floorMax ?? -Infinity))
+    : null;
+  const floorAvg = withFloor.length > 0
+    ? Math.round(withFloor.reduce((sum, p) => sum + (p.floorAvg ?? 0), 0) / withFloor.length)
+    : null;
+
+  return { areaMin, areaMax, areaAvg, floorMin, floorMax, floorAvg };
+}
+
 export function BudgetPanel({ prices, dimensions, priceDate }: BudgetPanelProps) {
   const sortedPrices = useMemo(() => sortPricesAsc(prices), [prices]);
   const periods = useMemo(() => getAvailablePeriods(sortedPrices), [sortedPrices]);
@@ -46,6 +75,8 @@ export function BudgetPanel({ prices, dimensions, priceDate }: BudgetPanelProps)
     () => filterByPeriod(sortedPrices, selectedPeriod),
     [sortedPrices, selectedPeriod],
   );
+
+  const areaFloor = useMemo(() => computeAreaFloorSummary(prices), [prices]);
 
   const budgetInfo = dimensions ? getBudgetLabel(dimensions.budget) : null;
   const budgetScore = dimensions ? Math.round(dimensions.budget * 100) : null;
@@ -68,6 +99,40 @@ export function BudgetPanel({ prices, dimensions, priceDate }: BudgetPanelProps)
           valueLabel={budgetInfo.label}
           grade={budgetGrade}
         />
+      )}
+
+      {/* Area/Floor summary cards */}
+      {areaFloor && (
+        <div className="grid grid-cols-2 gap-[var(--space-3)]">
+          {areaFloor.areaAvg != null && (
+            <div className="rounded-[var(--radius-s7-lg)] border border-[var(--color-border)] p-[var(--space-3)]">
+              <div className="mb-1 flex items-center gap-[var(--space-1)] text-[var(--color-on-surface-muted)]">
+                <Ruler size={14} />
+                <span className="text-[length:var(--text-caption)] font-medium">전용면적</span>
+              </div>
+              <p className="text-[length:var(--text-title)] font-bold tabular-nums text-[var(--color-brand-500)]">
+                {areaFloor.areaAvg}㎡
+              </p>
+              <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)] tabular-nums">
+                {areaFloor.areaMin}~{areaFloor.areaMax}㎡
+              </p>
+            </div>
+          )}
+          {areaFloor.floorAvg != null && (
+            <div className="rounded-[var(--radius-s7-lg)] border border-[var(--color-border)] p-[var(--space-3)]">
+              <div className="mb-1 flex items-center gap-[var(--space-1)] text-[var(--color-on-surface-muted)]">
+                <Layers size={14} />
+                <span className="text-[length:var(--text-caption)] font-medium">거래층수</span>
+              </div>
+              <p className="text-[length:var(--text-title)] font-bold tabular-nums text-[var(--color-brand-500)]">
+                {areaFloor.floorAvg}층
+              </p>
+              <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)] tabular-nums">
+                {areaFloor.floorMin}~{areaFloor.floorMax}층
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Price data section */}

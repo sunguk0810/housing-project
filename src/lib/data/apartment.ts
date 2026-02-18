@@ -43,6 +43,12 @@ export async function getApartmentDetail(
       month: apartmentPrices.month,
       averagePrice: apartmentPrices.averagePrice,
       dealCount: apartmentPrices.dealCount,
+      areaAvg: apartmentPrices.areaAvg,
+      areaMin: apartmentPrices.areaMin,
+      areaMax: apartmentPrices.areaMax,
+      floorAvg: apartmentPrices.floorAvg,
+      floorMin: apartmentPrices.floorMin,
+      floorMax: apartmentPrices.floorMax,
     })
     .from(apartmentPrices)
     .where(eq(apartmentPrices.aptId, aptId))
@@ -103,6 +109,12 @@ export async function getApartmentDetail(
         month: r.month ?? 0,
         averagePrice: Number(r.averagePrice ?? 0),
         dealCount: r.dealCount ?? 0,
+        areaAvg: r.areaAvg ? Number(r.areaAvg) : null,
+        areaMin: r.areaMin ? Number(r.areaMin) : null,
+        areaMax: r.areaMax ? Number(r.areaMax) : null,
+        floorAvg: r.floorAvg ? Number(r.floorAvg) : null,
+        floorMin: r.floorMin ?? null,
+        floorMax: r.floorMax ?? null,
       })),
     },
     nearby: {

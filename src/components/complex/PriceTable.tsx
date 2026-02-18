@@ -28,6 +28,9 @@ export function PriceTable({ prices, className }: PriceTableProps) {
             <th className="py-1 pr-2 text-right font-semibold text-[var(--color-on-surface-muted)]">
               가격
             </th>
+            <th className="py-1 pr-2 text-right font-semibold text-[var(--color-on-surface-muted)]">
+              면적(㎡)
+            </th>
             <th className="py-1 text-right font-semibold text-[var(--color-on-surface-muted)]">
               건수
             </th>
@@ -49,6 +52,9 @@ export function PriceTable({ prices, className }: PriceTableProps) {
                     </span>
                   )}
                 </span>
+              </td>
+              <td className="py-1 pr-2 text-right tabular-nums">
+                {p.areaAvg != null ? `${p.areaAvg}` : "-"}
               </td>
               <td className="py-1 text-right tabular-nums">{p.dealCount}건</td>
             </tr>

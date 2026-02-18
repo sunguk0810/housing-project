@@ -21,6 +21,13 @@ export const apartmentPrices = pgTable(
     month: integer("month"),
     averagePrice: numeric("average_price"),
     dealCount: integer("deal_count"),
+    // B-4: Area/floor statistics per month
+    areaAvg: numeric("area_avg"),
+    areaMin: numeric("area_min"),
+    areaMax: numeric("area_max"),
+    floorAvg: numeric("floor_avg"),
+    floorMin: integer("floor_min"),
+    floorMax: integer("floor_max"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
