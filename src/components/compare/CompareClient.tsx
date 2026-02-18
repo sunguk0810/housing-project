@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Wallet, Train, Baby, Shield } from "lucide-react";
+import { ArrowLeft, Wallet, Train, Baby, Shield, Scale, Clock, AlertCircle, BarChart3, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { useCompare } from "@/contexts/CompareContext";
 import { trackEvent } from "@/lib/tracking";
 import { ScoreBar } from "@/components/score/ScoreBar";
@@ -56,41 +56,38 @@ export function CompareClient() {
     const isSessionExpired = compareItems.length > 0 && !pageData.hasResults;
     const isMismatch = compareItems.length > 0 && pageData.hasResults;
 
-    let title: string;
-    let description: string;
-    let linkHref: string;
-    let linkLabel: string;
-
     if (isSessionExpired) {
-      title = "분석 결과가 만료되었습니다";
-      description = "다시 분석을 실행해주세요.";
-      linkHref = "/search";
-      linkLabel = "다시 분석하기";
-    } else if (isMismatch) {
-      title = "선택한 단지를 분석 결과에서 찾을 수 없습니다";
-      description = "새로운 분석을 실행하거나 다른 단지를 선택해주세요.";
-      linkHref = "/results";
-      linkLabel = "분석 결과로 돌아가기";
-    } else {
-      title = "비교할 단지를 선택해주세요";
-      description = "분석 결과에서 비교할 단지를 추가할 수 있습니다.";
-      linkHref = "/results";
-      linkLabel = "분석 결과로 돌아가기";
+      return (
+        <EmptyState
+          icon={Clock}
+          iconVariant="warning"
+          title="분석 결과가 만료되었습니다"
+          description="시간이 지나 분석 결과가 사라졌어요. 다시 시작해볼까요?"
+          primaryAction={{ label: "다시 분석하기", icon: RotateCcw, href: "/search" }}
+        />
+      );
+    }
+
+    if (isMismatch) {
+      return (
+        <EmptyState
+          icon={AlertCircle}
+          iconVariant="warning"
+          title="선택한 단지를 찾을 수 없습니다"
+          description="새로운 분석을 실행하거나 다른 단지를 선택해주세요"
+          primaryAction={{ label: "분석 결과 보기", icon: BarChart3, href: "/results" }}
+        />
+      );
     }
 
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center px-[var(--space-4)]">
-        <p className="text-[length:var(--text-title)] font-semibold">{title}</p>
-        <p className="mt-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
-          {description}
-        </p>
-        <Link
-          href={linkHref}
-          className="mt-[var(--space-6)] rounded-[var(--radius-s7-md)] bg-[var(--color-primary)] px-[var(--space-6)] py-[var(--space-3)] text-[var(--color-on-primary)] no-underline"
-        >
-          {linkLabel}
-        </Link>
-      </div>
+      <EmptyState
+        icon={Scale}
+        iconVariant="info"
+        title="비교할 단지를 선택해주세요"
+        description="분석 결과에서 마음에 드는 단지를 골라보세요"
+        primaryAction={{ label: "분석 결과 보기", icon: BarChart3, href: "/results" }}
+      />
     );
   }
 

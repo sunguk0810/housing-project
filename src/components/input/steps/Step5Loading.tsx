@@ -6,7 +6,9 @@ import { ANALYSIS_STEPS, SESSION_KEYS } from '@/lib/constants';
 import { LoadingStage } from '@/components/onboarding/LoadingStage';
 import { AnalysisProgressRing } from '@/components/onboarding/AnalysisProgressRing';
 import { AnalysisTipCard } from '@/components/onboarding/AnalysisTipCard';
+import { SearchX, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/feedback/EmptyState';
 import type { StepFormData } from '@/hooks/useStepForm';
 import type { RecommendResponse } from '@/types/api';
 
@@ -201,16 +203,29 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
   }, []);
 
   if (error) {
+    if (isEmptyResult) {
+      return (
+        <EmptyState
+          icon={SearchX}
+          iconVariant="info"
+          title="조건에 맞는 단지를 찾지 못했어요"
+          description="조건을 조금 조정하면 더 많은 결과를 찾을 수 있어요"
+          tips={[
+            '전세 ↔ 매매로 거래 유형을 바꿔보세요',
+            '예산 범위를 3,000만~5,000만원 정도 넓혀보세요',
+          ]}
+          primaryAction={{ label: '조건 변경하기', icon: SlidersHorizontal, onClick: onGoPrev }}
+          secondaryAction={{ label: '처음부터 다시', icon: RotateCcw, href: '/search' }}
+        />
+      );
+    }
+
     return (
       <div className="flex flex-col items-center gap-[var(--space-4)] py-[var(--space-10)]">
         <p className="text-[length:var(--text-body)] text-[var(--color-error)]">
           {error}
         </p>
-        {isEmptyResult && onGoPrev ? (
-          <Button onClick={onGoPrev}>조건 변경하기</Button>
-        ) : (
-          <Button onClick={handleRetry}>다시 시도</Button>
-        )}
+        <Button onClick={handleRetry}>다시 시도</Button>
       </div>
     );
   }

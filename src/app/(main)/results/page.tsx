@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BarChart3, List, Map } from "lucide-react";
+import { ArrowLeft, BarChart3, ClipboardList, List, Map, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -20,6 +20,7 @@ import { MapScoreLegend } from "@/components/map/MapScoreLegend";
 import { MapSortOverlay } from "@/components/map/MapSortOverlay";
 import { RefreshPill } from "@/components/map/RefreshPill";
 import { PropertyCardSkeleton } from "@/components/feedback/Skeleton";
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { LoadMoreButton } from "@/components/results/LoadMoreButton";
 import type { RecommendResponse, RecommendationItem } from "@/types/api";
 import type { SortOption } from "@/types/ui";
@@ -172,19 +173,13 @@ export default function ResultsPage() {
   // Empty state
   if (!data || data.recommendations.length === 0) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center px-[var(--space-4)]">
-        <p className="text-[length:var(--text-title)] font-semibold">분석 결과가 없습니다</p>
-        <p className="mt-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
-          조건을 변경해 다시 시도해주세요.
-        </p>
-        <Button
-          variant="default"
-          onClick={() => router.push("/search")}
-          className="mt-[var(--space-6)] rounded-[var(--radius-s7-md)] px-[var(--space-6)]"
-        >
-          다시 분석하기
-        </Button>
-      </div>
+      <EmptyState
+        icon={ClipboardList}
+        iconVariant="info"
+        title="분석 결과가 없습니다"
+        description="분석은 3분이면 끝나요. 예산, 직장, 우선순위만 입력하세요"
+        primaryAction={{ label: "다시 분석하기", icon: RotateCcw, href: "/search" }}
+      />
     );
   }
 
