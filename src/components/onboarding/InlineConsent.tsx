@@ -31,6 +31,11 @@ export function InlineConsent({
 }: InlineConsentProps) {
   const [expanded, setExpanded] = useState(false);
 
+  // Track consent_shown on mount
+  useEffect(() => {
+    trackEvent({ name: "consent_shown" });
+  }, []);
+
   // Restore consent from session
   useEffect(() => {
     if (typeof window === "undefined") return;

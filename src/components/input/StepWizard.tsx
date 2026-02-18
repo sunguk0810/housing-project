@@ -60,6 +60,9 @@ export function StepWizard() {
     if (currentStep < 5) {
       trackEvent({ name: 'step_complete', step: currentStep });
     }
+    if (isLastInputStep) {
+      trackEvent({ name: 'min_input_complete' });
+    }
     goNext();
   }
 

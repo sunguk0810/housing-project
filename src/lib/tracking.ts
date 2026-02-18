@@ -8,6 +8,7 @@
 export type TrackingEvent =
   | { name: "landing_unique_view" }
   | { name: "min_input_start" }
+  | { name: "min_input_complete" }
   | { name: "step_complete"; step: number }
   | { name: "consent_shown" }
   | { name: "consent_accepted"; policyVersion: string }
