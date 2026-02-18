@@ -11,6 +11,7 @@
     "test:e2e:onboarding": "playwright test tests/e2e/onboarding.flow.spec.ts tests/e2e/onboarding.uiux.spec.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "analyze": "ANALYZE=true next build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.6",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
