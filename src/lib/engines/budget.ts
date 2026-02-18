@@ -39,6 +39,7 @@ export function calculateBudget(input: BudgetInput): BudgetOutput {
   if (tradeType === "sale") {
     return calculateSaleBudget(cash, income, loans, monthlyBudget);
   }
+  // monthly uses same LTV/DTI logic as jeonse
   return calculateJeonseBudget(cash, income, loans, monthlyBudget);
 }
 
@@ -84,7 +85,7 @@ function calculateSaleBudget(
 export function estimateApartmentMonthlyCost(
   apartmentPrice: number,
   cash: number,
-  tradeType: "sale" | "jeonse",
+  tradeType: "sale" | "jeonse" | "monthly",
 ): number {
   const loanNeeded = Math.max(0, apartmentPrice - cash);
   if (loanNeeded <= 0) return 0;

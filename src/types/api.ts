@@ -9,8 +9,8 @@
 // Common Types
 // ============================================================
 
-export type TradeType = "sale" | "jeonse";
-export type WeightProfile = "balanced" | "budget_focused" | "commute_focused";
+export type TradeType = 'sale' | 'jeonse' | 'monthly';
+export type WeightProfile = 'balanced' | 'budget_focused' | 'commute_focused';
 
 export interface Coordinate {
   readonly lat: number;
@@ -28,6 +28,8 @@ export interface RecommendRequest {
   readonly monthlyBudget: number;
   readonly job1: string;
   readonly job2?: string;
+  readonly job1Remote?: boolean;
+  readonly job2Remote?: boolean;
   readonly tradeType: TradeType;
   readonly weightProfile: WeightProfile;
 }
@@ -42,12 +44,12 @@ export interface RecommendationItem {
   readonly aptId: number;
   readonly aptName: string;
   readonly address: string;
-  readonly lat: number;     // M3 KakaoMap marker latitude
-  readonly lng: number;     // M3 KakaoMap marker longitude
+  readonly lat: number; // M3 KakaoMap marker latitude
+  readonly lng: number; // M3 KakaoMap marker longitude
   readonly tradeType: TradeType;
-  readonly averagePrice: number;              // average price in 만원
+  readonly averagePrice: number; // average price in 만원
   readonly householdCount: number | null;
-  readonly areaMin: number | null;            // min area in ㎡
+  readonly areaMin: number | null; // min area in ㎡
   readonly monthlyCost: number;
   readonly commuteTime1: number;
   readonly commuteTime2: number | null;
@@ -154,13 +156,13 @@ export interface ApartmentDetailResponse {
 
 export interface HealthCheckItem {
   readonly name: string;
-  readonly status: "ok" | "error";
+  readonly status: 'ok' | 'error';
   readonly latencyMs?: number;
   readonly message?: string;
 }
 
 export interface HealthResponse {
-  readonly status: "healthy" | "degraded";
+  readonly status: 'healthy' | 'degraded';
   readonly timestamp: string;
   readonly version: string;
   readonly checks: ReadonlyArray<HealthCheckItem>;
@@ -184,9 +186,10 @@ export interface ApiErrorResponse {
 }
 
 export type ApiErrorCode =
-  | "INVALID_JSON"
-  | "VALIDATION_ERROR"
-  | "ADDRESS_NOT_FOUND"
-  | "INVALID_PARAMETER"
-  | "APARTMENT_NOT_FOUND"
-  | "INTERNAL_ERROR";
+  | 'INVALID_JSON'
+  | 'VALIDATION_ERROR'
+  | 'ADDRESS_NOT_FOUND'
+  | 'INVALID_PARAMETER'
+  | 'APARTMENT_NOT_FOUND'
+  | 'RATE_LIMITED'
+  | 'INTERNAL_ERROR';

@@ -1,28 +1,54 @@
 /**
  * MapMarker HTML content generator for Kakao CustomOverlay.
  * Not a React component — generates HTML strings for the map SDK.
+ *
+ * Design spec: grade-color based markers (ref_1-1 label-pin pattern)
+ * - default: white bg + grade-color text
+ * - selected: grade-color bg + white text + scale 1.15
+ * - visited: white bg (opacity 0.7) + grade-color text
  */
 
 import type { MapMarkerState } from "@/types/ui";
 import { getScoreGrade } from "@/lib/score-utils";
 
-const STATE_STYLES: Record<MapMarkerState, { bg: string; border: string; text: string }> = {
-  default: {
-    bg: "var(--color-surface)",
-    border: "var(--color-border)",
-    text: "var(--color-on-surface)",
-  },
-  selected: {
-    bg: "var(--color-primary)",
-    border: "var(--color-primary)",
-    text: "var(--color-on-primary)",
-  },
-  visited: {
-    bg: "var(--color-surface-sunken)",
-    border: "var(--color-neutral-400)",
-    text: "var(--color-on-surface-muted)",
-  },
-};
+interface MarkerStyle {
+  bg: string;
+  text: string;
+  shadow: string;
+  opacity: string;
+  scale: string;
+}
+
+function getMarkerStyle(grade: string, state: MapMarkerState): MarkerStyle {
+  const gradeColor = `var(--color-score-${grade})`;
+
+  switch (state) {
+    case "selected":
+      return {
+        bg: gradeColor,
+        text: "#FFFFFF",
+        shadow: `0 4px 16px color-mix(in srgb, ${gradeColor} 25%, transparent)`,
+        opacity: "1",
+        scale: "scale(1.15)",
+      };
+    case "visited":
+      return {
+        bg: "#FFFFFF",
+        text: gradeColor,
+        shadow: "var(--shadow-s7-sm)",
+        opacity: "0.7",
+        scale: "scale(1)",
+      };
+    default:
+      return {
+        bg: "#FFFFFF",
+        text: gradeColor,
+        shadow: "var(--shadow-s7-base)",
+        opacity: "1",
+        scale: "scale(1)",
+      };
+  }
+}
 
 export function createMarkerContent(
   rank: number,
@@ -30,36 +56,30 @@ export function createMarkerContent(
   state: MapMarkerState,
 ): string {
   const grade = getScoreGrade(score);
-  const styles = STATE_STYLES[state];
+  const style = getMarkerStyle(grade, state);
 
   return `
     <div style="
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: ${styles.bg};
-      border: 2px solid ${styles.border};
-      color: ${styles.text};
-      font-size: 12px;
-      font-weight: 600;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border-radius: 9999px;
+      background: ${style.bg};
+      color: ${style.text};
+      font-size: 13px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+      box-shadow: ${style.shadow};
+      opacity: ${style.opacity};
+      transform: ${style.scale};
+      transition: transform 150ms cubic-bezier(0.33, 1, 0.68, 1);
       white-space: nowrap;
     " data-marker-id="${rank}">
-      <span style="
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--color-score-${grade});
-        color: white;
-        font-size: 10px;
-      ">${rank}</span>
-      <span>${Math.round(score)}</span>
+      ${Math.round(score)}
     </div>
   `;
 }

@@ -1,21 +1,18 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { eq, lte, desc, and, sql } from "drizzle-orm";
-import pLimit from "p-limit";
-import { db } from "@/db/connection";
-import { apartments, apartmentPrices, safetyStats } from "@/db/schema";
-import { recommendRequestSchema } from "@/lib/validators/recommend";
-import { calculateBudget, estimateApartmentMonthlyCost } from "@/lib/engines/budget";
-import { calculateFinalScore } from "@/lib/engines/scoring";
-import { findNearbyChildcare } from "@/lib/engines/spatial";
-import { getCommuteTime } from "@/lib/engines/commute";
-import { geocodeAddress } from "@/etl/adapters/kakao-geocoding";
-import type {
-  RecommendResponse,
-  RecommendationItem,
-  ApiErrorResponse,
-} from "@/types/api";
-import type { ScoringInput, WeightProfileKey } from "@/types/engine";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { isRateLimited, getClientIp } from '@/lib/rate-limit';
+import { eq, lte, desc, and, sql } from 'drizzle-orm';
+import pLimit from 'p-limit';
+import { db } from '@/db/connection';
+import { apartments, apartmentPrices, safetyStats } from '@/db/schema';
+import { recommendRequestSchema } from '@/lib/validators/recommend';
+import { calculateBudget, estimateApartmentMonthlyCost } from '@/lib/engines/budget';
+import { calculateFinalScore } from '@/lib/engines/scoring';
+import { findNearbyChildcare } from '@/lib/engines/spatial';
+import { getCommuteTime } from '@/lib/engines/commute';
+import { geocodeAddress } from '@/etl/adapters/kakao-geocoding';
+import type { RecommendResponse, RecommendationItem, ApiErrorResponse } from '@/types/api';
+import type { ScoringInput, WeightProfileKey } from '@/types/engine';
 
 /**
  * POST /api/recommend — 10-step analysis pipeline.
@@ -25,11 +22,24 @@ import type { ScoringInput, WeightProfileKey } from "@/types/engine";
  * NOTE: "분석 결과" used instead of "추천" (PHASE0 S4 compliance)
  */
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<RecommendResponse | ApiErrorResponse>> {
+  // Rate limit: 10 requests / minute per IP (heavy pipeline — geocoding + DB + scoring)
+  if (isRateLimited(`recommend:${getClientIp(request)}`, 10)) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'RATE_LIMITED' as const,
+          message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+        },
+      },
+      { status: 429 },
+    );
+  }
+
   // Step 1: Parse request body
   let rawBody: unknown;
   try {
@@ -38,8 +48,8 @@ export async function POST(
     return NextResponse.json(
       {
         error: {
-          code: "INVALID_JSON" as const,
-          message: "요청 본문이 올바른 JSON이 아닙니다.",
+          code: 'INVALID_JSON' as const,
+          message: '요청 본문이 올바른 JSON이 아닙니다.',
         },
       },
       { status: 400 },
@@ -50,14 +60,14 @@ export async function POST(
   const parsed = recommendRequestSchema.safeParse(rawBody);
   if (!parsed.success) {
     const details = parsed.error.errors.map((e) => ({
-      field: e.path.join("."),
+      field: e.path.join('.'),
       message: e.message,
     }));
     return NextResponse.json(
       {
         error: {
-          code: "VALIDATION_ERROR" as const,
-          message: "입력값 검증에 실패했습니다.",
+          code: 'VALIDATION_ERROR' as const,
+          message: '입력값 검증에 실패했습니다.',
           details,
         },
       },
@@ -69,29 +79,33 @@ export async function POST(
 
   try {
     // Step 3: Geocode job addresses
-    const job1Result = await geocodeAddress(input.job1);
-    const job2Result = input.job2
-      ? await geocodeAddress(input.job2)
-      : null;
+    const job1Result = input.job1Remote ? null : await geocodeAddress(input.job1);
+    const job2Result = input.job2Remote
+      ? null
+      : input.job2
+        ? await geocodeAddress(input.job2)
+        : null;
 
-    if (!job1Result) {
+    if (!input.job1Remote && !job1Result) {
       return NextResponse.json(
         {
           error: {
-            code: "ADDRESS_NOT_FOUND" as const,
-            message: "직장1 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)",
+            code: 'ADDRESS_NOT_FOUND' as const,
+            message:
+              '직장1 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)',
           },
         },
         { status: 400 },
       );
     }
 
-    if (input.job2 && !job2Result) {
+    if (!input.job2Remote && input.job2 && !job2Result) {
       return NextResponse.json(
         {
           error: {
-            code: "ADDRESS_NOT_FOUND" as const,
-            message: "직장2 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)",
+            code: 'ADDRESS_NOT_FOUND' as const,
+            message:
+              '직장2 주소를 찾을 수 없습니다. 주소를 더 상세히 입력해주세요. (예: 서울 강남구 역삼동)',
           },
         },
         { status: 400 },
@@ -133,11 +147,7 @@ export async function POST(
           lte(sql<number>`CAST(${apartmentPrices.averagePrice} AS INTEGER)`, budget.maxPrice),
         ),
       )
-      .orderBy(
-        apartments.id,
-        desc(apartmentPrices.year),
-        desc(apartmentPrices.month),
-      )
+      .orderBy(apartments.id, desc(apartmentPrices.year), desc(apartmentPrices.month))
       .limit(50);
 
     if (candidateRows.length === 0) {
@@ -173,9 +183,7 @@ export async function POST(
               1500
             )
           `);
-          const avgSchoolScore = Number(
-            (schoolRows[0] as Record<string, unknown>)?.avgScore ?? 0,
-          );
+          const avgSchoolScore = Number((schoolRows[0] as Record<string, unknown>)?.avgScore ?? 0);
 
           // Step 8: Safety mapping — match by regionCode extracted from aptCode
           const safetyRows = await db
@@ -192,24 +200,27 @@ export async function POST(
           const safetyData = safetyRows[0];
 
           // Step 9: Commute times
-          const commute1 = await getCommuteTime({
-            aptId,
-            aptLon,
-            aptLat,
-            destLon: job1Result.coordinate.lng,
-            destLat: job1Result.coordinate.lat,
-            destLabel: input.job1,
-          });
+          const commute1 =
+            input.job1Remote || !job1Result
+              ? { timeMinutes: 0 }
+              : await getCommuteTime({
+                  aptId,
+                  aptLon,
+                  aptLat,
+                  destLon: job1Result.coordinate.lng,
+                  destLat: job1Result.coordinate.lat,
+                  destLabel: input.job1,
+                });
 
           let commute2Time = 0;
-          if (job2Result) {
+          if (!input.job2Remote && job2Result) {
             const c2 = await getCommuteTime({
               aptId,
               aptLon,
               aptLat,
               destLon: job2Result.coordinate.lng,
               destLat: job2Result.coordinate.lat,
-              destLabel: input.job2 ?? "",
+              destLabel: input.job2 ?? '',
             });
             commute2Time = c2.timeMinutes;
           }
@@ -232,10 +243,7 @@ export async function POST(
             achievementScore: avgSchoolScore,
           };
 
-          const result = calculateFinalScore(
-            scoringInput,
-            input.weightProfile as WeightProfileKey,
-          );
+          const result = calculateFinalScore(scoringInput, input.weightProfile as WeightProfileKey);
 
           return {
             score: result.finalScore,
@@ -255,10 +263,7 @@ export async function POST(
               commuteTime2: job2Result ? commute2Time : null,
               childcareCount: childcareItems.length,
               schoolScore: Math.round(avgSchoolScore),
-              safetyScore:
-                Math.round(
-                  (result.dimensions.safety + Number.EPSILON) * 100,
-                ) / 100,
+              safetyScore: Math.round((result.dimensions.safety + Number.EPSILON) * 100) / 100,
               finalScore: result.finalScore,
               reason: result.reason,
               whyNot: result.whyNot || null,
@@ -270,8 +275,8 @@ export async function POST(
                 school: Math.round(result.dimensions.school * 100) / 100,
               },
               sources: {
-                priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, "0")}`,
-                safetyDate: safetyData?.dataDate ?? "N/A",
+                priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, '0')}`,
+                safetyDate: safetyData?.dataDate ?? 'N/A',
               },
             },
           };
@@ -296,11 +301,10 @@ export async function POST(
 
     return NextResponse.json(response);
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
+    const message = err instanceof Error ? err.message : 'Internal server error';
     console.error(
       JSON.stringify({
-        event: "recommend_error",
+        event: 'recommend_error',
         error: message,
         timestamp: new Date().toISOString(),
       }),
@@ -309,8 +313,8 @@ export async function POST(
     return NextResponse.json(
       {
         error: {
-          code: "INTERNAL_ERROR" as const,
-          message: "서버 내부 오류가 발생했습니다.",
+          code: 'INTERNAL_ERROR' as const,
+          message: '서버 내부 오류가 발생했습니다.',
         },
       },
       { status: 500 },

@@ -14,7 +14,14 @@ export function CompareBar({ className }: CompareBarProps) {
   if (items.length === 0) return null;
 
   return (
-    <div className={cn("sticky bottom-14 z-5 border-t border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-4)] py-[var(--space-3)]", className)}>
+    <div
+      className={cn(
+        "sticky bottom-14 z-5 border-t border-[var(--color-border)] bg-[var(--color-surface)] px-[var(--space-4)] py-[var(--space-3)]",
+        "animate-[slideUp_300ms_var(--ease-out-default)]",
+        className,
+      )}
+      style={{ paddingBottom: "max(var(--space-3), env(safe-area-inset-bottom))" }}
+    >
       <div className="flex items-center gap-[var(--space-2)]">
         <div className="flex flex-1 gap-[var(--space-1)] overflow-x-auto">
           {items.map((item) => (

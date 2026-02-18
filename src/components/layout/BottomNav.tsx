@@ -22,7 +22,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-10 flex h-14 items-center justify-around border-t border-[var(--color-border)] bg-[var(--color-surface)] pb-1 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-14 items-center justify-around border-t border-[var(--color-border)] bg-[var(--color-surface)] pb-1 lg:hidden">
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const active = isActive(pathname, item.href);

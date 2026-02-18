@@ -11,7 +11,7 @@ export interface BudgetInput {
   /** Monthly budget upper limit set by user (만원) */
   monthlyBudget: number;
   /** Trade type */
-  tradeType: "sale" | "jeonse";
+  tradeType: "sale" | "jeonse" | "monthly";
 }
 
 export interface BudgetOutput {

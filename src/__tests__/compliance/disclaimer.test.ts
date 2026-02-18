@@ -26,13 +26,13 @@ describe("Disclaimer 5 touch-points", () => {
     expect(content).toContain("DISCLAIMER_TEXTS.banner");
   });
 
-  it("touch-point 3: DataSourceTag on results page", () => {
+  it("touch-point 3: data source disclaimer on results page", () => {
     const content = readFileSync(
       resolve(srcRoot, "app/(main)/results/page.tsx"),
       "utf-8",
     );
     expect(content).toContain('data-disclaimer="data-source-results"');
-    expect(content).toContain("DataSourceTag");
+    expect(content).toContain("sources.priceDate");
   });
 
   it("touch-point 4: ExternalLinkCTA disclaimer modal", () => {

@@ -48,8 +48,10 @@ export function formatPrice(manwon: number): string {
   return `${manwon.toLocaleString("ko-KR")}만`;
 }
 
-export function formatTradeTypeLabel(tradeType: "sale" | "jeonse"): string {
-  return tradeType === "jeonse" ? "전세" : "매매";
+export function formatTradeTypeLabel(tradeType: "sale" | "jeonse" | "monthly"): string {
+  if (tradeType === "jeonse") return "전세";
+  if (tradeType === "monthly") return "월세";
+  return "매매";
 }
 
 /**
@@ -61,4 +63,30 @@ export function formatCommuteTime(minutes: number): string {
   const mins = minutes % 60;
   if (mins === 0) return `${hours}시간`;
   return `${hours}시간 ${mins}분`;
+}
+
+/**
+ * Shorten Korean address for compact display.
+ * "서울특별시 마포구 합정동 65" → "서울 마포구 합정동"
+ * "서울특별시 양천구 신정동 225" → "서울 양천구 신정동"
+ */
+export function formatShortAddress(address: string): string {
+  const CITY_SHORT: Record<string, string> = {
+    서울특별시: "서울",
+    부산광역시: "부산",
+    대구광역시: "대구",
+    인천광역시: "인천",
+    광주광역시: "광주",
+    대전광역시: "대전",
+    울산광역시: "울산",
+    세종특별자치시: "세종",
+    경기도: "경기",
+  };
+  const parts = address.split(" ");
+  if (parts.length >= 3) {
+    const city = CITY_SHORT[parts[0]] ?? parts[0];
+    // Return: city + gu + dong (drop building number)
+    return `${city} ${parts[1]} ${parts[2]}`;
+  }
+  return address;
 }

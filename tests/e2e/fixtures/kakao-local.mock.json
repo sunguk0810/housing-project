@@ -1,0 +1,31 @@
+{
+  "documents": [
+    {
+      "id": "1",
+      "place_name": "금천 롯데캐슬 골드파크 3차",
+      "address_name": "서울 금천구 시흥대로 291",
+      "road_address_name": "서울 금천구 시흥대로 291",
+      "category_group_name": "아파트",
+      "x": "126.895",
+      "y": "37.460"
+    },
+    {
+      "id": "2",
+      "place_name": "금천 롯데캐슬 골드파크 1차",
+      "address_name": "서울 금천구 벚꽃로 40",
+      "road_address_name": "서울 금천구 벚꽃로 40",
+      "category_group_name": "아파트",
+      "x": "126.892",
+      "y": "37.458"
+    },
+    {
+      "id": "3",
+      "place_name": "가산디지털2로 179",
+      "address_name": "서울 금천구 가산동 533-2",
+      "road_address_name": "서울 금천구 가산디지털2로 179",
+      "category_group_name": "회사",
+      "x": "126.883",
+      "y": "37.480"
+    }
+  ]
+}

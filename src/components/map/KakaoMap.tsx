@@ -14,6 +14,7 @@ interface KakaoMapProps {
   selectedId: number | null;
   visitedIds: Set<number>;
   onMarkerClick: (aptId: number) => void;
+  onBoundsChange?: () => void;
   className?: string;
 }
 
@@ -25,6 +26,7 @@ export function KakaoMap({
   selectedId,
   visitedIds,
   onMarkerClick,
+  onBoundsChange: onBoundsChangeProp,
   className,
 }: KakaoMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +35,7 @@ export function KakaoMap({
     ? { lat: items[0].lat, lng: items[0].lng }
     : DEFAULT_CENTER;
 
-  const { isReady, error, addMarkers, selectMarker, showOverlay, hideOverlay, relayout } = useKakaoMap(containerRef, { center });
+  const { isReady, error, addMarkers, selectMarker, showOverlay, hideOverlay, relayout, onBoundsChange } = useKakaoMap(containerRef, { center });
 
   // Add markers when ready
   useEffect(() => {
@@ -68,10 +70,16 @@ export function KakaoMap({
     if (item) {
       showOverlay(
         item.aptId,
-        createMiniPreviewContent(item.aptName, item.finalScore, item.tradeType, item.averagePrice),
+        createMiniPreviewContent(item.aptName, item.finalScore, item.tradeType, item.averagePrice, item.address),
       );
     }
   }, [isReady, selectedId, items, showOverlay, hideOverlay]);
+
+  // Register bounds change listener
+  useEffect(() => {
+    if (!isReady || !onBoundsChangeProp) return;
+    onBoundsChange(onBoundsChangeProp);
+  }, [isReady, onBoundsChangeProp, onBoundsChange]);
 
   // Relayout when container becomes visible (e.g. mobile map toggle)
   useEffect(() => {

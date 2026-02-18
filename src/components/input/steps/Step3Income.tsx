@@ -1,7 +1,12 @@
-"use client";
+'use client';
 
-import { AmountInput } from "@/components/input/AmountInput";
-import { TrustBadge } from "@/components/trust/TrustBadge";
+/**
+ * @deprecated Use Step3Finance instead.
+ * Kept only for backward compatibility with legacy previews.
+ */
+
+import { AmountInput } from '@/components/input/AmountInput';
+import { TrustBadge } from '@/components/trust/TrustBadge';
 
 interface Step3Props {
   cash: number;

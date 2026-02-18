@@ -45,11 +45,11 @@ describe("recommendRequestSchema", () => {
     }
   });
 
-  // V-3: Invalid tradeType rejected
+  // V-3: Invalid tradeType rejected ("rent" and "monthly" are both invalid)
   it("V-3: rejects invalid tradeType", () => {
     const result = recommendRequestSchema.safeParse({
       ...validInput,
-      tradeType: "monthly",
+      tradeType: "rent",
     });
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -57,8 +57,16 @@ describe("recommendRequestSchema", () => {
         e.path.includes("tradeType"),
       );
       expect(tradeError).toBeDefined();
-      expect(tradeError?.message).toContain("sale 또는 jeonse");
+      expect(tradeError?.message).toContain("sale, jeonse");
     }
+  });
+
+  it("V-3b: rejects monthly tradeType (DB unsupported)", () => {
+    const result = recommendRequestSchema.safeParse({
+      ...validInput,
+      tradeType: "monthly",
+    });
+    expect(result.success).toBe(false);
   });
 
   // V-4: Invalid weightProfile rejected

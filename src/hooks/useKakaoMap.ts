@@ -115,5 +115,10 @@ export function useKakaoMap(containerRef: React.RefObject<HTMLDivElement | null>
     if (mapRef.current) mapRef.current.relayout();
   }, []);
 
-  return { map: mapRef, isReady, error, addMarkers, selectMarker, showOverlay, hideOverlay, relayout };
+  const onBoundsChange = useCallback((callback: () => void) => {
+    if (!mapRef.current || !isKakaoMapsLoaded()) return;
+    window.kakao!.maps.event.addListener(mapRef.current, "idle", callback);
+  }, []);
+
+  return { map: mapRef, isReady, error, addMarkers, selectMarker, showOverlay, hideOverlay, relayout, onBoundsChange };
 }

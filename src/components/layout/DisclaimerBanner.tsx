@@ -32,7 +32,7 @@ export function DisclaimerBanner() {
         </p>
         <button
           onClick={handleClose}
-          className="shrink-0 rounded p-1 text-[var(--color-brand-700)] hover:bg-[var(--color-brand-100)]"
+          className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded text-[var(--color-brand-700)] hover:bg-[var(--color-brand-100)]"
           aria-label="닫기"
         >
           <X size={16} />

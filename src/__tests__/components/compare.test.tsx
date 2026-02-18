@@ -85,6 +85,28 @@ describe("getBestAptIds — highlight logic", () => {
   });
 });
 
+describe("getBestAptIds — commute time highlight (lower is better)", () => {
+  it("highlights the item with the shortest commute (negated getValue)", () => {
+    const items = [
+      makeItem({ aptId: 1, commuteTime1: 30 }),
+      makeItem({ aptId: 2, commuteTime1: 60 }),
+      makeItem({ aptId: 3, commuteTime1: 45 }),
+    ];
+    const best = getBestAptIds(items, (i) => -(i.commuteTime1));
+    expect(best).toEqual(new Set([1]));
+  });
+
+  it("highlights tied shortest commute items", () => {
+    const items = [
+      makeItem({ aptId: 1, commuteTime1: 30 }),
+      makeItem({ aptId: 2, commuteTime1: 30 }),
+      makeItem({ aptId: 3, commuteTime1: 60 }),
+    ];
+    const best = getBestAptIds(items, (i) => -(i.commuteTime1));
+    expect(best).toEqual(new Set([1, 2]));
+  });
+});
+
 describe("data matching — compareItems × sessionStorage join", () => {
   it("filters items by aptId match", () => {
     const sessionItems = [

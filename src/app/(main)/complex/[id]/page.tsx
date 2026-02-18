@@ -17,6 +17,9 @@ export async function generateMetadata({ params }: PageProps) {
   const data = await getApartmentDetail(aptId);
   return {
     title: data ? `${data.apartment.aptName} | 집콕신혼` : "단지 상세 | 집콕신혼",
+    description: data
+      ? `${data.apartment.aptName} 분석 정보. 공공데이터 기반 참고 정보입니다. 부동산 거래를 중개하지 않습니다.`
+      : "공공데이터 기반 참고 정보입니다. 부동산 거래를 중개하지 않습니다.",
   };
 }
 

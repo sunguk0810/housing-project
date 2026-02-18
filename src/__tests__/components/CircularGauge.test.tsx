@@ -11,19 +11,22 @@ describe("CircularGauge", () => {
   it("applies card size dimensions by default", () => {
     render(<CircularGauge score={50} />);
     const gauge = screen.getByRole("img");
-    expect(gauge).toHaveStyle({ width: "64px", height: "64px" });
+    const container = gauge.firstElementChild as HTMLElement;
+    expect(container).toHaveStyle({ width: "64px", height: "64px" });
   });
 
   it("applies hero size dimensions", () => {
     render(<CircularGauge score={50} size="hero" />);
     const gauge = screen.getByRole("img");
-    expect(gauge).toHaveStyle({ width: "96px", height: "96px" });
+    const container = gauge.firstElementChild as HTMLElement;
+    expect(container).toHaveStyle({ width: "96px", height: "96px" });
   });
 
   it("applies mini size dimensions", () => {
     render(<CircularGauge score={50} size="mini" />);
     const gauge = screen.getByRole("img");
-    expect(gauge).toHaveStyle({ width: "48px", height: "48px" });
+    const container = gauge.firstElementChild as HTMLElement;
+    expect(container).toHaveStyle({ width: "48px", height: "48px" });
   });
 
   it("has correct aria-label with score and grade", () => {
@@ -31,6 +34,15 @@ describe("CircularGauge", () => {
     const gauge = screen.getByRole("img");
     expect(gauge).toHaveAttribute("aria-label", expect.stringContaining("85"));
     expect(gauge).toHaveAttribute("aria-label", expect.stringContaining("A+"));
+  });
+
+  it("applies compact size dimensions with label inside", () => {
+    render(<CircularGauge score={50} size="compact" />);
+    const gauge = screen.getByRole("img");
+    const container = gauge.firstElementChild as HTMLElement;
+    expect(container).toHaveStyle({ width: "48px", height: "48px" });
+    // compact renders grade label inside the circle (score 50 → grade B)
+    expect(screen.getByText("B")).toBeInTheDocument();
   });
 
   it("clamps visual arc but displays raw score", () => {

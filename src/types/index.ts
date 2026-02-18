@@ -1,11 +1,16 @@
 export type {
   ScoreGrade,
   ChildPlan,
+  MarriagePlannedAt,
   StepDefinition,
   ConsentState,
   SortOption,
   MapMarkerState,
-} from "./ui";
+  PriorityKey,
+  PriorityWeightKey,
+  LivingAreaKey,
+  PriorityWeights,
+} from './ui';
 
 export type {
   TradeType,
@@ -27,7 +32,7 @@ export type {
   ValidationDetail,
   ApiErrorResponse,
   ApiErrorCode,
-} from "./api";
+} from './api';
 
 export type {
   BudgetInput,
@@ -38,7 +43,7 @@ export type {
   DimensionScores,
   FinalScoreResult,
   WeightProfileKey,
-} from "./engine";
+} from './engine';
 
 export type {
   Apartment,
@@ -53,4 +58,4 @@ export type {
   NewSchool,
   NewSafetyStat,
   NewCommuteGrid,
-} from "./db";
+} from './db';
