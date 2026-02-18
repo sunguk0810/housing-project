@@ -221,6 +221,7 @@ export function useStepForm(): UseStepFormReturn {
 
   // Auto-save on value changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/incompatible-library -- RHF subscription pattern; watch() is correctly cleaned up
     const subscription = form.watch(() => {
       saveToSession();
     });
