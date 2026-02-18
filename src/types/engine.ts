@@ -34,9 +34,25 @@ export interface CommuteInput {
   destLabel: string;
 }
 
+export interface CommuteRouteSegment {
+  /** 1=subway, 2=bus, 3=walk */
+  trafficType: 1 | 2 | 3;
+  /** Line/route name (e.g. "2호선", "350번") */
+  lineName: string;
+  /** Number of stations/stops for this segment */
+  stationCount: number;
+}
+
+export interface CommuteRouteInfo {
+  segments: ReadonlyArray<CommuteRouteSegment>;
+  transferCount: number;
+  summary: string;
+}
+
 export interface CommuteResult {
   timeMinutes: number;
   source: "grid" | "redis" | "odsay" | "mock";
+  routes?: CommuteRouteInfo;
 }
 
 export interface ScoringInput {

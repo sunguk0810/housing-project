@@ -89,6 +89,12 @@ export interface PriceHistoryItem {
   readonly month: number;
   readonly averagePrice: number;
   readonly dealCount: number;
+  readonly areaAvg: number | null;
+  readonly areaMin: number | null;
+  readonly areaMax: number | null;
+  readonly floorAvg: number | null;
+  readonly floorMin: number | null;
+  readonly floorMax: number | null;
 }
 
 export interface NearbyChildcareItem {
@@ -116,11 +122,24 @@ export interface SafetyDetail {
   readonly dataDate: string | null;
 }
 
+export interface CommuteRouteSegmentInfo {
+  readonly trafficType: 1 | 2 | 3;
+  readonly lineName: string;
+  readonly stationCount: number;
+}
+
+export interface CommuteRouteDetail {
+  readonly segments: ReadonlyArray<CommuteRouteSegmentInfo>;
+  readonly transferCount: number;
+  readonly summary: string;
+}
+
 export interface CommuteInfo {
   readonly toGbd: number | null;
   readonly toYbd: number | null;
   readonly toCbd: number | null;
   readonly toPangyo: number | null;
+  readonly routes?: CommuteRouteDetail;
 }
 
 export interface ApartmentDetailResponse {

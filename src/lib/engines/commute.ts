@@ -1,4 +1,4 @@
-import type { CommuteInput, CommuteResult } from "@/types/engine";
+import type { CommuteInput, CommuteResult, CommuteRouteInfo, CommuteRouteSegment } from "@/types/engine";
 import { getRedis } from "@/lib/redis";
 import { sanitizeCacheKey } from "@/lib/sanitize";
 import { findNearestGrid } from "./spatial";
@@ -71,15 +71,15 @@ export async function getCommuteTime(
   // Stage 3: ODsay API (skip if no API key)
   if (process.env.ODSAY_API_KEY) {
     try {
-      const odsayTime = await callODsayApi(input);
-      // Cache result
+      const odsayResult = await callODsayApi(input);
+      // Cache time only (routes are ODsay real-time data)
       if (redis) {
         const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${sanitizeCacheKey(input.destLabel)}`;
-        redis.setex(cacheKey, CACHE_TTL_SECONDS, String(odsayTime)).catch(() => {
+        redis.setex(cacheKey, CACHE_TTL_SECONDS, String(odsayResult.timeMinutes)).catch(() => {
           // Ignore cache write failures
         });
       }
-      return { timeMinutes: odsayTime, source: "odsay" };
+      return { timeMinutes: odsayResult.timeMinutes, source: "odsay", routes: odsayResult.routes };
     } catch {
       // API failed — fall through to mock
     }
@@ -94,7 +94,60 @@ export async function getCommuteTime(
   return { timeMinutes: mockTime, source: "mock" };
 }
 
-async function callODsayApi(input: CommuteInput): Promise<number> {
+interface ODsayApiResult {
+  timeMinutes: number;
+  routes: CommuteRouteInfo;
+}
+
+interface ODsaySubPath {
+  trafficType?: number;
+  sectionTime?: number;
+  stationCount?: number;
+  lane?: Array<{ name?: string }>;
+}
+
+interface ODsayResponse {
+  result?: {
+    path?: Array<{
+      info?: { totalTime?: number };
+      subPath?: ODsaySubPath[];
+    }>;
+  };
+}
+
+function parseSubPaths(subPaths: ODsaySubPath[]): CommuteRouteInfo {
+  const segments: CommuteRouteSegment[] = [];
+  let transferCount = 0;
+  const lineNames: string[] = [];
+
+  for (const sp of subPaths) {
+    const tt = sp.trafficType;
+    if (tt !== 1 && tt !== 2 && tt !== 3) continue;
+
+    const lineName = sp.lane?.[0]?.name ?? (tt === 3 ? "도보" : "노선 정보 없음");
+    segments.push({
+      trafficType: tt,
+      lineName,
+      stationCount: sp.stationCount ?? 0,
+    });
+
+    if (tt !== 3) {
+      lineNames.push(lineName);
+    }
+  }
+
+  // transferCount = number of transit segments - 1 (min 0)
+  const transitSegments = segments.filter((s) => s.trafficType !== 3);
+  transferCount = Math.max(0, transitSegments.length - 1);
+
+  const summary = lineNames.length > 0
+    ? lineNames.join(" → ")
+    : "도보";
+
+  return { segments, transferCount, summary };
+}
+
+async function callODsayApi(input: CommuteInput): Promise<ODsayApiResult> {
   const apiKey = process.env.ODSAY_API_KEY;
   if (!apiKey) throw new Error("ODSAY_API_KEY not set");
 
@@ -110,12 +163,13 @@ async function callODsayApi(input: CommuteInput): Promise<number> {
 
   try {
     const res = await fetch(url.toString(), { signal: controller.signal });
-    const data = (await res.json()) as {
-      result?: { path?: Array<{ info?: { totalTime?: number } }> };
-    };
-    const time = data.result?.path?.[0]?.info?.totalTime;
+    const data = (await res.json()) as ODsayResponse;
+    const path = data.result?.path?.[0];
+    const time = path?.info?.totalTime;
     if (typeof time !== "number") throw new Error("Invalid ODsay response");
-    return time;
+
+    const routes = parseSubPaths(path?.subPath ?? []);
+    return { timeMinutes: time, routes };
   } finally {
     clearTimeout(timeout);
   }

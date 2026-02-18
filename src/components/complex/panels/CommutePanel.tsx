@@ -6,7 +6,7 @@ import { ProgressiveDisclosure } from "@/components/complex/ProgressiveDisclosur
 import { InsightCard } from "@/components/complex/InsightCard";
 import { formatCommuteTime } from "@/lib/format";
 import { getScoreGrade, GRADE_LABELS } from "@/lib/score-utils";
-import type { CommuteInfo } from "@/types/api";
+import type { CommuteInfo, CommuteRouteDetail } from "@/types/api";
 import type { DetailSessionData } from "@/lib/detail-session";
 
 interface CommutePanelProps {
@@ -20,6 +20,38 @@ const REGION_COMMUTES = [
   { label: "종로", key: "toCbd" as const },
   { label: "판교", key: "toPangyo" as const },
 ];
+
+const TRAFFIC_TYPE_STYLES: Record<number, { bg: string; text: string; label: string }> = {
+  1: { bg: "bg-blue-100", text: "text-blue-700", label: "지하철" },
+  2: { bg: "bg-green-100", text: "text-green-700", label: "버스" },
+  3: { bg: "bg-neutral-100", text: "text-neutral-500", label: "도보" },
+};
+
+function RouteBadges({ routes }: { routes: CommuteRouteDetail }) {
+  return (
+    <div className="mt-[var(--space-2)] flex flex-wrap items-center gap-1">
+      {routes.segments
+        .filter((s) => s.trafficType !== 3)
+        .map((seg, i) => {
+          const style = TRAFFIC_TYPE_STYLES[seg.trafficType] ?? TRAFFIC_TYPE_STYLES[3];
+          return (
+            <span
+              key={i}
+              className={`inline-flex items-center gap-0.5 rounded-[var(--radius-s7-full)] px-2 py-0.5 text-[11px] font-medium ${style.bg} ${style.text}`}
+              aria-label={`${style.label} ${seg.lineName}`}
+            >
+              {seg.lineName}
+            </span>
+          );
+        })}
+      {routes.transferCount > 0 && (
+        <span className="text-[11px] text-[var(--color-on-surface-muted)]">
+          환승 {routes.transferCount}회
+        </span>
+      )}
+    </div>
+  );
+}
 
 export function CommutePanel({ commute, session }: CommutePanelProps) {
   const hasWorkplaceData = session.job1 !== null || session.job1Remote;
@@ -120,6 +152,8 @@ export function CommutePanel({ commute, session }: CommutePanelProps) {
                 </div>
               ))}
             </div>
+            {/* Route badges (when ODsay provides route data) */}
+            {commute.routes && <RouteBadges routes={commute.routes} />}
             <DataSourceTag
               type="transit"
               label="ODsay 대중교통 경로 기준"
