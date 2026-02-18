@@ -7,7 +7,6 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import type { RecommendationItem } from "@/types/api";
 
@@ -24,7 +23,6 @@ const DIMENSION_LABELS: Record<string, string> = {
   commute: "통근",
   childcare: "보육",
   safety: "안전",
-  school: "학군",
 };
 
 function truncateName(name: string, max = 12): string {
@@ -34,7 +32,7 @@ function truncateName(name: string, max = 12): string {
 export function CompareRadarChart({ items }: CompareRadarChartProps) {
   if (items.length < 2) return null;
 
-  const dimensions = ["budget", "commute", "childcare", "safety", "school"] as const;
+  const dimensions = ["budget", "commute", "childcare", "safety"] as const;
 
   const chartData = dimensions.map((dim) => {
     const entry: Record<string, string | number> = {
@@ -48,8 +46,9 @@ export function CompareRadarChart({ items }: CompareRadarChartProps) {
 
   return (
     <div className="w-full" data-testid="compare-radar-chart">
-      <ResponsiveContainer width="100%" height={240} minWidth={200} minHeight={200}>
-        <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="70%">
+      {/* Chart — Legend removed to prevent overlap with axis labels */}
+      <ResponsiveContainer width="100%" height={220} minWidth={200} minHeight={200}>
+        <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="75%">
           <PolarGrid stroke="#e7e5e4" />
           <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
           <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
@@ -65,13 +64,24 @@ export function CompareRadarChart({ items }: CompareRadarChartProps) {
               dot={false}
             />
           ))}
-          <Legend
-            formatter={(value: string) => (
-              <span style={{ fontSize: 12 }}>{value}</span>
-            )}
-          />
         </RadarChart>
       </ResponsiveContainer>
+
+      {/* Custom HTML legend — separated from chart to avoid axis label overlap */}
+      <div className="mt-[var(--space-2)] flex flex-wrap items-center justify-center gap-x-[var(--space-4)] gap-y-[var(--space-1)]">
+        {items.map((item, i) => (
+          <div key={item.aptId} className="flex items-center gap-[var(--space-1)]">
+            <span
+              className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm"
+              style={{ backgroundColor: COMPARE_COLORS[i % COMPARE_COLORS.length] }}
+              aria-hidden="true"
+            />
+            <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+              {truncateName(item.aptName)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
