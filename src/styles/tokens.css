@@ -162,8 +162,8 @@
   --color-on-surface: #1c1917;
   --color-on-surface-muted: #78716c;
   --color-border: #e7e5e4;
-  --color-primary: var(--color-brand-500);
-  --color-primary-hover: #0e7490;
+  --color-primary: var(--color-brand-600); /* brand-600 for WCAG AA text contrast (5.7:1 vs white) */
+  --color-primary-hover: var(--color-brand-700);
   --color-on-primary: #ffffff;
 
   /* CI — monochrome logo tokens */
