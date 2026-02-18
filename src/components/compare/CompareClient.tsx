@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Wallet, Train, Baby, Shield } from "lucide-react";
+import { ArrowLeft, Wallet, Train, Baby, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useCompare } from "@/contexts/CompareContext";
 import { trackEvent } from "@/lib/tracking";
 import { ScoreBar } from "@/components/score/ScoreBar";
@@ -29,6 +31,7 @@ const CompareRadarChart = dynamic(
 );
 
 export function CompareClient() {
+  const router = useRouter();
   const { items: compareItems, removeItem, canAdd } = useCompare();
   const pageData = useSessionPageData();
 
@@ -197,9 +200,19 @@ export function CompareClient() {
     <div className="pb-[var(--space-12)]">
       {/* Page heading */}
       <div className="mx-auto max-w-4xl px-[var(--space-4)] pb-[var(--space-4)] pt-[var(--space-8)]">
-        <h1 className="text-[length:var(--text-title)] font-bold text-[var(--color-on-surface)]">
-          단지 비교 분석
-        </h1>
+        <div className="flex items-center gap-[var(--space-3)]">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            aria-label="이전 페이지로 이동"
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h1 className="text-[length:var(--text-title)] font-bold text-[var(--color-on-surface)]">
+            단지 비교 분석
+          </h1>
+        </div>
       </div>
 
       {/* Sticky compare header — unit cards */}

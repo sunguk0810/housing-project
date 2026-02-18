@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { getScoreGrade, GRADE_LABELS } from "@/lib/score-utils";
 import type { ScoreGrade } from "@/types/ui";
 
-type GaugeSize = "card" | "hero" | "mini";
+type GaugeSize = "card" | "hero" | "mini" | "compact";
 
 interface CircularGaugeProps {
   score: number;
@@ -19,6 +19,7 @@ const SIZE_CONFIG: Record<
   { dimension: number; stroke: number; fontSize: string; labelSize: string | null }
 > = {
   mini: { dimension: 48, stroke: 4, fontSize: "var(--text-body-sm)", labelSize: null },
+  compact: { dimension: 48, stroke: 4, fontSize: "var(--text-body-sm)", labelSize: "10px" },
   card: { dimension: 64, stroke: 5, fontSize: "var(--text-subtitle)", labelSize: "var(--text-caption)" },
   hero: { dimension: 96, stroke: 6, fontSize: "var(--text-heading)", labelSize: "var(--text-body-sm)" },
 };
@@ -52,10 +53,12 @@ export function CircularGauge({
   const color = GRADE_COLORS[grade];
 
   const shouldShowLabel = showLabel ?? config.labelSize !== null;
+  // For card size, render grade label inside the SVG circle to save vertical space
+  const labelInside = size === "card" || size === "compact";
 
   return (
     <div
-      className={cn("inline-flex flex-col items-center", className)}
+      className={cn("inline-flex shrink-0 flex-col items-center", className)}
       role="img"
       aria-label={`종합 점수 ${Math.round(score)}점, 등급 ${GRADE_LABELS[grade]}`}
     >
@@ -80,7 +83,7 @@ export function CircularGauge({
             strokeLinecap="round"
             strokeDasharray={`${arcLength} ${circumference - arcLength}`}
           />
-          {/* Progress arc */}
+          {/* Progress arc — gap must be >= circumference to prevent dash pattern repetition */}
           <circle
             cx={config.dimension / 2}
             cy={config.dimension / 2}
@@ -89,10 +92,10 @@ export function CircularGauge({
             stroke={color}
             strokeWidth={config.stroke}
             strokeLinecap="round"
-            strokeDasharray={`${arcLength} ${circumference - arcLength}`}
+            strokeDasharray={`${arcLength} ${circumference}`}
             strokeDashoffset={dashOffset}
             style={
-              animated && size !== "mini"
+              animated && size !== "mini" && size !== "compact"
                 ? {
                     "--gauge-circumference": `${arcLength}`,
                     "--gauge-target": `${dashOffset}`,
@@ -103,17 +106,28 @@ export function CircularGauge({
             data-testid="gauge-progress"
           />
         </svg>
-        <span
-          className="absolute font-bold tabular-nums"
-          style={{
-            fontSize: config.fontSize,
-            color,
-          }}
-        >
-          {Math.round(score)}
-        </span>
+        {/* Score number + optional grade label (inside for card size) */}
+        <div className="absolute flex flex-col items-center">
+          <span
+            className="font-bold tabular-nums leading-none"
+            style={{
+              fontSize: config.fontSize,
+              color,
+            }}
+          >
+            {Math.round(score)}
+          </span>
+          {shouldShowLabel && labelInside && config.labelSize && (
+            <span
+              className="mt-0.5 font-semibold leading-none"
+              style={{ fontSize: config.labelSize, color }}
+            >
+              {GRADE_LABELS[grade]}
+            </span>
+          )}
+        </div>
       </div>
-      {shouldShowLabel && config.labelSize && (
+      {shouldShowLabel && !labelInside && config.labelSize && (
         <span
           className="font-semibold"
           style={{ fontSize: config.labelSize, color }}

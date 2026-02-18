@@ -1,12 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useCallback, type KeyboardEvent } from "react";
 import Link from "next/link";
+import { Check, GitCompareArrows } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { CircularGauge } from "@/components/score/CircularGauge";
 import { formatPrice, formatTradeTypeLabel, formatCommuteTime } from "@/lib/format";
-import { getScoreGrade, GRADE_LABELS } from "@/lib/score-utils";
-import { DataSourceTag } from "@/components/trust/DataSourceTag";
 import { useCompare } from "@/contexts/CompareContext";
 import type { RecommendationItem } from "@/types/api";
 
@@ -20,14 +20,14 @@ interface PropertyCardProps {
   style?: React.CSSProperties;
 }
 
-// Card shows 4 dimensions (2×2 grid). school is shown on detail page only.
+// Card shows 4 dimensions inline
 const DIMENSION_KEYS = ["budget", "commute", "childcare", "safety"] as const;
 
-const DIMENSION_LABELS: Record<(typeof DIMENSION_KEYS)[number], { emoji: string; label: string }> = {
-  budget: { emoji: "\u{1F4B0}", label: "\uC608\uC0B0" },
-  commute: { emoji: "\u{1F687}", label: "\uD1B5\uADFC" },
-  childcare: { emoji: "\u{1F3EB}", label: "\uBCF4\uC721" },
-  safety: { emoji: "\u{1F6E1}\uFE0F", label: "\uC548\uC804" },
+const DIMENSION_LABELS: Record<(typeof DIMENSION_KEYS)[number], string> = {
+  budget: "\uC608\uC0B0",
+  commute: "\uD1B5\uADFC",
+  childcare: "\uBCF4\uC721",
+  safety: "\uC548\uC804",
 };
 
 export const PropertyCard = memo(function PropertyCard({
@@ -51,27 +51,44 @@ export const PropertyCard = memo(function PropertyCard({
     }
   };
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onClick(item.aptId);
+      }
+    },
+    [onClick, item.aptId],
+  );
+
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-s7-xl)] border p-[var(--space-4)] shadow-[var(--shadow-s7-sm)] transition-all cursor-pointer",
-        "hover:-translate-y-0.5 hover:shadow-[var(--shadow-s7-md)] hover:border-[var(--color-neutral-300)] active:translate-y-0 active:scale-[0.98]",
+        "flex flex-col rounded-[var(--radius-s7-xl)] border bg-[var(--color-surface)] px-4 py-3.5 cursor-pointer",
+        "transition-[transform,box-shadow,border-color]",
+        "lg:hover:-translate-y-0.5 lg:hover:shadow-[var(--shadow-s7-md)] lg:hover:border-[var(--color-neutral-300)]",
+        "active:translate-y-0 active:scale-[0.98]",
+        "focus-visible:ring-[var(--color-brand-400)]/50 focus-visible:ring-2 focus-visible:outline-none",
         isSelected
-          ? "border-[var(--color-accent)] shadow-[var(--shadow-s7-md)]"
-          : "border-[var(--color-border)]",
+          ? "border-[var(--color-brand-500)] border-[1.5px] shadow-[var(--shadow-s7-md)] bg-[var(--color-brand-50)]/30"
+          : "border-[var(--color-border)] shadow-[var(--shadow-s7-sm)]",
         className,
       )}
+      role="article"
+      tabIndex={0}
+      aria-label={`${item.rank}위 ${item.aptName}, 종합점수 ${Math.round(item.finalScore)}점`}
       onMouseEnter={() => onHover(item.aptId)}
       onClick={() => onClick(item.aptId)}
+      onKeyDown={handleKeyDown}
       data-testid={`property-card-${item.aptId}`}
       style={style}
     >
-      {/* Row 1: Rank badge + name + gauge */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-[var(--space-2)]">
+      {/* Row 1: Rank badge + name + compare button */}
+      <div className="flex items-center justify-between">
+        <div className="flex min-w-0 items-center gap-[var(--space-1)]">
           <span
             className={cn(
-              "flex h-6 w-6 items-center justify-center rounded-[var(--radius-s7-sm)] text-[length:var(--text-caption)] font-bold text-white",
+              "flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-s7-sm)] text-[11px] font-bold text-white",
               isTop3
                 ? "bg-[var(--color-accent)]"
                 : "bg-[var(--color-neutral-500)]",
@@ -82,83 +99,69 @@ export const PropertyCard = memo(function PropertyCard({
           </span>
           <Link
             href={`/complex/${item.aptId}`}
-            className="text-[length:var(--text-body)] font-bold text-[var(--color-on-surface)] hover:underline"
+            className="line-clamp-1 text-[length:var(--text-body-sm)] font-bold text-[var(--color-on-surface)] hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             {item.aptName}
           </Link>
         </div>
-        <CircularGauge score={item.finalScore} size="card" />
+        <Button
+          variant="outline"
+          size="xs"
+          onClick={handleCompareToggle}
+          disabled={!comparing && !canAdd}
+          aria-pressed={comparing}
+          className={cn(
+            "rounded-[var(--radius-s7-full)]",
+            comparing
+              ? "border-[var(--color-brand-500)] bg-[var(--color-brand-500)] text-white hover:bg-[var(--color-brand-500)]/90"
+              : canAdd
+                ? "border-[var(--color-brand-500)] text-[var(--color-brand-500)] hover:bg-[var(--color-brand-50)]"
+                : "",
+          )}
+        >
+          {comparing ? (
+            <>
+              <Check />
+              비교중
+            </>
+          ) : (
+            <>
+              <GitCompareArrows />
+              비교
+            </>
+          )}
+        </Button>
       </div>
 
-      {/* Row 2: Address + householdCount + areaMin */}
-      <p className="mt-[var(--space-1)] text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-        {item.address}
-        {item.householdCount != null && ` \u00B7 ${item.householdCount.toLocaleString()}\uC138\uB300`}
-        {item.areaMin != null && ` \u00B7 ${item.areaMin}\u33A1`}
-      </p>
-
-      {/* Row 3: TradeType + price + source date */}
-      <div className="mt-[var(--space-2)] flex items-center gap-[var(--space-2)]">
-        <span className="text-[length:var(--text-body-sm)] font-bold tabular-nums">
-          {formatTradeTypeLabel(item.tradeType)} {formatPrice(item.averagePrice)}
-        </span>
-        <DataSourceTag type="date" label={item.sources.priceDate} />
+      {/* Rows 2-3: Left info + Right gauge */}
+      <div className="mt-2 flex items-center justify-between gap-[var(--space-2)]">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+            {item.address}
+            {item.householdCount != null && ` \u00B7 ${item.householdCount.toLocaleString()}\uC138\uB300`}
+            {item.commuteTime1 != null && ` \u00B7 \u{1F687}${formatCommuteTime(item.commuteTime1)}`}
+          </p>
+          <p className="mt-0.5 text-[length:var(--text-body-sm)] font-bold tabular-nums">
+            {formatTradeTypeLabel(item.tradeType)} {formatPrice(item.averagePrice)}
+          </p>
+        </div>
+        <CircularGauge score={item.finalScore} size="compact" />
       </div>
 
-      {/* Row 4: 4-dimension score grid (2×2) with grade labels */}
-      <div className="mt-[var(--space-2)] grid grid-cols-2 gap-1">
-        {DIMENSION_KEYS.map((dim) => {
+      {/* Row 4: Dimension scores inline */}
+      <p className="mt-1 text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+        {DIMENSION_KEYS.map((dim, i) => {
           const dimScore = Math.round((item.dimensions[dim] ?? 0) * 100);
-          const grade = getScoreGrade(dimScore);
-          const gradeLabel = GRADE_LABELS[grade];
-          const { emoji, label } = DIMENSION_LABELS[dim];
           return (
-            <span
-              key={dim}
-              className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]"
-            >
-              {emoji} {label}{" "}
-              <b
-                className="font-semibold tabular-nums"
-                style={{ color: `var(--color-score-${grade})` }}
-              >
-                {dimScore}
-              </b>
-              <span
-                className="ml-0.5 text-[10px] font-semibold"
-                style={{ color: `var(--color-score-${grade})` }}
-              >
-                {gradeLabel}
-              </span>
+            <span key={dim}>
+              {i > 0 && " \u00B7 "}
+              <span>{DIMENSION_LABELS[dim]}</span>{" "}
+              <span className="font-semibold tabular-nums text-[var(--color-on-surface)]">{dimScore}</span>
             </span>
           );
         })}
-      </div>
-
-      {/* Row 5: Commute time + compare toggle */}
-      <div className="mt-[var(--space-2)] border-t border-[var(--color-border)] pt-[var(--space-2)] flex items-center justify-between">
-        <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-          {item.commuteTime2 != null
-            ? `\u{1F687} \uC9C1\uC7A51 ${formatCommuteTime(item.commuteTime1)} \u00B7 \uC9C1\uC7A52 ${formatCommuteTime(item.commuteTime2)}`
-            : `\u{1F687} \uD1B5\uADFC ${formatCommuteTime(item.commuteTime1)}`}
-        </p>
-        <button
-          type="button"
-          onClick={handleCompareToggle}
-          disabled={!comparing && !canAdd}
-          className={cn(
-            "rounded-[var(--radius-s7-full)] px-[var(--space-3)] py-1 text-[length:var(--text-caption)] font-medium transition-colors",
-            comparing
-              ? "bg-[var(--color-brand-500)] text-white"
-              : canAdd
-                ? "border border-[var(--color-brand-500)] text-[var(--color-brand-500)] hover:bg-[var(--color-brand-50)]"
-                : "border border-[var(--color-border)] text-[var(--color-on-surface-muted)] opacity-50 cursor-not-allowed",
-          )}
-        >
-          {comparing ? "\u2705 \uBE44\uAD50\uC911" : "\uBE44\uAD50 \uCD94\uAC00"}
-        </button>
-      </div>
+      </p>
     </div>
   );
 });

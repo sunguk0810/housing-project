@@ -57,11 +57,11 @@ export function MapBottomSheet({
         {/* No Overlay — non-modal for map touch passthrough */}
         <DrawerPrimitive.Content
           className={cn(
-            "fixed inset-x-0 bottom-0 z-30 flex flex-col",
+            "fixed inset-x-0 bottom-14 z-30 flex flex-col",
             "rounded-t-[var(--radius-s7-xl)] bg-[var(--color-surface)]",
             "shadow-[0_-4px_20px_rgb(0_0_0/0.1)]",
           )}
-          style={{ maxHeight: "90vh" }}
+          style={{ maxHeight: "calc(100dvh - 7rem)" }}
         >
           {/* Drag handle */}
           <div className="flex justify-center py-[var(--space-3)]">
@@ -100,7 +100,7 @@ export function MapBottomSheet({
               activeSnap === SNAP_POINTS[2] ? "overflow-y-auto" : "overflow-hidden",
             )}
           >
-            <div className="flex flex-col gap-[var(--space-3)]">
+            <div className="flex flex-col gap-3.5">
               {items.map((item) => (
                 <PropertyCard
                   key={item.aptId}

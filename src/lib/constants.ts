@@ -4,7 +4,7 @@
  */
 
 import type { LucideIcon } from 'lucide-react';
-import { Building2, BarChart3, Map, Train } from 'lucide-react';
+import { Building2, BarChart3, Map, Train, Trophy, Wallet } from 'lucide-react';
 import type {
   ChildPlan,
   LivingAreaKey,
@@ -54,11 +54,16 @@ export const QUICK_AMOUNT_BUTTONS = {
   large: { label: '+1억', value: 10000 },
 } as const;
 
-export const SORT_OPTIONS = [
-  { value: 'score' as const, label: '종합 점수순', shortLabel: '종합순' },
-  { value: 'budget' as const, label: '예산 적합도순', shortLabel: '예산순' },
-  { value: 'commute' as const, label: '통근 시간순', shortLabel: '통근순' },
-] as const;
+export const SORT_OPTIONS: ReadonlyArray<{
+  readonly value: 'score' | 'budget' | 'commute';
+  readonly label: string;
+  readonly shortLabel: string;
+  readonly icon: LucideIcon;
+}> = [
+  { value: 'score', label: '종합 점수순', shortLabel: '종합', icon: Trophy },
+  { value: 'budget', label: '예산 적합도순', shortLabel: '예산', icon: Wallet },
+  { value: 'commute', label: '통근 시간순', shortLabel: '통근', icon: Train },
+];
 
 export interface AnalysisStep {
   readonly label: string;
