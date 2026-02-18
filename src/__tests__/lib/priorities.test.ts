@@ -15,8 +15,7 @@ describe('priorities utils', () => {
 
     const sum = normalized.commute + normalized.childcare + normalized.safety + normalized.budget;
 
-    expect(sum).toBeGreaterThanOrEqual(99);
-    expect(sum).toBeLessThanOrEqual(101);
+    expect(sum).toBe(100);
   });
 
   it('returns budget_focused when budget is top priority', () => {

@@ -20,6 +20,7 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
   const [isEmptyResult, setIsEmptyResult] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const formDataRef = useRef(formData);
+  const navigateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
     formDataRef.current = formData;
   }, [formData]);
@@ -85,7 +86,7 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
         // Wait for max(apiTime, totalAnimTime) + 500ms
         const elapsed = Date.now() - startTime;
         const remaining = Math.max(0, totalAnimTime - elapsed) + 500;
-        setTimeout(() => router.push('/results'), remaining);
+        navigateTimerRef.current = setTimeout(() => router.push('/results'), remaining);
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : '분석에 실패했습니다.');
@@ -96,6 +97,7 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
 
     return () => {
       timers.forEach(clearTimeout);
+      if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current);
       controller.abort();
     };
   }, [retryCount, router]);

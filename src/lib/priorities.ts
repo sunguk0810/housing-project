@@ -8,18 +8,6 @@
 import type { WeightProfile } from '@/types/api';
 import type { PriorityKey, PriorityWeights } from '@/types/ui';
 
-const PRIORITY_TO_WEIGHT: Record<PriorityKey, WeightProfile> = {
-  commute: 'commute_focused',
-  budget: 'budget_focused',
-  childcare: 'balanced',
-  safety: 'balanced',
-};
-
-export function prioritiesToWeightProfile(priorities: readonly PriorityKey[]): WeightProfile {
-  if (priorities.length === 0) return 'balanced';
-  return PRIORITY_TO_WEIGHT[priorities[0]];
-}
-
 export function prioritiesToPriorityWeights(priorities: readonly PriorityKey[]): PriorityWeights {
   const defaultWeights: PriorityWeights = {
     commute: 25,
@@ -45,19 +33,26 @@ export function prioritiesToPriorityWeights(priorities: readonly PriorityKey[]):
 export function normalizePriorityWeights(weights: PriorityWeights): PriorityWeights {
   const sum = Object.values(weights).reduce((acc, value) => acc + value, 0);
   if (sum <= 0) {
-    return {
-      commute: 25,
-      childcare: 25,
-      safety: 25,
-      budget: 25,
-    };
+    return { commute: 25, childcare: 25, safety: 25, budget: 25 };
   }
 
+  // Largest remainder method: guarantees exact sum of 100
+  const keys: (keyof PriorityWeights)[] = ['commute', 'childcare', 'safety', 'budget'];
+  const exact = keys.map((k) => (weights[k] / sum) * 100);
+  const floored = exact.map((v) => Math.floor(v));
+  const remainder = 100 - floored.reduce((a, b) => a + b, 0);
+
+  exact
+    .map((v, i) => ({ i, frac: v - floored[i] }))
+    .sort((a, b) => b.frac - a.frac)
+    .slice(0, remainder)
+    .forEach(({ i }) => { floored[i]++; });
+
   return {
-    commute: Math.round((weights.commute / sum) * 100),
-    childcare: Math.round((weights.childcare / sum) * 100),
-    safety: Math.round((weights.safety / sum) * 100),
-    budget: Math.round((weights.budget / sum) * 100),
+    commute: floored[0],
+    childcare: floored[1],
+    safety: floored[2],
+    budget: floored[3],
   };
 }
 

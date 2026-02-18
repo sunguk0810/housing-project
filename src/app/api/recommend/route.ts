@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { isRateLimited, getClientIp } from '@/lib/rate-limit';
 import { eq, lte, desc, and, sql } from 'drizzle-orm';
 import pLimit from 'p-limit';
 import { db } from '@/db/connection';
@@ -26,6 +27,19 @@ export const dynamic = 'force-dynamic';
 export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<RecommendResponse | ApiErrorResponse>> {
+  // Rate limit: 10 requests / minute per IP (heavy pipeline — geocoding + DB + scoring)
+  if (isRateLimited(getClientIp(request), 10)) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'RATE_LIMITED' as const,
+          message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+        },
+      },
+      { status: 429 },
+    );
+  }
+
   // Step 1: Parse request body
   let rawBody: unknown;
   try {

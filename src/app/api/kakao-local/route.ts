@@ -1,10 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
 /**
  * Proxy for Kakao Local Keyword Search API.
  * Keeps KAKAO_REST_API_KEY server-side only (never exposed to client).
+ * Rate limit: 60 requests / minute per IP.
  */
 export async function GET(request: NextRequest) {
+  if (isRateLimited(getClientIp(request), 60)) {
+    return NextResponse.json(
+      { error: { code: "RATE_LIMITED", message: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." } },
+      { status: 429 },
+    );
+  }
+
   const query = request.nextUrl.searchParams.get("query");
 
   if (!query || query.trim().length < 2) {

@@ -25,6 +25,14 @@ interface Step3Props {
 
 type FieldKey = "cash" | "income" | "loans" | "monthlyBudget";
 
+// Must match Zod schema in useStepForm.ts
+const FIELD_MAX: Record<FieldKey, number> = {
+  cash: 5_000_000,
+  income: 1_000_000,
+  loans: 5_000_000,
+  monthlyBudget: 10_000,
+};
+
 interface FieldConfig {
   key: FieldKey;
   label: string;
@@ -89,7 +97,7 @@ export function Step3Finance({
       const current = values[activeField].toString();
       const next = current === "0" ? digit : current + digit;
       const num = parseInt(next, 10);
-      if (!isNaN(num)) setters[activeField](num);
+      if (!isNaN(num)) setters[activeField](Math.min(num, FIELD_MAX[activeField]));
     },
     [activeField, values, setters, exceptions],
   );
@@ -100,7 +108,7 @@ export function Step3Finance({
     if (current === "0") return;
     const next = current + "00";
     const num = parseInt(next, 10);
-    if (!isNaN(num)) setters[activeField](num);
+    if (!isNaN(num)) setters[activeField](Math.min(num, FIELD_MAX[activeField]));
   }, [activeField, values, setters, exceptions]);
 
   const handleBackspace = useCallback(() => {
@@ -120,7 +128,7 @@ export function Step3Finance({
 
   function handleQuickAdd(amount: number) {
     if (exceptions[activeField]) return;
-    setters[activeField](values[activeField] + amount);
+    setters[activeField](Math.min(values[activeField] + amount, FIELD_MAX[activeField]));
   }
 
   return (
