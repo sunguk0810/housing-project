@@ -50,6 +50,7 @@
 | 38  | 2026-02-17_claude-code_phase2-unimplemented-items.md | 2026-02-17 | claude-code | PHASE2 | done | PHASE2 미구현 4건 해소 (비교 페이지, GTM, README, plan 종료) |
 | 39  | 2026-02-17_codex_onboarding-prompt-alignment-implementation.md | 2026-02-17 | codex | PHASE3 | done | /search 온보딩 프롬프트 정합 구현 + E2E UI/UX 검증 체계 구축 |
 | 40  | 2026-02-17_claude-code_detail-page-gap-improvement.md | 2026-02-17 | claude-code | PHASE2 | done | 상세 페이지 갭 6건 해소 (BUG-1 + GAP-1/2/4/5/6) |
+| 41  | 2026-02-18_claude-code_ci-guide-implementation.md | 2026-02-18 | claude-code | PHASE3 | done | CI 가이드 적용 — 모노크롬 로고 컴포넌트 + SVG + 메타데이터 |
 
 ## Archive
 

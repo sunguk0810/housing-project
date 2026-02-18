@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/common/Logo";
 
 const HIDDEN_PATHS: string[] = [];
 
@@ -21,15 +22,8 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-14 max-w-5xl items-center px-[var(--space-4)]">
-        <Link
-          href="/"
-          className="text-lg font-bold tracking-tight"
-          style={{
-            fontFamily: "var(--font-sans)",
-            color: "var(--color-brand-600)",
-          }}
-        >
-          집콕신혼
+        <Link href="/" aria-label="집콕신혼 홈">
+          <Logo size="md" />
         </Link>
       </div>
     </header>

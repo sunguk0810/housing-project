@@ -6,6 +6,17 @@ import './globals.css';
 export const metadata: Metadata = {
   title: '집콕신혼',
   description: '신혼부부를 위한 주거 분석 서비스',
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: '집콕신혼',
+    description: '신혼부부를 위한 주거 분석 서비스',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: '집콕신혼' }],
+    locale: 'ko_KR',
+    type: 'website',
+  },
 };
 
 export const viewport: Viewport = {
