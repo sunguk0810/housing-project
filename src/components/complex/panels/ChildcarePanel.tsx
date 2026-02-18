@@ -84,7 +84,7 @@ export function ChildcarePanel({ nearby, childcareScore }: ChildcarePanelProps) 
             <BookOpen size={18} />
             교육 환경
           </h2>
-          <div className="grid grid-cols-3 gap-[var(--space-3)]">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[var(--space-3)]">
             {schoolGroups.map((g) => (
               <div
                 key={g.label}
@@ -143,7 +143,7 @@ export function ChildcarePanel({ nearby, childcareScore }: ChildcarePanelProps) 
             <Building2 size={18} />
             보육 환경
           </h2>
-          <div className="grid grid-cols-3 gap-[var(--space-3)]">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[var(--space-3)]">
             <div className="rounded-[var(--radius-s7-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-[var(--space-3)] text-center">
               <p className="text-[length:var(--text-title)] font-bold text-[var(--color-brand-500)]">
                 {nearby.childcare.count}

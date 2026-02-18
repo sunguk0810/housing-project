@@ -71,7 +71,7 @@ export function OverviewPanel({ dimensions }: OverviewPanelProps) {
   return (
     <section className="space-y-[var(--space-4)]">
       {/* Insight Cards — 2 columns on all sizes for compact display */}
-      <div className="grid grid-cols-2 gap-[var(--space-3)]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--space-3)]">
         {INSIGHT_CONFIGS.map((config) => {
           const rawScore = Math.round(dimensions[config.key] * 100);
           const grade = getScoreGrade(rawScore);

@@ -89,7 +89,7 @@ export function StickyTabs({ activeTab, onTabChange, className }: StickyTabsProp
       role="tablist"
       aria-label="상세 정보 탭"
     >
-      <div className="flex min-w-max px-[var(--space-4)]">
+      <div className="flex min-w-max lg:justify-center px-[var(--space-4)]">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
           return (

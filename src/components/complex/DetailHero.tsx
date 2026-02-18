@@ -55,7 +55,7 @@ export function DetailHero({
 
   return (
     <div
-      className="mb-[var(--space-6)] -mx-[var(--space-4)] -mt-[var(--space-6)] rounded-b-[var(--radius-s7-xl)] px-[var(--space-4)] py-[var(--space-6)]"
+      className="mb-[var(--space-6)] -mx-[var(--space-4)] -mt-[var(--space-6)] rounded-b-[var(--radius-s7-xl)] px-[var(--space-4)] py-[var(--space-6)] lg:py-[var(--space-10)]"
       style={{
         background: "linear-gradient(160deg, #111827 0%, #1e3a5f 100%)",
       }}
