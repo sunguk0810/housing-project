@@ -1,9 +1,14 @@
 /**
- * ETL runner entry point.
- * Execute: pnpm exec tsx src/etl/runner.ts
+ * ETL runner entry point — multi-region, multi-adapter orchestrator.
  *
- * When USE_MOCK_DATA=true, ETL simply verifies mock data is already seeded.
- * When USE_MOCK_DATA=false, it fetches from public APIs and upserts to DB.
+ * Usage:
+ *   pnpm exec tsx src/etl/runner.ts [options]
+ *
+ * Options:
+ *   --adapter=molit|moe|mohw|mois|safety-csv|crime-csv|all
+ *   --region=11680          (single region code)
+ *   --dry-run               (fetch only, no DB writes)
+ *   --mock                  (force mock mode)
  *
  * Source of Truth: M2 spec Section 4.2
  */
@@ -12,96 +17,397 @@ import { MolitAdapter } from "./adapters/molit";
 import { MohwAdapter } from "./adapters/mohw";
 import { MoeAdapter } from "./adapters/moe";
 import { MoisAdapter } from "./adapters/mois";
+import { DATA_GO_KR_LIMITER } from "./utils/rate-limiter";
+import { TARGET_REGIONS, SEOUL_REGIONS, getDealMonths } from "./config/regions";
+import type { RegionConfig } from "./config/regions";
+import { closePool } from "@/db/connection";
+import { closeRedis } from "@/lib/redis";
 
-const USE_MOCK = process.env.USE_MOCK_DATA === "true";
+// ─── CLI argument parsing ───
 
-interface EtlResult {
-  source: string;
+interface CliOptions {
+  adapter: string;
+  region: string | null;
+  dryRun: boolean;
+  months: number;
+}
+
+function parseArgs(): CliOptions {
+  const args = process.argv.slice(2);
+  const opts: CliOptions = {
+    adapter: "all",
+    region: null,
+    dryRun: false,
+    months: 6,
+  };
+
+  for (const arg of args) {
+    if (arg.startsWith("--adapter=")) {
+      opts.adapter = arg.split("=")[1];
+    } else if (arg.startsWith("--region=")) {
+      opts.region = arg.split("=")[1];
+    } else if (arg.startsWith("--months=")) {
+      opts.months = Number(arg.split("=")[1]) || 6;
+    } else if (arg === "--dry-run") {
+      opts.dryRun = true;
+    }
+  }
+
+  return opts;
+}
+
+// ─── Types ───
+
+interface AdapterResult {
+  adapter: string;
+  region?: string;
   recordCount: number;
   status: "success" | "skipped" | "error";
   message?: string;
+  durationMs: number;
 }
 
-async function runAdapter(
-  adapter: { name: string; fetch: (params: Record<string, unknown>) => Promise<unknown[]> },
-  params: Record<string, unknown>,
-): Promise<EtlResult> {
-  try {
-    const records = await adapter.fetch(params);
-    if (USE_MOCK && records.length === 0) {
-      return {
-        source: adapter.name,
-        recordCount: 0,
-        status: "skipped",
-        message: "Mock mode — data handled by seed.ts",
-      };
+interface RunReport {
+  startedAt: string;
+  completedAt: string;
+  totalDurationMs: number;
+  results: AdapterResult[];
+  summary: {
+    success: number;
+    skipped: number;
+    errors: number;
+    totalRecords: number;
+  };
+}
+
+// ─── Logger ───
+
+function log(event: string, data: object = {}): void {
+  console.log(
+    JSON.stringify({
+      event,
+      ...data,
+      timestamp: new Date().toISOString(),
+    }),
+  );
+}
+
+// ─── Adapter runners ───
+
+async function runMolit(
+  regions: RegionConfig[],
+  months: string[],
+  dryRun: boolean,
+): Promise<AdapterResult[]> {
+  const adapter = new MolitAdapter();
+  const results: AdapterResult[] = [];
+  let totalRecords = 0;
+  let regionIdx = 0;
+
+  for (const region of regions) {
+    regionIdx++;
+
+    // Check daily limit before each region
+    if (DATA_GO_KR_LIMITER.isExhausted) {
+      log("molit_daily_limit_stop", {
+        used: DATA_GO_KR_LIMITER.usedDaily,
+        completedRegions: regionIdx - 1,
+        totalRegions: regions.length,
+        message: "내일 같은 명령어로 재실행하세요 (upsert로 이어서 적재)",
+      });
+      break;
     }
-    return {
-      source: adapter.name,
+
+    log("molit_region_start", {
+      region: region.name,
+      progress: `[${regionIdx}/${regions.length}]`,
+      months: months.length,
+      apiUsed: DATA_GO_KR_LIMITER.usedDaily,
+      apiRemaining: DATA_GO_KR_LIMITER.remainingDaily,
+    });
+
+    let regionRecords = 0;
+
+    for (const month of months) {
+      if (DATA_GO_KR_LIMITER.isExhausted) {
+        log("molit_daily_limit_stop", {
+          used: DATA_GO_KR_LIMITER.usedDaily,
+          stoppedAt: `${region.name}/${month}`,
+          message: "내일 같은 명령어로 재실행하세요",
+        });
+        break;
+      }
+
+      const start = Date.now();
+      try {
+        const records = await adapter.fetch({
+          lawdCd: region.code,
+          dealYmd: month,
+          dryRun,
+        });
+        regionRecords += records.length;
+        totalRecords += records.length;
+        const result: AdapterResult = {
+          adapter: "MOLIT",
+          region: `${region.name}/${month}`,
+          recordCount: records.length,
+          status: "success",
+          durationMs: Date.now() - start,
+        };
+        log("etl_adapter_result", result);
+        results.push(result);
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Daily limit reached")) {
+          log("molit_daily_limit_stop", {
+            used: DATA_GO_KR_LIMITER.usedDaily,
+            stoppedAt: `${region.name}/${month}`,
+          });
+          break;
+        }
+        const result: AdapterResult = {
+          adapter: "MOLIT",
+          region: `${region.name}/${month}`,
+          recordCount: 0,
+          status: "error",
+          message: msg,
+          durationMs: Date.now() - start,
+        };
+        log("etl_adapter_result", result);
+        results.push(result);
+      }
+    }
+
+    log("molit_region_complete", {
+      region: region.name,
+      progress: `[${regionIdx}/${regions.length}]`,
+      records: regionRecords,
+      totalRecords,
+      apiUsed: DATA_GO_KR_LIMITER.usedDaily,
+    });
+
+    // Phase B: Building Register enrichment (region-level, 1 time after all months)
+    if (!dryRun) {
+      try {
+        log("enrich_phase_b_start", { region: region.name, apiRemaining: DATA_GO_KR_LIMITER.remainingDaily });
+        await adapter.enrichFromBuildingRegister(region.code);
+      } catch (err: unknown) {
+        log("enrich_phase_b_error", {
+          region: region.name,
+          message: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    // Phase C: K-apt enrichment (region-level, 1 time after building register)
+    if (!dryRun) {
+      try {
+        log("enrich_phase_c_start", { region: region.name, apiRemaining: DATA_GO_KR_LIMITER.remainingDaily });
+        await adapter.enrichFromKapt(region.code);
+      } catch (err: unknown) {
+        log("enrich_phase_c_error", {
+          region: region.name,
+          message: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
+async function runMoe(
+  dryRun: boolean,
+): Promise<AdapterResult[]> {
+  const adapter = new MoeAdapter();
+  const results: AdapterResult[] = [];
+
+  // NEIS groups by education office, not by individual region
+  const atptCodes = [
+    { code: "B10", name: "서울" },
+    { code: "J10", name: "경기" },
+  ];
+
+  for (const atpt of atptCodes) {
+    const start = Date.now();
+    try {
+      const records = await adapter.fetch({
+        atptCode: atpt.code,
+        dryRun,
+      });
+      const result: AdapterResult = {
+        adapter: "MOE",
+        region: atpt.name,
+        recordCount: records.length,
+        status: "success",
+        durationMs: Date.now() - start,
+      };
+      log("etl_adapter_result", result);
+      results.push(result);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      const result: AdapterResult = {
+        adapter: "MOE",
+        region: atpt.name,
+        recordCount: 0,
+        status: "error",
+        message: msg,
+        durationMs: Date.now() - start,
+      };
+      log("etl_adapter_result", result);
+      results.push(result);
+    }
+  }
+
+  return results;
+}
+
+async function runMohw(
+  dryRun: boolean,
+): Promise<AdapterResult[]> {
+  const adapter = new MohwAdapter();
+  const start = Date.now();
+
+  try {
+    const records = await adapter.fetch({ dryRun });
+    const result: AdapterResult = {
+      adapter: "MOHW",
       recordCount: records.length,
       status: "success",
+      durationMs: Date.now() - start,
     };
+    log("etl_adapter_result", result);
+    return [result];
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    return {
-      source: adapter.name,
+    const result: AdapterResult = {
+      adapter: "MOHW",
       recordCount: 0,
       status: "error",
       message: msg,
+      durationMs: Date.now() - start,
     };
+    log("etl_adapter_result", result);
+    return [result];
   }
 }
 
+async function runMois(
+  regions: RegionConfig[],
+  dryRun: boolean,
+): Promise<AdapterResult[]> {
+  const adapter = new MoisAdapter();
+  const start = Date.now();
+
+  try {
+    const records = await adapter.fetch({
+      regions,
+      dryRun,
+    });
+    const result: AdapterResult = {
+      adapter: "MOIS",
+      recordCount: records.length,
+      status: "success",
+      durationMs: Date.now() - start,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    const result: AdapterResult = {
+      adapter: "MOIS",
+      recordCount: 0,
+      status: "error",
+      message: msg,
+      durationMs: Date.now() - start,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  }
+}
+
+// ─── Main ───
+
 async function main(): Promise<void> {
-  console.log(
-    JSON.stringify({
-      event: "etl_start",
-      mockMode: USE_MOCK,
-      timestamp: new Date().toISOString(),
-    }),
-  );
+  const opts = parseArgs();
+  const startedAt = new Date().toISOString();
+  const startMs = Date.now();
 
-  const defaultParams: Record<string, unknown> = {
-    lawdCd: "11680",
-    dealYmd: "202601",
-    stcode: "11",
-    arcode: "11680",
-    atptCode: "B10",
-    ctpvNm: "서울특별시",
-  };
+  const months = getDealMonths(opts.months);
 
-  const results = await Promise.all([
-    runAdapter(new MolitAdapter(), defaultParams),
-    runAdapter(new MohwAdapter(), defaultParams),
-    runAdapter(new MoeAdapter(), defaultParams),
-    runAdapter(new MoisAdapter(), defaultParams),
-  ]);
+  log("etl_start", {
+    adapter: opts.adapter,
+    region: opts.region,
+    dryRun: opts.dryRun,
+    months: opts.months,
+  });
 
-  const successCount = results.filter((r) => r.status === "success").length;
-  const skippedCount = results.filter((r) => r.status === "skipped").length;
-  const errorCount = results.filter((r) => r.status === "error").length;
-
-  for (const result of results) {
-    console.log(
-      JSON.stringify({
-        event: "etl_adapter_result",
-        ...result,
-        timestamp: new Date().toISOString(),
-      }),
-    );
+  // Determine target regions
+  let regions: RegionConfig[];
+  if (opts.region) {
+    const found = TARGET_REGIONS.find((r) => r.code === opts.region);
+    if (!found) {
+      console.error(`Unknown region code: ${opts.region}`);
+      process.exit(1);
+    }
+    regions = [found];
+  } else {
+    regions = [...TARGET_REGIONS];
   }
 
-  console.log(
-    JSON.stringify({
-      event: "etl_complete",
-      success: successCount,
-      skipped: skippedCount,
-      errors: errorCount,
-      timestamp: new Date().toISOString(),
-    }),
-  );
+  const seoulRegions = regions.filter((r) => r.sidoCode === "11");
+  const allResults: AdapterResult[] = [];
 
-  if (errorCount > 0 && !USE_MOCK) {
+  // Run selected adapters
+  const adapterName = opts.adapter.toLowerCase();
+
+  if (adapterName === "all" || adapterName === "molit") {
+    const results = await runMolit(regions, months, opts.dryRun);
+    allResults.push(...results);
+  }
+
+  if (adapterName === "all" || adapterName === "mohw") {
+    const results = await runMohw(opts.dryRun);
+    allResults.push(...results);
+  }
+
+  if (adapterName === "all" || adapterName === "moe") {
+    const results = await runMoe(opts.dryRun);
+    allResults.push(...results);
+  }
+
+  if (adapterName === "all" || adapterName === "mois") {
+    const results = await runMois(
+      seoulRegions.length > 0 ? seoulRegions : SEOUL_REGIONS,
+      opts.dryRun,
+    );
+    allResults.push(...results);
+  }
+
+  // Generate report
+  const report: RunReport = {
+    startedAt,
+    completedAt: new Date().toISOString(),
+    totalDurationMs: Date.now() - startMs,
+    results: allResults,
+    summary: {
+      success: allResults.filter((r) => r.status === "success").length,
+      skipped: allResults.filter((r) => r.status === "skipped").length,
+      errors: allResults.filter((r) => r.status === "error").length,
+      totalRecords: allResults.reduce((sum, r) => sum + r.recordCount, 0),
+    },
+  };
+
+  log("etl_complete", {
+    ...report.summary,
+    totalDurationMs: report.totalDurationMs,
+  });
+
+  // Close connections
+  await closeRedis();
+  await closePool();
+
+  if (report.summary.errors > 0) {
     process.exit(1);
   }
 }

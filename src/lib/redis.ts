@@ -9,6 +9,13 @@ import Redis from "ioredis";
 
 let redisClient: Redis | null = null;
 
+export async function closeRedis(): Promise<void> {
+  if (redisClient) {
+    await redisClient.quit().catch(() => {});
+    redisClient = null;
+  }
+}
+
 export function getRedis(): Redis | null {
   if (!process.env.REDIS_URL) return null;
   if (!redisClient) {

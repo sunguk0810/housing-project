@@ -90,16 +90,54 @@ flowchart TD
 -- 1. 아파트 단지 기본정보
 CREATE TABLE apartments (
   id SERIAL PRIMARY KEY,
-  apt_code VARCHAR(20) NOT NULL UNIQUE,
+  apt_code VARCHAR(60) NOT NULL UNIQUE,
   apt_name TEXT NOT NULL,
   address TEXT NOT NULL,
+  region_code VARCHAR(10),
   location GEOMETRY(Point, 4326) NOT NULL,
   built_year INTEGER,
-  household_count INTEGER,
-  area_min FLOAT,
-  area_max FLOAT,
+  household_count INTEGER,           -- 건축물대장 총괄표제부 hhldCnt 기반
+  official_name TEXT,                -- 건축물대장 bldNm (K-apt 매칭 보조)
+  area_min REAL,
+  area_max REAL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 1-1. 아파트 상세정보 (K-apt 연동, 부가정보)
+-- household_count는 apartments 테이블에 일원화 (건축물대장 기반)
+CREATE TABLE apartment_details (
+  id SERIAL PRIMARY KEY,
+  apt_id INTEGER REFERENCES apartments(id) NOT NULL,
+  kapt_code VARCHAR(20),             -- K-apt 단지코드 (N:1 허용, UNIQUE 없음)
+  dong_count INTEGER,
+  doro_juso TEXT,
+  use_date VARCHAR(8),
+  builder TEXT,
+  developer TEXT,
+  heat_type VARCHAR(20),
+  sale_type VARCHAR(20),
+  hall_type VARCHAR(20),
+  mgr_type VARCHAR(20),
+  total_area NUMERIC,
+  private_area NUMERIC,
+  parking_ground INTEGER,
+  parking_underground INTEGER,
+  elevator_count INTEGER,
+  cctv_count INTEGER,
+  ev_charger_ground INTEGER,
+  ev_charger_underground INTEGER,
+  subway_line TEXT,
+  subway_station TEXT,
+  subway_distance TEXT,
+  bus_distance TEXT,
+  building_structure VARCHAR(30),
+  welfare_facility TEXT,
+  education_facility TEXT,
+  convenient_facility TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(apt_id)
 );
 
 -- 2. 실거래가(매매/전세) 요약
@@ -111,7 +149,14 @@ CREATE TABLE apartment_prices (
   month INTEGER,
   average_price NUMERIC,
   deal_count INTEGER,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  area_avg NUMERIC,
+  area_min NUMERIC,
+  area_max NUMERIC,
+  floor_avg NUMERIC,
+  floor_min INTEGER,
+  floor_max INTEGER,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(apt_id, trade_type, year, month)
 );
 
 -- 3. 보육시설 (어린이집) 정보
@@ -176,6 +221,7 @@ CREATE INDEX idx_safety_stats_region ON safety_stats(region_code);
 ### 데이터 관계 요약
 
 - `apartments` 1:N `apartment_prices` (단지별 다건 거래 이력)
+- `apartments` 1:1 `apartment_details` (K-apt 상세정보, apt_id UNIQUE)
 - `schools.assignment_area` ↔ `apartments.location` (공간 교차: 학군 매핑)
 - `childcare_centers.location` ↔ `apartments.location` (반경 800m: `ST_DWithin`)
 - `safety_stats.region_code` ↔ `apartments.address` (행정구역 코드 매핑)
