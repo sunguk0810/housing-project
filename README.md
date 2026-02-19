@@ -180,6 +180,7 @@ housing-project/
 | [`docs/PHASE2_build.md`](docs/PHASE2_build.md)           | 구현 마일스톤 (M1~M4)                                                    |
 | [`docs/PHASE3_verify.md`](docs/PHASE3_verify.md)         | 테스트, 성능, 보안 검증                                                  |
 | [`docs/PHASE4_ship_learn.md`](docs/PHASE4_ship_learn.md) | 배포, 운영, 회고                                                         |
+| [`docs/etl-architecture.md`](docs/etl-architecture.md)   | ETL 파이프라인 아키텍처 (데이터 소스, 흐름도, 실행 방법)                 |
 | [`docs/plan/`](docs/plan/)                               | Plan Execute 기록 (인덱스: [`docs/plan/README.md`](docs/plan/README.md)) |
 | [`docs/design-system/`](docs/design-system/)             | 디자인 시스템 명세 + 쇼케이스                                            |
 | [`CLAUDE.md`](CLAUDE.md)                                 | Claude Code 에이전트 지침                                                |
