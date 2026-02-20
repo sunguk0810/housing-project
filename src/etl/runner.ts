@@ -5,10 +5,12 @@
  *   pnpm exec tsx src/etl/runner.ts [options]
  *
  * Options:
- *   --adapter=molit|moe|mohw|mois|safety-csv|crime-csv|all
+ *   --adapter=molit|moe|mohw|mois|unit-mix|poi|facility-stats|all
  *   --region=11680          (single region code)
  *   --dry-run               (fetch only, no DB writes)
- *   --mock                  (force mock mode)
+ *   --months=6              (default 6)
+ *   --limit=200             (optional: adapter-specific cap)
+ *   --radius=800            (optional: meters, for facility-stats)
  *
  * Source of Truth: M2 spec Section 4.2
  */
@@ -17,6 +19,9 @@ import { MolitAdapter } from "./adapters/molit";
 import { MohwAdapter } from "./adapters/mohw";
 import { MoeAdapter } from "./adapters/moe";
 import { MoisAdapter } from "./adapters/mois";
+import { collectUnitMixForRegion } from "./adapters/unit-mix";
+import { loadFacilityPointsSnapshot } from "./adapters/poi-snapshot";
+import { precomputeApartmentFacilityStats } from "./adapters/facility-stats";
 import { DATA_GO_KR_LIMITER } from "./utils/rate-limiter";
 import { TARGET_REGIONS, SEOUL_REGIONS, getDealMonths } from "./config/regions";
 import type { RegionConfig } from "./config/regions";
@@ -30,6 +35,8 @@ interface CliOptions {
   region: string | null;
   dryRun: boolean;
   months: number;
+  limit: number;
+  radius: number;
 }
 
 function parseArgs(): CliOptions {
@@ -39,6 +46,8 @@ function parseArgs(): CliOptions {
     region: null,
     dryRun: false,
     months: 6,
+    limit: 0,
+    radius: 800,
   };
 
   for (const arg of args) {
@@ -48,6 +57,10 @@ function parseArgs(): CliOptions {
       opts.region = arg.split("=")[1];
     } else if (arg.startsWith("--months=")) {
       opts.months = Number(arg.split("=")[1]) || 6;
+    } else if (arg.startsWith("--limit=")) {
+      opts.limit = Number(arg.split("=")[1]) || 0;
+    } else if (arg.startsWith("--radius=")) {
+      opts.radius = Number(arg.split("=")[1]) || 800;
     } else if (arg === "--dry-run") {
       opts.dryRun = true;
     }
@@ -219,6 +232,19 @@ async function runMolit(
 async function runMoe(
   dryRun: boolean,
 ): Promise<AdapterResult[]> {
+  if (!process.env.MOE_API_KEY) {
+    const result: AdapterResult = {
+      adapter: "MOE",
+      region: "all",
+      recordCount: 0,
+      status: "skipped",
+      message: "MOE_API_KEY not configured — skipping",
+      durationMs: 0,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  }
+
   const adapter = new MoeAdapter();
   const results: AdapterResult[] = [];
 
@@ -326,6 +352,119 @@ async function runMois(
   }
 }
 
+async function runUnitMix(
+  regions: RegionConfig[],
+  dryRun: boolean,
+  limit: number,
+): Promise<AdapterResult[]> {
+  const results: AdapterResult[] = [];
+  let regionIdx = 0;
+
+  for (const region of regions) {
+    regionIdx++;
+
+    if (DATA_GO_KR_LIMITER.isExhausted) {
+      log("unit_mix_daily_limit_stop", {
+        used: DATA_GO_KR_LIMITER.usedDaily,
+        completedRegions: regionIdx - 1,
+        totalRegions: regions.length,
+        message: "내일 같은 명령어로 재실행하세요 (멱등 upsert)",
+      });
+      break;
+    }
+
+    const start = Date.now();
+    try {
+      const { insertedRows, processedApts } = await collectUnitMixForRegion({
+        regionCode: region.code,
+        dryRun,
+        limit,
+      });
+      const result: AdapterResult = {
+        adapter: "UNIT_MIX",
+        region: region.name,
+        recordCount: insertedRows,
+        status: processedApts > 0 ? "success" : "skipped",
+        message: processedApts > 0 ? undefined : "No target apartments",
+        durationMs: Date.now() - start,
+      };
+      log("etl_adapter_result", result);
+      results.push(result);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      const result: AdapterResult = {
+        adapter: "UNIT_MIX",
+        region: region.name,
+        recordCount: 0,
+        status: "error",
+        message: msg,
+        durationMs: Date.now() - start,
+      };
+      log("etl_adapter_result", result);
+      results.push(result);
+    }
+  }
+
+  return results;
+}
+
+async function runPoi(dryRun: boolean): Promise<AdapterResult[]> {
+  const start = Date.now();
+  try {
+    const inserted = await loadFacilityPointsSnapshot({ dryRun });
+    const result: AdapterResult = {
+      adapter: "POI",
+      recordCount: inserted,
+      status: inserted > 0 ? "success" : "skipped",
+      message: inserted > 0 ? undefined : "No snapshot file found",
+      durationMs: Date.now() - start,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    const result: AdapterResult = {
+      adapter: "POI",
+      recordCount: 0,
+      status: "error",
+      message: msg,
+      durationMs: Date.now() - start,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  }
+}
+
+async function runFacilityStats(
+  dryRun: boolean,
+  radiusM: number,
+): Promise<AdapterResult[]> {
+  const start = Date.now();
+  try {
+    const computed = await precomputeApartmentFacilityStats({ dryRun, radiusM });
+    const result: AdapterResult = {
+      adapter: "FACILITY_STATS",
+      recordCount: computed,
+      status: computed > 0 ? "success" : "skipped",
+      message: computed > 0 ? undefined : "No apartments or no facility points",
+      durationMs: Date.now() - start,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    const result: AdapterResult = {
+      adapter: "FACILITY_STATS",
+      recordCount: 0,
+      status: "error",
+      message: msg,
+      durationMs: Date.now() - start,
+    };
+    log("etl_adapter_result", result);
+    return [result];
+  }
+}
+
 // ─── Main ───
 
 async function main(): Promise<void> {
@@ -340,6 +479,8 @@ async function main(): Promise<void> {
     region: opts.region,
     dryRun: opts.dryRun,
     months: opts.months,
+    limit: opts.limit,
+    radius: opts.radius,
   });
 
   // Determine target regions
@@ -381,6 +522,21 @@ async function main(): Promise<void> {
       seoulRegions.length > 0 ? seoulRegions : SEOUL_REGIONS,
       opts.dryRun,
     );
+    allResults.push(...results);
+  }
+
+  if (adapterName === "unit-mix") {
+    const results = await runUnitMix(regions, opts.dryRun, opts.limit);
+    allResults.push(...results);
+  }
+
+  if (adapterName === "poi") {
+    const results = await runPoi(opts.dryRun);
+    allResults.push(...results);
+  }
+
+  if (adapterName === "facility-stats") {
+    const results = await runFacilityStats(opts.dryRun, opts.radius);
     allResults.push(...results);
   }
 

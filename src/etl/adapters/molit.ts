@@ -22,12 +22,13 @@ export interface ApartmentTradeRecord {
   aptName: string;
   address: string;
   dealAmount: number;
+  monthlyRent: number;
   dealYear: number;
   dealMonth: number;
   exclusiveArea: number;
   floor: number;
   builtYear: number;
-  tradeType: "sale" | "jeonse";
+  tradeType: "sale" | "jeonse" | "monthly";
   regionCode: string;
 }
 
@@ -54,10 +55,11 @@ interface PriceAggregate {
   address: string;
   regionCode: string;
   builtYear: number;
-  tradeType: "sale" | "jeonse";
+  tradeType: "sale" | "jeonse" | "monthly";
   year: number;
   month: number;
   avgPrice: number;
+  monthlyRentAvg: number | null;
   dealCount: number;
   areaAvg: number;
   areaMin: number;
@@ -134,7 +136,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
     // Fetch both sale and rent data
     const [saleRecords, rentRecords] = await Promise.all([
       this.fetchEndpoint(serviceKey, SALE_ENDPOINT, lawdCd, dealYmd, "sale"),
-      this.fetchEndpoint(serviceKey, RENT_ENDPOINT, lawdCd, dealYmd, "jeonse"),
+      this.fetchEndpoint(serviceKey, RENT_ENDPOINT, lawdCd, dealYmd, "rent"),
     ]);
 
     const allRecords = [...saleRecords, ...rentRecords];
@@ -153,7 +155,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
     endpoint: string,
     lawdCd: string,
     dealYmd: string,
-    tradeType: "sale" | "jeonse",
+    endpointType: "sale" | "rent",
   ): Promise<ApartmentTradeRecord[]> {
     return fetchAllPages<ApartmentTradeRecord>(
       async (pageNo, pageSize) => {
@@ -176,7 +178,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
           throw new DataSourceError(
             this.name,
             "FETCH_FAILED",
-            `HTTP ${res.status} for ${tradeType}`,
+            `HTTP ${res.status} for ${endpointType}`,
           );
         }
 
@@ -188,7 +190,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
 
         // Parse items from XML
         const items = parseXmlItems(xml);
-        const records = items.map((item) => this.mapItem(item, tradeType));
+        const records = items.map((item) => this.mapItem(item, endpointType));
 
         return { items: records, totalCount, pageNo };
       },
@@ -198,17 +200,28 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
 
   private mapItem(
     item: MolitApiItem,
-    tradeType: "sale" | "jeonse",
+    endpointType: "sale" | "rent",
   ): ApartmentTradeRecord {
+    const deposit = Number(String(item.deposit ?? "0").replace(/,/g, ""));
+    const monthlyRent = Number(String(item.monthlyRent ?? "0").replace(/,/g, ""));
+
     const amount =
-      tradeType === "sale"
+      endpointType === "sale"
         ? Number(String(item.dealAmount ?? "0").replace(/,/g, ""))
-        : Number(String(item.deposit ?? "0").replace(/,/g, ""));
+        : deposit;
+
+    const tradeType: ApartmentTradeRecord["tradeType"] =
+      endpointType === "sale"
+        ? "sale"
+        : monthlyRent > 0
+          ? "monthly"
+          : "jeonse";
 
     return {
       aptName: item.aptNm ?? "",
       address: `${item.umdNm ?? ""} ${item.jibun ?? ""}`.trim(),
       dealAmount: amount,
+      monthlyRent: endpointType === "rent" ? monthlyRent : 0,
       dealYear: Number(item.dealYear ?? 0),
       dealMonth: Number(item.dealMonth ?? 0),
       exclusiveArea: Number(item.excluUseAr ?? 0),
@@ -239,6 +252,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
       const areas = group.map((r) => r.exclusiveArea);
       const floors = group.map((r) => r.floor);
       const prices = group.map((r) => r.dealAmount);
+      const monthlyRents = group.map((r) => r.monthlyRent);
 
       aggregates.push({
         aptKey: `${group[0].regionCode}-${aptName}`,
@@ -246,12 +260,20 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
         address,
         regionCode: group[0].regionCode,
         builtYear: group[0].builtYear,
-        tradeType: tradeType as "sale" | "jeonse",
+        tradeType: tradeType as "sale" | "jeonse" | "monthly",
         year: Number(yearStr),
         month: Number(monthStr),
         avgPrice: Math.round(
           prices.reduce((a, b) => a + b, 0) / prices.length,
         ),
+        monthlyRentAvg:
+          tradeType === "monthly"
+            ? Number(
+                (
+                  monthlyRents.reduce((a, b) => a + b, 0) / monthlyRents.length
+                ).toFixed(1),
+              )
+            : null,
         dealCount: group.length,
         areaAvg: Number((areas.reduce((a, b) => a + b, 0) / areas.length).toFixed(2)),
         areaMin: Math.min(...areas),
@@ -355,6 +377,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
             aptName: apt.aptName,
             address: `${regionName} ${apt.address}`,
             regionCode: apt.regionCode,
+            buildingType: "apartment",
             location: { latitude: coord.lat, longitude: coord.lng },
             builtYear: apt.builtYear || null,
             areaMin,
@@ -404,6 +427,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
             year: agg.year,
             month: agg.month,
             averagePrice: String(agg.avgPrice),
+            monthlyRentAvg: agg.monthlyRentAvg !== null ? String(agg.monthlyRentAvg) : null,
             dealCount: agg.dealCount,
             areaAvg: String(agg.areaAvg),
             areaMin: String(agg.areaMin),
@@ -421,6 +445,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
             ],
             set: {
               averagePrice: sql`EXCLUDED."average_price"`,
+              monthlyRentAvg: sql`EXCLUDED."monthly_rent_avg"`,
               dealCount: sql`EXCLUDED."deal_count"`,
               areaAvg: sql`EXCLUDED."area_avg"`,
               areaMin: sql`EXCLUDED."area_min"`,
@@ -974,14 +999,14 @@ function normalizeAptName(name: string): string {
   return n;
 }
 
-/** Parse MOLIT address "역삼동 722" or "역삼동 831-29" into bun/ji */
+/** Parse MOLIT address "역삼동 722" or "역삼동 831-29" or "양평동3가 103" into bun/ji */
 function parseAddress(address: string): {
   dong: string; bun: string; ji: string; platGbCd: string;
 } | null {
-  // address format: "강남구 역삼동 722" or "역삼동 722-5"
+  // address format: "강남구 역삼동 722" or "역삼동 722-5" or "영등포구 양평동3가 103"
   const parts = address.split(/\s+/);
-  // Find dong part (ends with 동)
-  const dongIdx = parts.findIndex((p) => p.endsWith("동"));
+  // Find dong part (ends with 동 or 동+숫자+가, e.g. 양평동3가, 문래동6가)
+  const dongIdx = parts.findIndex((p) => /동(\d+가)?$/.test(p));
   if (dongIdx === -1) return null;
   const dong = parts[dongIdx];
 

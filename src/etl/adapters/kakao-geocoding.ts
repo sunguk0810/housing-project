@@ -43,9 +43,11 @@ export interface GeocodingResult {
 /**
  * Convert address to coordinates.
  * Priority: Mock → Redis cache → Kakao API
+ * @param forceLive - skip mock mode (used by ETL adapters)
  */
 export async function geocodeAddress(
   address: string,
+  forceLive: boolean = false,
 ): Promise<GeocodingResult | null> {
   if (!address || address.trim().length === 0) {
     return null;
@@ -53,8 +55,8 @@ export async function geocodeAddress(
 
   const normalized = address.trim();
 
-  // Mock mode — return from pre-defined table
-  if (USE_MOCK) {
+  // Mock mode — return from pre-defined table (skip if forceLive)
+  if (USE_MOCK && !forceLive) {
     return geocodeMock(normalized);
   }
 
