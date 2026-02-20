@@ -50,6 +50,9 @@ coverage/
 playwright-report/
 test-results/
 
+# Data files (ETL source/output — too large for git)
+data/
+
 # Misc
 *.pem
 .turbo

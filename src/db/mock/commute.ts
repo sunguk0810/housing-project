@@ -1,21 +1,13 @@
-import type { InferInsertModel } from "drizzle-orm";
-import { commuteGrid } from "../schema/commute";
-import {
-  createRng,
-  randomNormal,
-  clamp,
-  BUSINESS_DISTRICTS,
-} from "./constants";
+import type { InferInsertModel } from 'drizzle-orm';
+import { commuteDestinations, commuteGrid, commuteTimes } from '../schema/commute';
+import { createRng, randomNormal, clamp, BUSINESS_DISTRICTS } from './constants';
 
-type CommuteInsert = InferInsertModel<typeof commuteGrid>;
+type CommuteGridInsert = InferInsertModel<typeof commuteGrid>;
+type CommuteDestinationInsert = InferInsertModel<typeof commuteDestinations>;
+type CommuteTimeInsert = InferInsertModel<typeof commuteTimes>;
 
 // Haversine distance in km
-function haversine(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number {
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -42,9 +34,24 @@ function commuteTime(
   return Math.round(clamp(baseTime + distanceFactor * dist + noise, 20, 90));
 }
 
-export function generateCommute(): CommuteInsert[] {
+export function generateCommuteSeedData(): {
+  destinations: CommuteDestinationInsert[];
+  gridPoints: CommuteGridInsert[];
+  times: CommuteTimeInsert[];
+} {
   const rng = createRng(47);
-  const result: CommuteInsert[] = [];
+
+  const destinations: CommuteDestinationInsert[] = Object.entries(BUSINESS_DISTRICTS).map(
+    ([destinationKey, d]) => ({
+      destinationKey,
+      name: d.label,
+      location: { longitude: d.lng, latitude: d.lat },
+      active: true,
+    }),
+  );
+
+  const gridPoints: CommuteGridInsert[] = [];
+  const times: CommuteTimeInsert[] = [];
 
   // 10x10 grid over Seoul area
   const latMin = 37.42;
@@ -58,41 +65,22 @@ export function generateCommute(): CommuteInsert[] {
     for (let c = 0; c < cols; c++) {
       const lat = latMin + ((latMax - latMin) / (rows - 1)) * r;
       const lng = lngMin + ((lngMax - lngMin) / (cols - 1)) * c;
+      const gridId = `GRID-${String(r).padStart(2, '0')}-${String(c).padStart(2, '0')}`;
 
-      result.push({
-        gridId: `GRID-${String(r).padStart(2, "0")}-${String(c).padStart(2, "0")}`,
+      gridPoints.push({
+        gridId,
         location: { longitude: lng, latitude: lat },
-        toGbdTime: commuteTime(
-          rng,
-          lat,
-          lng,
-          BUSINESS_DISTRICTS.GBD.lat,
-          BUSINESS_DISTRICTS.GBD.lng,
-        ),
-        toYbdTime: commuteTime(
-          rng,
-          lat,
-          lng,
-          BUSINESS_DISTRICTS.YBD.lat,
-          BUSINESS_DISTRICTS.YBD.lng,
-        ),
-        toCbdTime: commuteTime(
-          rng,
-          lat,
-          lng,
-          BUSINESS_DISTRICTS.CBD.lat,
-          BUSINESS_DISTRICTS.CBD.lng,
-        ),
-        toPangyoTime: commuteTime(
-          rng,
-          lat,
-          lng,
-          BUSINESS_DISTRICTS.PANGYO.lat,
-          BUSINESS_DISTRICTS.PANGYO.lng,
-        ),
       });
+
+      for (const [destinationKey, d] of Object.entries(BUSINESS_DISTRICTS)) {
+        times.push({
+          gridId,
+          destinationKey,
+          timeMinutes: commuteTime(rng, lat, lng, d.lat, d.lng),
+        });
+      }
     }
   }
 
-  return result;
+  return { destinations, gridPoints, times };
 }

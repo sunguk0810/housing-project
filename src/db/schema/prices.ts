@@ -6,6 +6,7 @@ import {
   numeric,
   timestamp,
   check,
+  unique,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { apartments } from "./apartments";
@@ -20,6 +21,7 @@ export const apartmentPrices = pgTable(
     year: integer("year"),
     month: integer("month"),
     averagePrice: numeric("average_price"),
+    monthlyRentAvg: numeric("monthly_rent_avg"),
     dealCount: integer("deal_count"),
     // B-4: Area/floor statistics per month
     areaAvg: numeric("area_avg"),
@@ -33,7 +35,13 @@ export const apartmentPrices = pgTable(
   (table) => [
     check(
       "trade_type_check",
-      sql`${table.tradeType} IN ('sale', 'jeonse')`,
+      sql`${table.tradeType} IN ('sale', 'jeonse', 'monthly')`,
+    ),
+    unique("apt_prices_unique").on(
+      table.aptId,
+      table.tradeType,
+      table.year,
+      table.month,
     ),
   ],
 );

@@ -229,8 +229,121 @@ async function migrate() {
   const post = postCheck[0] as { apt_total: string; apt_hh_filled: string; detail_total: string; orphans: string };
   console.log(`  Post-check: apartments=${post.apt_total}, hh_filled=${post.apt_hh_filled}, details=${post.detail_total}, orphans=${post.orphans}`);
 
-  // 7. Verify
-  console.log("\n[7/8] Verifying tables...");
+  // ═══ 7. Data coverage extensions (monthly / unit-mix / POI) ═══
+  console.log("\n[7/11] Data coverage schema changes...");
+
+  // 7-1. apartments.building_type
+  console.log("  7-1. Adding building_type to apartments...");
+  await sql`ALTER TABLE apartments ADD COLUMN IF NOT EXISTS building_type VARCHAR(20) NOT NULL DEFAULT 'apartment'`;
+
+  // Add CHECK constraint (best-effort; skip if already exists)
+  const buildingTypeConstraint = await sql`
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'apartments_building_type_check'
+  `;
+  if (buildingTypeConstraint.length === 0) {
+    await sql`
+      ALTER TABLE apartments
+      ADD CONSTRAINT apartments_building_type_check
+      CHECK (building_type IN ('apartment','officetel','other'))
+    `;
+    console.log("  ✓ Added apartments_building_type_check");
+  } else {
+    console.log("  = apartments_building_type_check (already exists)");
+  }
+
+  // 7-2. apartment_prices.monthly_rent_avg + trade_type CHECK expand
+  console.log("  7-2. Adding monthly_rent_avg to apartment_prices...");
+  await sql`ALTER TABLE apartment_prices ADD COLUMN IF NOT EXISTS monthly_rent_avg NUMERIC`;
+
+  console.log("  7-3. Updating apartment_prices trade_type CHECK constraint...");
+  const tradeTypeChecks = await sql`
+    SELECT conname
+    FROM pg_constraint
+    WHERE conrelid = 'apartment_prices'::regclass
+      AND contype = 'c'
+      AND (conname = 'apartment_prices_trade_type_check'
+           OR pg_get_constraintdef(oid) ~* '(^|\\W)trade_type\\W+IN\\W*\\(')
+  `;
+  for (const row of tradeTypeChecks as Array<{ conname: string }>) {
+    await sql`ALTER TABLE apartment_prices DROP CONSTRAINT ${sql(row.conname)}`;
+    console.log(`  - Dropped ${row.conname}`);
+  }
+
+  const newTradeTypeCheck = await sql`
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'apartment_prices_trade_type_check'
+  `;
+  if (newTradeTypeCheck.length === 0) {
+    await sql`
+      ALTER TABLE apartment_prices
+      ADD CONSTRAINT apartment_prices_trade_type_check
+      CHECK (trade_type IN ('sale','jeonse','monthly'))
+    `;
+    console.log("  ✓ Added apartment_prices_trade_type_check");
+  } else {
+    console.log("  = apartment_prices_trade_type_check (already exists)");
+  }
+
+  // 7-4. New table: apartment_unit_types
+  console.log("  7-4. Creating apartment_unit_types table...");
+  await sql`
+    CREATE TABLE IF NOT EXISTS apartment_unit_types (
+      id SERIAL PRIMARY KEY,
+      apt_id INTEGER NOT NULL REFERENCES apartments(id),
+      area_sqm NUMERIC NOT NULL,
+      area_pyeong REAL,
+      household_count INTEGER NOT NULL,
+      source TEXT,
+      data_date DATE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      CONSTRAINT apartment_unit_types_unique UNIQUE (apt_id, area_sqm)
+    )
+  `;
+
+  // 7-5. New table: facility_points
+  console.log("  7-5. Creating facility_points table...");
+  await sql`
+    CREATE TABLE IF NOT EXISTS facility_points (
+      id SERIAL PRIMARY KEY,
+      type VARCHAR(30) NOT NULL CHECK (type IN ('subway_station','bus_stop','police','fire_station','shelter','hospital','pharmacy')),
+      name TEXT,
+      address TEXT,
+      region_code VARCHAR(10),
+      location geometry(Point, 4326) NOT NULL,
+      external_id VARCHAR(60),
+      source TEXT,
+      data_date DATE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      CONSTRAINT facility_points_type_external_unique UNIQUE (type, external_id)
+    )
+  `;
+
+  // 7-6. New table: apartment_facility_stats
+  console.log("  7-6. Creating apartment_facility_stats table...");
+  await sql`
+    CREATE TABLE IF NOT EXISTS apartment_facility_stats (
+      id SERIAL PRIMARY KEY,
+      apt_id INTEGER NOT NULL REFERENCES apartments(id),
+      type VARCHAR(30) NOT NULL CHECK (type IN ('subway_station','bus_stop','police','fire_station','shelter','hospital','pharmacy')),
+      within_radius_count INTEGER NOT NULL,
+      nearest_distance_m NUMERIC,
+      radius_m INTEGER NOT NULL,
+      computed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      CONSTRAINT apartment_facility_stats_unique UNIQUE (apt_id, type, radius_m)
+    )
+  `;
+
+  // 7-7. Indexes
+  console.log("  7-7. Creating indexes for new tables...");
+  await sql`CREATE INDEX IF NOT EXISTS idx_apartment_unit_types_apt_id ON apartment_unit_types(apt_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_facility_points_location ON facility_points USING GIST(location)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_facility_points_type ON facility_points(type)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_apartment_facility_stats_apt_id ON apartment_facility_stats(apt_id)`;
+
+  // 8. Verify
+  console.log("\n[8/11] Verifying tables...");
   const tables = await sql`
     SELECT tablename FROM pg_tables
     WHERE schemaname = 'public'
@@ -238,14 +351,73 @@ async function migrate() {
   `;
   console.log("  Tables:", tables.map((t: { tablename: string }) => t.tablename).join(", "));
 
-  // 8. Verify apartment_details columns
-  console.log("[8/8] Verifying apartment_details columns...");
+  // 9. Verify apartment_details columns
+  console.log("[9/11] Verifying apartment_details columns...");
   const detailCols = await sql`
     SELECT column_name FROM information_schema.columns
     WHERE table_name = 'apartment_details'
     ORDER BY ordinal_position
   `;
   console.log("  Columns:", detailCols.map((c: { column_name: string }) => c.column_name).join(", "));
+
+  // 10. commute_times route_snapshot
+  console.log("\n[10/11] Adding commute_times.route_snapshot...");
+  const commuteRouteCols = await sql`
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'commute_times'
+      AND column_name = 'route_snapshot'
+  `;
+  if (commuteRouteCols.length === 0) {
+    await sql`ALTER TABLE commute_times ADD COLUMN IF NOT EXISTS route_snapshot jsonb`;
+    console.log("  + commute_times.route_snapshot");
+  } else {
+    console.log("  = commute_times.route_snapshot (already exists)");
+  }
+
+  // 11. Verify commute_times columns
+  console.log("[11/11] Verifying commute_times columns...");
+  const commuteTimeCols = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'commute_times'
+    ORDER BY ordinal_position
+  `;
+  console.log("  commute_times columns:", commuteTimeCols.map((c: { column_name: string }) => c.column_name).join(", "));
+
+  // 12. Remove legacy commute_grid route-time columns (if any)
+  console.log("\n[12/12] Cleaning legacy commute_grid columns...");
+  const legacyRouteCols = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'commute_grid'
+      AND column_name IN ('to_gbd_time', 'to_ybd_time', 'to_cbd_time', 'to_pangyo_time')
+    ORDER BY column_name
+  `;
+  if (legacyRouteCols.length > 0) {
+    await sql`ALTER TABLE commute_grid DROP COLUMN IF EXISTS "to_gbd_time"`;
+    await sql`ALTER TABLE commute_grid DROP COLUMN IF EXISTS "to_ybd_time"`;
+    await sql`ALTER TABLE commute_grid DROP COLUMN IF EXISTS "to_cbd_time"`;
+    await sql`ALTER TABLE commute_grid DROP COLUMN IF EXISTS "to_pangyo_time"`;
+    console.log(`  + Dropped legacy columns: ${legacyRouteCols.map((c: { column_name: string }) => c.column_name).join(", ")}`);
+  } else {
+    console.log("  = No legacy commute_grid columns found");
+  }
+
+  const remainingLegacyRouteCols = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'commute_grid'
+      AND column_name IN ('to_gbd_time', 'to_ybd_time', 'to_cbd_time', 'to_pangyo_time')
+  `;
+  console.log(
+    `  Remaining legacy columns after cleanup: ${
+      remainingLegacyRouteCols.length ? remainingLegacyRouteCols.map((c: { column_name: string }) => c.column_name).join(", ") : "none"
+    }`
+  );
 
   console.log("\nDone!");
   await sql.end();

@@ -6,6 +6,7 @@ import {
   numeric,
   timestamp,
   check,
+  unique,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { geometryPoint, geometryPolygon } from "../types/geometry";
@@ -16,6 +17,7 @@ export const schools = pgTable(
   {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
+    schoolCode: varchar("school_code", { length: 20 }),
     schoolLevel: varchar("school_level", { length: 10 }),
     location: geometryPoint("location").notNull(),
     achievementScore: numeric("achievement_score"),
@@ -27,5 +29,6 @@ export const schools = pgTable(
       "school_level_check",
       sql`${table.schoolLevel} IN ('elem', 'middle', 'high')`,
     ),
+    unique("schools_school_code_unique").on(table.schoolCode),
   ],
 );
