@@ -1,0 +1,594 @@
+{
+  "id": "e26ae70c-f531-455b-8a99-f132a241bca9",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.apartment_prices": {
+      "name": "apartment_prices",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "apt_id": {
+          "name": "apt_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trade_type": {
+          "name": "trade_type",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "month": {
+          "name": "month",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "average_price": {
+          "name": "average_price",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deal_count": {
+          "name": "deal_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_avg": {
+          "name": "area_avg",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_min": {
+          "name": "area_min",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_max": {
+          "name": "area_max",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "floor_avg": {
+          "name": "floor_avg",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "floor_min": {
+          "name": "floor_min",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "floor_max": {
+          "name": "floor_max",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "apartment_prices_apt_id_apartments_id_fk": {
+          "name": "apartment_prices_apt_id_apartments_id_fk",
+          "tableFrom": "apartment_prices",
+          "tableTo": "apartments",
+          "columnsFrom": [
+            "apt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "apt_prices_unique": {
+          "name": "apt_prices_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "apt_id",
+            "trade_type",
+            "year",
+            "month"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "trade_type_check": {
+          "name": "trade_type_check",
+          "value": "\"apartment_prices\".\"trade_type\" IN ('sale', 'jeonse')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.apartments": {
+      "name": "apartments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "apt_code": {
+          "name": "apt_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "apt_name": {
+          "name": "apt_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "built_year": {
+          "name": "built_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "household_count": {
+          "name": "household_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_min": {
+          "name": "area_min",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area_max": {
+          "name": "area_max",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "apartments_apt_code_unique": {
+          "name": "apartments_apt_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "apt_code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.childcare_centers": {
+      "name": "childcare_centers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_enrollment": {
+          "name": "current_enrollment",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "evaluation_grade": {
+          "name": "evaluation_grade",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "childcare_external_id_unique": {
+          "name": "childcare_external_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "external_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.commute_grid": {
+      "name": "commute_grid",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "grid_id": {
+          "name": "grid_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_gbd_time": {
+          "name": "to_gbd_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to_ybd_time": {
+          "name": "to_ybd_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to_cbd_time": {
+          "name": "to_cbd_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to_pangyo_time": {
+          "name": "to_pangyo_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "calculated_at": {
+          "name": "calculated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.safety_infra": {
+      "name": "safety_infra",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "camera_count": {
+          "name": "camera_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 1
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "type_check": {
+          "name": "type_check",
+          "value": "\"safety_infra\".\"type\" IN ('cctv', 'safecam', 'lamp')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.safety_stats": {
+      "name": "safety_stats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region_name": {
+          "name": "region_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "crime_rate": {
+          "name": "crime_rate",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cctv_density": {
+          "name": "cctv_density",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "police_station_distance": {
+          "name": "police_station_distance",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "streetlight_density": {
+          "name": "streetlight_density",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shelter_count": {
+          "name": "shelter_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "calculated_score": {
+          "name": "calculated_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_date": {
+          "name": "data_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "safety_stats_region_date_unique": {
+          "name": "safety_stats_region_date_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "region_code",
+            "data_date"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.schools": {
+      "name": "schools",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "school_code": {
+          "name": "school_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "school_level": {
+          "name": "school_level",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "achievement_score": {
+          "name": "achievement_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "assignment_area": {
+          "name": "assignment_area",
+          "type": "geometry(Polygon, 4326)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "schools_school_code_unique": {
+          "name": "schools_school_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "school_code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "school_level_check": {
+          "name": "school_level_check",
+          "value": "\"schools\".\"school_level\" IN ('elem', 'middle', 'high')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

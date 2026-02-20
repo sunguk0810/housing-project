@@ -57,6 +57,8 @@
 | 45  | 2026-02-20_claude-code_pre-launch-review.md             | 2026-02-20 | claude-code | PHASE1   | done | 출시 전 종합 점검 (ETL 실행/검증/문서 마감)                 |
 | 46  | 2026-02-20_codex_phase1-commute-destination-normalize.md | 2026-02-20 | codex       | PHASE1   | partial | 통근 목적지 정규화(1:N) 스키마/코드 전환                    |
 | 47  | 2026-02-20_codex_odsay-grid-debug-full-refresh.md      | 2026-02-20 | codex       | PHASE1   | partial | ODsay 디버그 로그 및 전체 갱신 옵션 정비                 |
+| 48  | 2026-02-20_codex_phase1-commute-schema-sync.md         | 2026-02-20 | codex       | PHASE1   | partial | 통근 스키마 정합성 및 journal 동기화 정비                         |
+| 49  | 2026-02-20_claude-code_drizzle-baseline-reset.md       | 2026-02-20 | claude-code | PHASE1   | done    | Drizzle 마이그레이션 추적 정합성 복구 (Fresh Baseline)            |
 
 ## Archive
 

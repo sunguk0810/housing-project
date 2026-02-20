@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1771459552480,
+      "tag": "0000_colorful_wallflower",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771542781808,
+      "tag": "0001_narrow_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771600000000,
+      "tag": "0002_commute_destinations_times",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1771700000000,
+      "tag": "0003_commute_times_route_snapshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1771700001000,
+      "tag": "0004_cleanup_commute_grid_legacy_columns",
+      "breakpoints": true
+    }
+  ]
+}

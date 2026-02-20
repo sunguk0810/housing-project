@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1771459552480,
-      "tag": "0000_colorful_wallflower",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1771542781808,
-      "tag": "0001_narrow_runaways",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1771600000000,
-      "tag": "0002_commute_destinations_times",
+      "when": 1771552675523,
+      "tag": "0000_heavy_tarantula",
       "breakpoints": true
     }
   ]

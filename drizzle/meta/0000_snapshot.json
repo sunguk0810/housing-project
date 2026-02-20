@@ -1,9 +1,311 @@
 {
-  "id": "e26ae70c-f531-455b-8a99-f132a241bca9",
+  "id": "9ae3dcf9-50a3-454d-9b56-3adb797c7d17",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.apartment_details": {
+      "name": "apartment_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "apt_id": {
+          "name": "apt_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kapt_code": {
+          "name": "kapt_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dong_count": {
+          "name": "dong_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "doro_juso": {
+          "name": "doro_juso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "use_date": {
+          "name": "use_date",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "builder": {
+          "name": "builder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "developer": {
+          "name": "developer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "heat_type": {
+          "name": "heat_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sale_type": {
+          "name": "sale_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hall_type": {
+          "name": "hall_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mgr_type": {
+          "name": "mgr_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_area": {
+          "name": "total_area",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "private_area": {
+          "name": "private_area",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parking_ground": {
+          "name": "parking_ground",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parking_underground": {
+          "name": "parking_underground",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "elevator_count": {
+          "name": "elevator_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cctv_count": {
+          "name": "cctv_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ev_charger_ground": {
+          "name": "ev_charger_ground",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ev_charger_underground": {
+          "name": "ev_charger_underground",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subway_line": {
+          "name": "subway_line",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subway_station": {
+          "name": "subway_station",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subway_distance": {
+          "name": "subway_distance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bus_distance": {
+          "name": "bus_distance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "building_structure": {
+          "name": "building_structure",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "welfare_facility": {
+          "name": "welfare_facility",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "education_facility": {
+          "name": "education_facility",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "convenient_facility": {
+          "name": "convenient_facility",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "apartment_details_apt_id_apartments_id_fk": {
+          "name": "apartment_details_apt_id_apartments_id_fk",
+          "tableFrom": "apartment_details",
+          "tableTo": "apartments",
+          "columnsFrom": [
+            "apt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "apartment_details_apt_id_unique": {
+          "name": "apartment_details_apt_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "apt_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.apartment_facility_stats": {
+      "name": "apartment_facility_stats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "apt_id": {
+          "name": "apt_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "within_radius_count": {
+          "name": "within_radius_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nearest_distance_m": {
+          "name": "nearest_distance_m",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "radius_m": {
+          "name": "radius_m",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "computed_at": {
+          "name": "computed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "apartment_facility_stats_apt_id_apartments_id_fk": {
+          "name": "apartment_facility_stats_apt_id_apartments_id_fk",
+          "tableFrom": "apartment_facility_stats",
+          "tableTo": "apartments",
+          "columnsFrom": [
+            "apt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "apartment_facility_stats_unique": {
+          "name": "apartment_facility_stats_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "apt_id",
+            "type",
+            "radius_m"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "apartment_facility_stats_type_check": {
+          "name": "apartment_facility_stats_type_check",
+          "value": "\"apartment_facility_stats\".\"type\" IN ('subway_station','bus_stop','police','fire_station','shelter','hospital','pharmacy')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.apartment_prices": {
       "name": "apartment_prices",
       "schema": "",
@@ -40,6 +342,12 @@
         },
         "average_price": {
           "name": "average_price",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "monthly_rent_avg": {
+          "name": "monthly_rent_avg",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false
@@ -127,9 +435,101 @@
       "checkConstraints": {
         "trade_type_check": {
           "name": "trade_type_check",
-          "value": "\"apartment_prices\".\"trade_type\" IN ('sale', 'jeonse')"
+          "value": "\"apartment_prices\".\"trade_type\" IN ('sale', 'jeonse', 'monthly')"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.apartment_unit_types": {
+      "name": "apartment_unit_types",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "apt_id": {
+          "name": "apt_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area_sqm": {
+          "name": "area_sqm",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area_pyeong": {
+          "name": "area_pyeong",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "household_count": {
+          "name": "household_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_date": {
+          "name": "data_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "apartment_unit_types_apt_id_apartments_id_fk": {
+          "name": "apartment_unit_types_apt_id_apartments_id_fk",
+          "tableFrom": "apartment_unit_types",
+          "tableTo": "apartments",
+          "columnsFrom": [
+            "apt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "apartment_unit_types_unique": {
+          "name": "apartment_unit_types_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "apt_id",
+            "area_sqm"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.apartments": {
@@ -144,7 +544,7 @@
         },
         "apt_code": {
           "name": "apt_code",
-          "type": "varchar(20)",
+          "type": "varchar(60)",
           "primaryKey": false,
           "notNull": true
         },
@@ -159,6 +559,19 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "building_type": {
+          "name": "building_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'apartment'"
         },
         "location": {
           "name": "location",
@@ -175,6 +588,12 @@
         "household_count": {
           "name": "household_count",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "official_name": {
+          "name": "official_name",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -218,7 +637,12 @@
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "building_type_check": {
+          "name": "building_type_check",
+          "value": "\"apartments\".\"building_type\" IN ('apartment','officetel','other')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.childcare_centers": {
@@ -297,6 +721,51 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.commute_destinations": {
+      "name": "commute_destinations",
+      "schema": "",
+      "columns": {
+        "destination_key": {
+          "name": "destination_key",
+          "type": "varchar(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.commute_grid": {
       "name": "commute_grid",
       "schema": "",
@@ -319,27 +788,61 @@
           "primaryKey": false,
           "notNull": true
         },
-        "to_gbd_time": {
-          "name": "to_gbd_time",
+        "calculated_at": {
+          "name": "calculated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "commute_grid_id_unique": {
+          "name": "commute_grid_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "grid_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.commute_times": {
+      "name": "commute_times",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "grid_id": {
+          "name": "grid_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destination_key": {
+          "name": "destination_key",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time_minutes": {
+          "name": "time_minutes",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "to_ybd_time": {
-          "name": "to_ybd_time",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to_cbd_time": {
-          "name": "to_cbd_time",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to_pangyo_time": {
-          "name": "to_pangyo_time",
-          "type": "integer",
+        "route_snapshot": {
+          "name": "route_snapshot",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -352,11 +855,135 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "commute_times_grid_id_commute_grid_grid_id_fk": {
+          "name": "commute_times_grid_id_commute_grid_grid_id_fk",
+          "tableFrom": "commute_times",
+          "tableTo": "commute_grid",
+          "columnsFrom": [
+            "grid_id"
+          ],
+          "columnsTo": [
+            "grid_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "commute_times_destination_key_commute_destinations_destination_key_fk": {
+          "name": "commute_times_destination_key_commute_destinations_destination_key_fk",
+          "tableFrom": "commute_times",
+          "tableTo": "commute_destinations",
+          "columnsFrom": [
+            "destination_key"
+          ],
+          "columnsTo": [
+            "destination_key"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "commute_times_grid_dest_unique": {
+          "name": "commute_times_grid_dest_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "grid_id",
+            "destination_key"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.facility_points": {
+      "name": "facility_points",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point, 4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_date": {
+          "name": "data_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "facility_points_type_external_unique": {
+          "name": "facility_points_type_external_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "type",
+            "external_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "facility_points_type_check": {
+          "name": "facility_points_type_check",
+          "value": "\"facility_points\".\"type\" IN ('subway_station','bus_stop','police','fire_station','shelter','hospital','pharmacy')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.safety_infra": {
