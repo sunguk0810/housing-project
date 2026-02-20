@@ -54,6 +54,12 @@ export interface RecommendationItem {
   readonly averagePrice: number; // average price in 만원
   readonly householdCount: number | null;
   readonly areaMin: number | null; // min area in ㎡
+  readonly areaMax: number | null;
+  readonly areaAvg: number | null;
+  readonly floorMin: number | null;
+  readonly floorMax: number | null;
+  readonly monthlyRentAvg: number | null;
+  readonly builtYear: number | null;
   readonly monthlyCost: number;
   readonly commuteTime1: number;
   readonly commuteTime2: number | null;
@@ -139,12 +145,51 @@ export interface CommuteRouteDetail {
   readonly summary: string;
 }
 
+export interface CommuteDestinationInfo {
+  readonly destinationKey: string;
+  readonly name: string;
+  readonly timeMinutes: number | null;
+  readonly route?: CommuteRouteDetail;
+}
+
 export interface CommuteInfo {
   readonly toGbd: number | null;
   readonly toYbd: number | null;
   readonly toCbd: number | null;
   readonly toPangyo: number | null;
+  readonly destinations: ReadonlyArray<CommuteDestinationInfo>;
+  /**
+   * @deprecated Use destinations[].route instead.
+   * Source: GBD route (GBD unavailable → first valid destination route fallback).
+   * Removal: see PHASE1_design.md 4-gate policy.
+   */
   readonly routes?: CommuteRouteDetail;
+}
+
+export interface ApartmentDetailInfo {
+  readonly kaptCode: string | null;
+  readonly dongCount: number | null;
+  readonly doroJuso: string | null;
+  readonly useDate: string | null;
+  readonly builder: string | null;
+  readonly heatType: string | null;
+  readonly hallType: string | null;
+  readonly totalArea: number | null;
+  readonly parkingGround: number | null;
+  readonly parkingUnderground: number | null;
+  readonly elevatorCount: number | null;
+  readonly cctvCount: number | null;
+  readonly evChargerGround: number | null;
+  readonly evChargerUnderground: number | null;
+  readonly subwayLine: string | null;
+  readonly subwayStation: string | null;
+  readonly subwayDistance: string | null;
+}
+
+export interface UnitTypeItem {
+  readonly areaSqm: number;
+  readonly areaPyeong: number | null;
+  readonly householdCount: number;
 }
 
 export interface ApartmentDetailResponse {
@@ -158,6 +203,8 @@ export interface ApartmentDetailResponse {
     readonly areaMin: number | null;
     readonly areaMax: number | null;
     readonly prices: ReadonlyArray<PriceHistoryItem>;
+    readonly details: ApartmentDetailInfo | null;
+    readonly unitTypes: ReadonlyArray<UnitTypeItem>;
   };
   readonly nearby: {
     readonly childcare: {

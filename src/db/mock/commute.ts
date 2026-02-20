@@ -44,7 +44,7 @@ export function generateCommuteSeedData(): {
   const destinations: CommuteDestinationInsert[] = Object.entries(BUSINESS_DISTRICTS).map(
     ([destinationKey, d]) => ({
       destinationKey,
-      name: d.label,
+      name: d.name,
       location: { longitude: d.lng, latitude: d.lat },
       active: true,
     }),

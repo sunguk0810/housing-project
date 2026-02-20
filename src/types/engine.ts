@@ -77,7 +77,7 @@ export interface CommuteRouteInfo {
 
 export interface CommuteResult {
   timeMinutes: number;
-  source: "grid" | "redis" | "odsay" | "mock";
+  source: "grid" | "mock";
   routes?: CommuteRouteInfo;
 }
 

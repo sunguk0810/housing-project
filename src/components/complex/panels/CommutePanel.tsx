@@ -14,7 +14,16 @@ interface CommutePanelProps {
   session: DetailSessionData;
 }
 
-const REGION_COMMUTES = [
+const DESTINATION_LABELS: Record<string, string> = {
+  CBD: "종로",
+  GBD: "강남",
+  YBD: "여의도",
+  PANGYO: "판교",
+  MAGOK: "마곡",
+};
+
+// Legacy static config for backward-compatible rendering
+const LEGACY_REGION_COMMUTES = [
   { label: "강남", key: "toGbd" as const },
   { label: "여의도", key: "toYbd" as const },
   { label: "종로", key: "toCbd" as const },
@@ -55,11 +64,9 @@ function RouteBadges({ routes }: { routes: CommuteRouteDetail }) {
 
 export function CommutePanel({ commute, session }: CommutePanelProps) {
   const hasWorkplaceData = session.job1 !== null || session.job1Remote;
-  const hasRegionData =
-    commute.toGbd !== null ||
-    commute.toYbd !== null ||
-    commute.toCbd !== null ||
-    commute.toPangyo !== null;
+
+  // [R1] Single criterion: destinations array existence
+  const hasDestinations = (commute.destinations?.length ?? 0) > 0;
 
   const commuteScore = session.dimensions
     ? Math.round(session.dimensions.commute * 100)
@@ -135,25 +142,25 @@ export function CommutePanel({ commute, session }: CommutePanelProps) {
           <Train size={18} />
           주요 지역 통근 참고
         </h2>
-        {hasRegionData ? (
+        {hasDestinations ? (
           <>
-            <div className="flex gap-[var(--space-3)]">
-              {REGION_COMMUTES.filter((c) => commute[c.key] !== null).map((c) => (
+            {/* [R1] New path: destinations-based dynamic rendering */}
+            <div className="flex flex-wrap gap-[var(--space-3)]">
+              {commute.destinations.map((item) => (
                 <div
-                  key={c.label}
-                  className="flex-1 rounded-[var(--radius-s7-md)] bg-[var(--color-surface-elevated)] p-[var(--space-3)] text-center"
+                  key={item.destinationKey}
+                  className="min-w-[5rem] flex-1 rounded-[var(--radius-s7-md)] bg-[var(--color-surface-elevated)] p-[var(--space-3)] text-center"
                 >
                   <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-                    {c.label}
+                    {DESTINATION_LABELS[item.destinationKey] ?? item.name}
                   </p>
                   <p className="text-[length:var(--text-title)] font-bold text-[var(--color-brand-500)]">
-                    {formatCommuteTime(commute[c.key]!)}
+                    {item.timeMinutes !== null ? formatCommuteTime(item.timeMinutes) : "-"}
                   </p>
+                  {item.route && <RouteBadges routes={item.route} />}
                 </div>
               ))}
             </div>
-            {/* Route badges (when ODsay provides route data) */}
-            {commute.routes && <RouteBadges routes={commute.routes} />}
             <DataSourceTag
               type="transit"
               label="ODsay 대중교통 경로 기준"
@@ -161,9 +168,48 @@ export function CommutePanel({ commute, session }: CommutePanelProps) {
             />
           </>
         ) : (
-          <p className="text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
-            통근 시간 데이터가 아직 수집되지 않았습니다.
-          </p>
+          /* [T4] Legacy fallback: destinations absent (cached/old responses) */
+          (() => {
+            const legacyData =
+              commute.toGbd !== null ||
+              commute.toYbd !== null ||
+              commute.toCbd !== null ||
+              commute.toPangyo !== null;
+
+            if (legacyData) {
+              return (
+                <>
+                  <div className="flex gap-[var(--space-3)]">
+                    {LEGACY_REGION_COMMUTES.filter((c) => commute[c.key] !== null).map((c) => (
+                      <div
+                        key={c.label}
+                        className="flex-1 rounded-[var(--radius-s7-md)] bg-[var(--color-surface-elevated)] p-[var(--space-3)] text-center"
+                      >
+                        <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+                          {c.label}
+                        </p>
+                        <p className="text-[length:var(--text-title)] font-bold text-[var(--color-brand-500)]">
+                          {formatCommuteTime(commute[c.key]!)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  {commute.routes && <RouteBadges routes={commute.routes} />}
+                  <DataSourceTag
+                    type="transit"
+                    label="ODsay 대중교통 경로 기준"
+                    className="mt-[var(--space-2)]"
+                  />
+                </>
+              );
+            }
+
+            return (
+              <p className="text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
+                통근 시간 데이터가 아직 수집되지 않았습니다.
+              </p>
+            );
+          })()
         )}
       </div>
       <ProgressiveDisclosure

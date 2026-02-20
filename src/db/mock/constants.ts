@@ -131,14 +131,14 @@ export const COORD_BOUNDS = {
 } as const;
 
 export const BUSINESS_DISTRICTS = {
-  GBD: { lat: 37.4979, lng: 127.0276, label: '강남 업무지구' },
-  YBD: { lat: 37.5219, lng: 126.9245, label: '여의도 업무지구' },
-  CBD: { lat: 37.57, lng: 126.977, label: '종로 업무지구' },
-  PANGYO: { lat: 37.3948, lng: 127.1112, label: '판교 테크노밸리' },
-  MAGOK: { lat: 37.5602, lng: 126.8336, label: '마곡 업무지구' },
-  JAMSIL: { lat: 37.5133, lng: 127.1002, label: '잠실 업무권' },
-  GASAN: { lat: 37.4814, lng: 126.8826, label: '가산 업무권' },
-  GURO: { lat: 37.4854, lng: 126.9016, label: '구로 업무권' },
+  GBD: { lat: 37.4979, lng: 127.0276, name: '강남업무지구' },
+  YBD: { lat: 37.5219, lng: 126.9245, name: '여의도업무지구' },
+  CBD: { lat: 37.57, lng: 126.977, name: '광화문업무지구' },
+  PANGYO: { lat: 37.3948, lng: 127.1112, name: '판교테크노밸리' },
+  MAGOK: { lat: 37.5602, lng: 126.8336, name: '마곡업무지구' },
+  JAMSIL: { lat: 37.5133, lng: 127.1002, name: '잠실업무권' },
+  GASAN: { lat: 37.4814, lng: 126.8826, name: '가산업무권' },
+  GURO: { lat: 37.4854, lng: 126.9016, name: '구로업무권' },
 } as const;
 
 export const PRICE_RANGES = {

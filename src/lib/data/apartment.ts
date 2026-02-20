@@ -1,12 +1,13 @@
 import { eq, desc, sql } from 'drizzle-orm';
 import { db } from '@/db/connection';
-import { apartments, apartmentPrices, safetyStats } from '@/db/schema';
+import { apartments, apartmentPrices, apartmentDetails, apartmentUnitTypes, safetyStats } from '@/db/schema';
 import {
   findNearbyChildcare,
   findNearbySchools,
   findNearestGrid,
-  getCommuteTimesForGrid,
+  getFullCommuteForGrid,
 } from '@/lib/engines/spatial';
+import { safeNum, safeNumRequired } from '@/lib/utils/safe-num';
 import type { ApartmentDetailResponse } from '@/types/api';
 
 /**
@@ -98,10 +99,81 @@ export async function getApartmentDetail(aptId: number): Promise<ApartmentDetail
       }
     : null;
 
-  // Step 6: Commute grid
+  // Step 6: Commute — full destinations with routes
   const grid = await findNearestGrid(aptLon, aptLat);
-  const commuteRows = grid ? await getCommuteTimesForGrid(grid.gridId) : [];
-  const commuteMap = new Map(commuteRows.map((r) => [r.destinationKey, r.timeMinutes]));
+  const fullCommute = grid ? await getFullCommuteForGrid(grid.gridId) : [];
+
+  // Build destinations array for API response
+  const destinations = fullCommute.map((r) => ({
+    destinationKey: r.destinationKey,
+    name: r.name,
+    timeMinutes: r.timeMinutes,
+    ...(r.route ? { route: r.route } : {}),
+  }));
+
+  // Legacy commute time map for backward-compatible toGbd/toYbd/toCbd/toPangyo
+  const commuteMap = new Map(fullCommute.map((r) => [r.destinationKey, r.timeMinutes]));
+
+  // [F1+R2] routes fallback chain: GBD → first valid destination → undefined
+  const gbdRow = fullCommute.find((r) => r.destinationKey === 'GBD');
+  const deprecatedRoute = gbdRow?.route
+    ?? fullCommute.find((r) => r.route != null)?.route
+    ?? undefined;
+
+  // [R6] Runtime log: 1% sampling
+  if (deprecatedRoute && Math.random() < 0.01) {
+    console.info(JSON.stringify({
+      event: 'deprecated_routes_populated',
+      aptId,
+      source: gbdRow?.route ? 'GBD' : 'first_valid',
+    }));
+  }
+
+  // Step 7: Apartment details (K-apt)
+  const detailRows = await db
+    .select()
+    .from(apartmentDetails)
+    .where(eq(apartmentDetails.aptId, aptId))
+    .limit(1);
+
+  const d = detailRows[0];
+  const details = d
+    ? {
+        kaptCode: d.kaptCode ?? null,
+        dongCount: safeNum(d.dongCount),
+        doroJuso: d.doroJuso ?? null,
+        useDate: d.useDate ?? null,
+        builder: d.builder ?? null,
+        heatType: d.heatType ?? null,
+        hallType: d.hallType ?? null,
+        totalArea: safeNum(d.totalArea),
+        parkingGround: safeNum(d.parkingGround),
+        parkingUnderground: safeNum(d.parkingUnderground),
+        elevatorCount: safeNum(d.elevatorCount),
+        cctvCount: safeNum(d.cctvCount),
+        evChargerGround: safeNum(d.evChargerGround),
+        evChargerUnderground: safeNum(d.evChargerUnderground),
+        subwayLine: d.subwayLine ?? null,
+        subwayStation: d.subwayStation ?? null,
+        subwayDistance: d.subwayDistance ?? null,
+      }
+    : null;
+
+  // Step 8: Unit types
+  const unitTypeRows = await db
+    .select({
+      areaSqm: apartmentUnitTypes.areaSqm,
+      areaPyeong: apartmentUnitTypes.areaPyeong,
+      householdCount: apartmentUnitTypes.householdCount,
+    })
+    .from(apartmentUnitTypes)
+    .where(eq(apartmentUnitTypes.aptId, aptId));
+
+  const unitTypes = unitTypeRows.map((r) => ({
+    areaSqm: safeNumRequired(r.areaSqm, 'unitTypes.areaSqm'),
+    areaPyeong: safeNum(r.areaPyeong),
+    householdCount: safeNumRequired(r.householdCount, 'unitTypes.householdCount'),
+  }));
 
   return {
     apartment: {
@@ -110,23 +182,25 @@ export async function getApartmentDetail(aptId: number): Promise<ApartmentDetail
       aptName: apt.aptName,
       address: apt.address,
       builtYear: apt.builtYear,
-      householdCount: apt.householdCount,
-      areaMin: apt.areaMin,
-      areaMax: apt.areaMax,
+      householdCount: safeNum(apt.householdCount),
+      areaMin: safeNum(apt.areaMin),
+      areaMax: safeNum(apt.areaMax),
       prices: priceRows.map((r) => ({
         tradeType: (r.tradeType ?? '') as 'sale' | 'jeonse' | 'monthly',
         year: r.year ?? 0,
         month: r.month ?? 0,
-        averagePrice: Number(r.averagePrice ?? 0),
-        monthlyRentAvg: r.monthlyRentAvg != null ? Number(r.monthlyRentAvg) : null,
+        averagePrice: safeNumRequired(r.averagePrice, 'prices.averagePrice'),
+        monthlyRentAvg: safeNum(r.monthlyRentAvg),
         dealCount: r.dealCount ?? 0,
-        areaAvg: r.areaAvg ? Number(r.areaAvg) : null,
-        areaMin: r.areaMin ? Number(r.areaMin) : null,
-        areaMax: r.areaMax ? Number(r.areaMax) : null,
-        floorAvg: r.floorAvg ? Number(r.floorAvg) : null,
-        floorMin: r.floorMin ?? null,
-        floorMax: r.floorMax ?? null,
+        areaAvg: safeNum(r.areaAvg),
+        areaMin: safeNum(r.areaMin),
+        areaMax: safeNum(r.areaMax),
+        floorAvg: safeNum(r.floorAvg),
+        floorMin: safeNum(r.floorMin),
+        floorMax: safeNum(r.floorMax),
       })),
+      details,
+      unitTypes,
     },
     nearby: {
       childcare: {
@@ -141,6 +215,8 @@ export async function getApartmentDetail(aptId: number): Promise<ApartmentDetail
       toYbd: commuteMap.get('YBD') ?? null,
       toCbd: commuteMap.get('CBD') ?? null,
       toPangyo: commuteMap.get('PANGYO') ?? null,
+      destinations,
+      routes: deprecatedRoute,
     },
     sources: {
       priceDate: firstPrice

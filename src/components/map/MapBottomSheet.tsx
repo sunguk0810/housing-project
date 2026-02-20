@@ -8,6 +8,8 @@ import { CardSelector } from "@/components/card/CardSelector";
 import { CompareBar } from "@/components/layout/CompareBar";
 import type { RecommendationItem } from "@/types/api";
 import type { SortOption } from "@/types/ui";
+import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
+import {DialogTitle} from "@/components/ui/dialog";
 
 interface MapBottomSheetProps {
   items: ReadonlyArray<RecommendationItem>;
@@ -56,6 +58,8 @@ export function MapBottomSheet({
       <DrawerPrimitive.Portal>
         {/* No Overlay — non-modal for map touch passthrough */}
         <DrawerPrimitive.Content
+          aria-label="분석 결과 목록"
+          aria-describedby={undefined}
           className={cn(
             "fixed inset-x-0 bottom-14 z-30 flex flex-col",
             "rounded-t-[var(--radius-s7-xl)] bg-[var(--color-surface)]",
@@ -63,6 +67,9 @@ export function MapBottomSheet({
           )}
           style={{ maxHeight: "calc(100dvh - 7rem)" }}
         >
+          <DialogTitle>
+            <VisuallyHidden/>
+          </DialogTitle>
           {/* Drag handle */}
           <div className="flex justify-center py-[var(--space-3)]">
             <div

@@ -50,7 +50,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(data);
+    const response = NextResponse.json(data);
+    // [T1+U6] X-Deprecated-Fields header (CSV format for multi-field extensibility)
+    const deprecatedFields: string[] = [];
+    if (data.commute.routes) deprecatedFields.push('commute.routes');
+    if (deprecatedFields.length > 0) {
+      response.headers.set('X-Deprecated-Fields', deprecatedFields.join(', '));
+    }
+    return response;
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Internal server error";

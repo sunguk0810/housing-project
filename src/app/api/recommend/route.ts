@@ -11,6 +11,7 @@ import { calculateFinalScore } from '@/lib/engines/scoring';
 import { findNearbyChildcare } from '@/lib/engines/spatial';
 import { getCommuteTime } from '@/lib/engines/commute';
 import { geocodeAddress } from '@/etl/adapters/kakao-geocoding';
+import { safeNum } from '@/lib/utils/safe-num';
 import type { RecommendResponse, RecommendationItem, ApiErrorResponse } from '@/types/api';
 import type { ScoringInput, WeightProfileKey } from '@/types/engine';
 
@@ -124,8 +125,10 @@ export async function POST(
     });
 
     // Step 5: Spatial filter — apartments within budget
-    // Fix 3: Filter recent prices (last 2 years)
-    const minYear = new Date().getFullYear() - 2;
+    // Fix 3: Filter recent prices (last 24 months)
+    const now = new Date();
+    const currentMonthIndex = now.getFullYear() * 12 + (now.getMonth() + 1);
+    const minMonthIndex = currentMonthIndex - 23;
     const candidateLimit = 200;
 
     const rawCandidateRows = (await db.execute(sql`
@@ -140,9 +143,13 @@ export async function POST(
         "apartments"."built_year" AS "builtYear",
         "apartments"."household_count" AS "householdCount",
         "apartments"."area_min" AS "areaMin",
+        "apartments"."area_max" AS "areaMax",
         "latest_price_per_apt"."average_price" AS "averagePrice",
         "latest_price_per_apt"."monthly_rent_avg" AS "monthlyRentAvg",
         "latest_price_per_apt"."deal_count" AS "dealCount",
+        "latest_price_per_apt"."area_avg" AS "areaAvg",
+        "latest_price_per_apt"."floor_min" AS "floorMin",
+        "latest_price_per_apt"."floor_max" AS "floorMax",
         "latest_price_per_apt"."year" AS "priceYear",
         "latest_price_per_apt"."month" AS "priceMonth"
       FROM "apartments"
@@ -152,64 +159,98 @@ export async function POST(
           "latest_row"."average_price",
           "latest_row"."monthly_rent_avg",
           "latest_row"."deal_count",
+          "latest_row"."area_avg",
+          "latest_row"."floor_min",
+          "latest_row"."floor_max",
           "latest_row"."year",
           "latest_row"."month"
-        FROM "apartment_prices" AS "latest_row"
+          FROM "apartment_prices" AS "latest_row"
         INNER JOIN (
           SELECT
             "apartment_prices"."apt_id",
-            MAX(("apartment_prices"."year" * 100 + "apartment_prices"."month")::int4) AS "yearMonth"
+            MAX(("apartment_prices"."year" * 12 + "apartment_prices"."month")::int4) AS "yearMonth"
           FROM "apartment_prices"
           WHERE
             "apartment_prices"."trade_type" = ${input.tradeType}
             AND "apartment_prices"."average_price" <= ${budget.maxPrice}
-            AND "apartment_prices"."year" >= ${minYear}
+            AND ("apartment_prices"."year" * 12 + "apartment_prices"."month") >= ${minMonthIndex}
           GROUP BY "apartment_prices"."apt_id"
         ) AS "latest_meta"
           ON "latest_meta"."apt_id" = "latest_row"."apt_id"
-          AND ("latest_row"."year" * 100 + "latest_row"."month") = "latest_meta"."yearMonth"
+          AND ("latest_row"."year" * 12 + "latest_row"."month") = "latest_meta"."yearMonth"
           AND "latest_row"."trade_type" = ${input.tradeType}
           AND "latest_row"."average_price" <= ${budget.maxPrice}
-          AND "latest_row"."year" >= ${minYear}
+          AND ("latest_row"."year" * 12 + "latest_row"."month") >= ${minMonthIndex}
       ) AS "latest_price_per_apt"
         ON "apartments"."id" = "latest_price_per_apt"."apt_id"
+      ORDER BY
+        "latest_price_per_apt"."year" DESC,
+        "latest_price_per_apt"."month" DESC,
+        "latest_price_per_apt"."average_price" DESC,
+        "apartments"."id" ASC
       LIMIT ${candidateLimit}
     `)) as Array<{
-      id: number;
+      id: unknown;
       aptCode: string;
       aptName: string;
       address: string;
       regionCode: string | null;
-      longitude: number;
-      latitude: number;
-      builtYear: number | null;
-      householdCount: number | null;
-      areaMin: number | null;
-      averagePrice: string | number | null;
-      monthlyRentAvg: string | number | null;
-      dealCount: number | null;
+      longitude: unknown;
+      latitude: unknown;
+      builtYear: unknown;
+      householdCount: unknown;
+      areaMin: unknown;
+      areaMax: unknown;
+      averagePrice: unknown;
+      monthlyRentAvg: unknown;
+      dealCount: unknown;
+      areaAvg: unknown;
+      floorMin: unknown;
+      floorMax: unknown;
       priceYear: number | null;
       priceMonth: number | null;
     }>;
 
-    // Fix 2: LIMIT 200 for broader candidate pool (safe with batch safety query)
-    const candidateRows = rawCandidateRows.map((r) => ({
-      id: Number(r.id),
-      aptCode: r.aptCode,
-      aptName: r.aptName,
-      address: r.address,
-      regionCode: r.regionCode,
-      longitude: Number(r.longitude),
-      latitude: Number(r.latitude),
-      builtYear: r.builtYear === null ? null : Number(r.builtYear),
-      householdCount: r.householdCount === null ? null : Number(r.householdCount),
-      areaMin: r.areaMin === null ? null : Number(r.areaMin),
-      averagePrice: r.averagePrice,
-      monthlyRentAvg: r.monthlyRentAvg,
-      dealCount: r.dealCount === null ? null : Number(r.dealCount),
-      priceYear: r.priceYear === null ? null : Number(r.priceYear),
-      priceMonth: r.priceMonth === null ? null : Number(r.priceMonth),
-    }));
+    // [U1+V1] Filter rows with invalid id/coordinates, then safeNum all numeric fields
+    const candidateRows = rawCandidateRows
+      .filter((r) => {
+        const id = Number(r.id);
+        const lon = Number(r.longitude);
+        const lat = Number(r.latitude);
+        const validId = Number.isFinite(id) && id > 0;
+        const validCoord = Number.isFinite(lon) && Number.isFinite(lat)
+          && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
+        if (!validId || !validCoord) {
+          console.error(JSON.stringify({
+            event: 'recommend_invalid_row',
+            rawId: r.id, rawLon: r.longitude, rawLat: r.latitude,
+            reason: !validId ? 'invalid_id' : 'invalid_coord',
+          }));
+          return false;
+        }
+        return true;
+      })
+      .map((r) => ({
+        id: Number(r.id),
+        aptCode: r.aptCode,
+        aptName: r.aptName,
+        address: r.address,
+        regionCode: r.regionCode,
+        longitude: Number(r.longitude),
+        latitude: Number(r.latitude),
+        builtYear: safeNum(r.builtYear),
+        householdCount: safeNum(r.householdCount),
+        areaMin: safeNum(r.areaMin),
+        areaMax: safeNum(r.areaMax),
+        areaAvg: safeNum(r.areaAvg),
+        floorMin: safeNum(r.floorMin),
+        floorMax: safeNum(r.floorMax),
+        averagePrice: safeNum(r.averagePrice),
+        monthlyRentAvg: safeNum(r.monthlyRentAvg),
+        dealCount: safeNum(r.dealCount),
+        priceYear: r.priceYear === null ? null : Number(r.priceYear),
+        priceMonth: r.priceMonth === null ? null : Number(r.priceMonth),
+      }));
 
     if (candidateRows.length === 0) {
       return NextResponse.json({
@@ -225,8 +266,8 @@ export async function POST(
     const candidatesForScoring =
       input.tradeType === 'monthly'
         ? candidateRows.filter((row) => {
-            const deposit = Number(row.averagePrice ?? 0);
-            const rent = Number(row.monthlyRentAvg ?? 0);
+            const deposit = row.averagePrice ?? 0;
+            const rent = row.monthlyRentAvg ?? 0;
             const monthlyCost = estimateApartmentMonthlyCost(deposit, input.cash, 'monthly', {
               monthlyRent: rent,
             });
@@ -337,15 +378,15 @@ export async function POST(
 
           // Step 10: Scoring — price utilization + per-apartment monthly cost
           const monthlyCost = estimateApartmentMonthlyCost(
-            Number(row.averagePrice),
+            row.averagePrice ?? 0,
             input.cash,
             input.tradeType,
             input.tradeType === 'monthly'
-              ? { monthlyRent: Number(row.monthlyRentAvg ?? 0) }
+              ? { monthlyRent: row.monthlyRentAvg ?? 0 }
               : undefined,
           );
           const scoringInput: ScoringInput = {
-            apartmentPrice: Number(row.averagePrice),
+            apartmentPrice: row.averagePrice ?? 0,
             maxPrice: budget.maxPrice,
             commuteTime1: commute1.timeMinutes,
             commuteTime2: commute2Time,
@@ -368,9 +409,15 @@ export async function POST(
               lat: aptLat,
               lng: aptLon,
               tradeType: input.tradeType,
-              averagePrice: Number(row.averagePrice),
+              averagePrice: row.averagePrice ?? 0,
               householdCount: row.householdCount,
               areaMin: row.areaMin,
+              areaMax: row.areaMax,
+              areaAvg: row.areaAvg,
+              floorMin: row.floorMin,
+              floorMax: row.floorMax,
+              monthlyRentAvg: row.monthlyRentAvg,
+              builtYear: row.builtYear,
               monthlyCost: Math.round(monthlyCost),
               commuteTime1: commute1.timeMinutes,
               commuteTime2: job2Result ? commute2Time : null,
