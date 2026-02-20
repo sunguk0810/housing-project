@@ -1,9 +1,10 @@
 ---
 plan-id: "2026-02-19_claude-code_etl-building-register"
-status: "in_progress"
+status: "superseded"
 phase: "PHASE1"
 template-version: "1.1"
 work-type: "feature"
+superseded-by: "2026-02-19_codex_phase1-data-coverage"
 ---
 
 # 아파트 상세정보 ETL 개선 — 건축물대장 API 도입 + K-apt 매칭 개선
@@ -206,5 +207,6 @@ SoT: docs/PHASE1_design.md > S2 참조 (스키마 변경 사전 반영 필요)
 
 ## 결과/결정
 
-- 상태: `in_progress`
-- 후속: 강남구 검증 완료 후 전 지역 확대 실행
+- 상태: `superseded`
+- 대체 plan: `docs/plan/2026-02-19_codex_phase1-data-coverage.md`
+- 후속: 단지 데이터 커버리지 확장(월세/오피스텔/평형-세대수/POI) 통합 플랜으로 이관

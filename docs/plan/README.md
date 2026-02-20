@@ -52,6 +52,11 @@
 | 40  | 2026-02-17_claude-code_detail-page-gap-improvement.md | 2026-02-17 | claude-code | PHASE2 | done | 상세 페이지 갭 6건 해소 (BUG-1 + GAP-1/2/4/5/6) |
 | 41  | 2026-02-18_claude-code_ci-guide-implementation.md | 2026-02-18 | claude-code | PHASE3 | done | CI 가이드 적용 — 모노크롬 로고 컴포넌트 + SVG + 메타데이터 |
 | 42  | 2026-02-18_claude-code_bc-unimplemented-items.md | 2026-02-18 | claude-code | PHASE2 | done | B/C 미구현 6건 종합 구현 (반응형/트래킹/CTA/노선/면적층수/성능/접근성) |
+| 43  | 2026-02-19_claude-code_etl-building-register.md         | 2026-02-19 | claude-code | PHASE1   | superseded | 건축물대장 ETL 도입 + K-apt 매칭 개선                           |
+| 44  | 2026-02-19_codex_phase1-data-coverage.md                | 2026-02-19 | codex       | PHASE0-4 | partial | 단지 데이터 커버리지 확장(월세/오피스텔/unit-mix/POI)            |
+| 45  | 2026-02-20_claude-code_pre-launch-review.md             | 2026-02-20 | claude-code | PHASE1   | done | 출시 전 종합 점검 (ETL 실행/검증/문서 마감)                 |
+| 46  | 2026-02-20_codex_phase1-commute-destination-normalize.md | 2026-02-20 | codex       | PHASE1   | partial | 통근 목적지 정규화(1:N) 스키마/코드 전환                    |
+| 47  | 2026-02-20_codex_odsay-grid-debug-full-refresh.md      | 2026-02-20 | codex       | PHASE1   | partial | ODsay 디버그 로그 및 전체 갱신 옵션 정비                 |
 
 ## Archive
 
