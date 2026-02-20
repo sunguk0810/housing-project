@@ -73,7 +73,7 @@ describe('useStepForm', () => {
     expect(result.current.isLastInputStep).toBe(true);
   });
 
-  it('saves form data to sessionStorage with schemaVersion 3', () => {
+  it('saves form data to sessionStorage with schemaVersion 4', () => {
     const { result } = renderHook(() => useStepForm());
 
     act(() => {
@@ -85,9 +85,11 @@ describe('useStepForm', () => {
     expect(stored).toBeTruthy();
     if (stored) {
       const parsed = JSON.parse(stored);
-      expect(parsed.schemaVersion).toBe(3);
+      expect(parsed.schemaVersion).toBe(4);
       expect(parsed.data.cash).toBe(5000);
       expect(parsed.data.weightProfile).toBe('balanced');
+      expect(parsed.data.budgetProfile).toBe('noProperty');
+      expect(parsed.data.loanProgram).toBe('bankMortgage');
     }
   });
 
@@ -185,7 +187,7 @@ describe('useStepForm', () => {
     expect(values.weightProfile).toBe('balanced');
   });
 
-  it('restores from v3 session payload directly', () => {
+  it('restores from v3 session payload and migrates to v4 with defaults', () => {
     sessionStorage.setItem(
       'hc_form_data',
       JSON.stringify({
@@ -213,5 +215,8 @@ describe('useStepForm', () => {
     expect(values.tradeType).toBe('sale');
     expect(values.weightProfile).toBe('commute_focused');
     expect(values.livingAreas).toEqual(['pangyo']);
+    // v3→v4 migration adds default budgetProfile and loanProgram
+    expect(values.budgetProfile).toBe('noProperty');
+    expect(values.loanProgram).toBe('bankMortgage');
   });
 });

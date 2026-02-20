@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * @deprecated Use ViewTabs instead. This component is no longer used in BudgetPanel.
+ */
+
 import { cn } from "@/lib/utils";
 import type { PeriodOption } from "@/lib/price-utils";
 

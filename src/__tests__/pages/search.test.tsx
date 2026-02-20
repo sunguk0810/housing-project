@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Mock next/navigation
@@ -36,7 +36,8 @@ describe('SearchPage', () => {
   it('advances to step 2 after trade type selection and next click', async () => {
     const user = userEvent.setup();
     render(<SearchPage />);
-    await user.click(screen.getByRole('radio', { name: /매매/ }));
+    const tradeGroup = screen.getByRole('radiogroup', { name: '주거 형태 선택' });
+    await user.click(within(tradeGroup).getByRole('radio', { name: /매매/ }));
     await user.click(screen.getByRole('button', { name: /다음/ }));
 
     expect(

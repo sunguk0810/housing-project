@@ -12,6 +12,11 @@ import {
   SmilePlus,
   Smile,
   Ban,
+  Sparkles,
+  Key,
+  ClipboardList,
+  Landmark,
+  FileText,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -82,6 +87,39 @@ export const WEIGHT_PROFILE_ICONS = {
   commute_focused: (
     <IconCircle>
       <Train size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+} as const;
+
+// Budget profile icons
+export const BUDGET_PROFILE_ICONS = {
+  firstTime: (
+    <IconCircle>
+      <Sparkles size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+  noProperty: (
+    <IconCircle>
+      <Key size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+  homeowner: (
+    <IconCircle>
+      <ClipboardList size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+} as const;
+
+// Loan program icons
+export const LOAN_PROGRAM_ICONS = {
+  bankMortgage: (
+    <IconCircle>
+      <Landmark size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+  bogeumjari: (
+    <IconCircle>
+      <FileText size={22} strokeWidth={1.6} />
     </IconCircle>
   ),
 } as const;

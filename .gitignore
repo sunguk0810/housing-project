@@ -51,7 +51,7 @@ playwright-report/
 test-results/
 
 # Data files (ETL source/output — too large for git)
-data/
+/data/
 
 # Misc
 *.pem

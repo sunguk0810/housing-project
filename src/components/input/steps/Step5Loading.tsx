@@ -109,12 +109,14 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
         const {
           marriagePlannedAt,
           livingAreas,
+          childPlan,
           job1Remote,
           job2Remote,
           ...rest
         } = formDataRef.current;
         void marriagePlannedAt;
         void livingAreas;
+        void childPlan;
 
         const apiPayload = {
           ...rest,
