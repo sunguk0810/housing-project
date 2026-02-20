@@ -1,6 +1,12 @@
 // Engine input/output types
 // Source of Truth: docs/PHASE1_design.md > S4
 
+/** Housing ownership status (self-declared) */
+export type BudgetProfileKey = "firstTime" | "noProperty" | "homeowner";
+
+/** Loan program selection */
+export type LoanProgramKey = "bankMortgage" | "bogeumjari";
+
 export interface BudgetInput {
   /** Cash on hand (만원) */
   cash: number;
@@ -12,6 +18,10 @@ export interface BudgetInput {
   monthlyBudget: number;
   /** Trade type */
   tradeType: "sale" | "jeonse" | "monthly";
+  /** Budget profile — housing ownership status */
+  budgetProfile: BudgetProfileKey;
+  /** Loan program — bank mortgage or bogeumjari */
+  loanProgram: LoanProgramKey;
 }
 
 export interface BudgetOutput {
@@ -41,9 +51,25 @@ export interface CommuteRouteSegment {
   lineName: string;
   /** Number of stations/stops for this segment */
   stationCount: number;
+  /** Estimated section duration (minutes) */
+  sectionTime?: number;
+  /** Estimated section distance (meters) */
+  distance?: number;
 }
 
 export interface CommuteRouteInfo {
+  /** Public transit path type (1=subway, 2=bus, 3=walk) */
+  pathType?: number | null;
+  /** Total walking distance (minutes) */
+  totalWalk?: number | null;
+  /** Number of bus transfer segments */
+  busTransitCount?: number | null;
+  /** Number of subway transfer segments */
+  subwayTransitCount?: number | null;
+  /** Total station count */
+  totalStationCount?: number | null;
+  /** Total route distance (meters) */
+  totalDistance?: number | null;
   segments: ReadonlyArray<CommuteRouteSegment>;
   transferCount: number;
   summary: string;
@@ -56,8 +82,10 @@ export interface CommuteResult {
 }
 
 export interface ScoringInput {
-  maxBudget: number;
-  monthlyCost: number;
+  /** Apartment price (만원) */
+  apartmentPrice: number;
+  /** User's maximum affordable price from budget calc (만원) */
+  maxPrice: number;
   commuteTime1: number;
   commuteTime2: number;
   childcareCount800m: number;

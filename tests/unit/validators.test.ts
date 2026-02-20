@@ -57,16 +57,19 @@ describe("recommendRequestSchema", () => {
         e.path.includes("tradeType"),
       );
       expect(tradeError).toBeDefined();
-      expect(tradeError?.message).toContain("sale, jeonse");
+      expect(tradeError?.message).toContain("sale, jeonse, monthly");
     }
   });
 
-  it("V-3b: rejects monthly tradeType (DB unsupported)", () => {
+  it("V-3b: accepts monthly tradeType (server normalizes to jeonse)", () => {
     const result = recommendRequestSchema.safeParse({
       ...validInput,
       tradeType: "monthly",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tradeType).toBe("monthly");
+    }
   });
 
   // V-4: Invalid weightProfile rejected

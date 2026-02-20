@@ -12,7 +12,7 @@ import type {
   PriorityKey,
   StepDefinition,
 } from '@/types/ui';
-import type { TradeType } from '@/types/api';
+import type { TradeType, BudgetProfile, LoanProgram } from '@/types/api';
 
 // Disclaimer touch-points (5 total per PHASE0 compliance)
 export const DISCLAIMER_TEXTS = {
@@ -124,6 +124,17 @@ export interface EmojiCardOption<T extends string = string> {
 export const TRADE_OPTIONS_V2: ReadonlyArray<EmojiCardOption<TradeType>> = [
   { value: 'sale', label: '매매', emoji: '🏠' },
   { value: 'jeonse', label: '전세', emoji: '🏢' },
+];
+
+export const BUDGET_PROFILE_OPTIONS: ReadonlyArray<EmojiCardOption<BudgetProfile> & { description: string }> = [
+  { value: 'firstTime', label: '생애최초', emoji: '🏠', description: 'LTV 70%, 첫 주택 구입' },
+  { value: 'noProperty', label: '무주택', emoji: '🔑', description: '처분조건부 1주택 포함' },
+  { value: 'homeowner', label: '1주택자', emoji: '📋', description: '규제지역 매매대출 불가' },
+];
+
+export const LOAN_PROGRAM_OPTIONS: ReadonlyArray<EmojiCardOption<LoanProgram> & { description: string }> = [
+  { value: 'bankMortgage', label: '은행 주담대', emoji: '🏦', description: '15억 이하 대출 가능' },
+  { value: 'bogeumjari', label: '보금자리론', emoji: '📋', description: '6억 이하 주택 전용' },
 ];
 
 export const PRIORITY_OPTIONS: ReadonlyArray<EmojiCardOption<PriorityKey>> = [

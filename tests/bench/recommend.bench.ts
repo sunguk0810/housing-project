@@ -17,11 +17,13 @@ const budgetInput: BudgetInput = {
   loans: 100,
   monthlyBudget: 200,
   tradeType: "jeonse",
+  budgetProfile: "noProperty",
+  loanProgram: "bankMortgage",
 };
 
 const scoringInput: ScoringInput = {
-  maxBudget: 200,
-  monthlyCost: 120,
+  apartmentPrice: 45000,
+  maxPrice: 60000,
   commuteTime1: 35,
   commuteTime2: 42,
   childcareCount800m: 7,
@@ -48,8 +50,8 @@ describe("Engine module benchmarks", () => {
     const budget = calculateBudget(budgetInput);
     for (let i = 0; i < 50; i++) {
       const input: ScoringInput = {
-        maxBudget: budget.effectiveMonthlyBudget || 200,
-        monthlyCost: 80 + i * 2,
+        apartmentPrice: 20000 + i * 800,
+        maxPrice: budget.maxPrice || 60000,
         commuteTime1: 20 + i,
         commuteTime2: 25 + i,
         childcareCount800m: Math.min(i % 12, 10),

@@ -1,5 +1,6 @@
-import { sql as sqlTag } from "drizzle-orm";
-import { db } from "@/db/connection";
+import { sql as sqlTag } from 'drizzle-orm';
+import { db } from '@/db/connection';
+import type { CommuteRouteInfo } from '@/types/engine';
 
 /**
  * PostGIS spatial query helpers.
@@ -23,10 +24,16 @@ export interface SchoolWithDistance {
 
 export interface CommuteGridRow {
   gridId: string;
-  toGbdTime: number | null;
-  toYbdTime: number | null;
-  toCbdTime: number | null;
-  toPangyoTime: number | null;
+}
+
+export interface CommuteTimeRow {
+  destinationKey: string;
+  timeMinutes: number | null;
+}
+
+export interface CommuteTimeWithRouteRow {
+  timeMinutes: number | null;
+  routeSnapshot: CommuteRouteInfo | null;
 }
 
 /** Find childcare centers within radius using ST_DWithin */
@@ -102,11 +109,7 @@ export async function findNearestGrid(
 ): Promise<CommuteGridRow | null> {
   const rows = await db.execute(sqlTag`
     SELECT
-      grid_id AS "gridId",
-      to_gbd_time AS "toGbdTime",
-      to_ybd_time AS "toYbdTime",
-      to_cbd_time AS "toCbdTime",
-      to_pangyo_time AS "toPangyoTime"
+      grid_id AS "gridId"
     FROM commute_grid
     ORDER BY location <-> ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)
     LIMIT 1
@@ -117,9 +120,76 @@ export async function findNearestGrid(
   const r = rows[0] as Record<string, unknown>;
   return {
     gridId: String(r.gridId),
-    toGbdTime: r.toGbdTime !== null ? Number(r.toGbdTime) : null,
-    toYbdTime: r.toYbdTime !== null ? Number(r.toYbdTime) : null,
-    toCbdTime: r.toCbdTime !== null ? Number(r.toCbdTime) : null,
-    toPangyoTime: r.toPangyoTime !== null ? Number(r.toPangyoTime) : null,
   };
+}
+
+/** Parse route snapshot value from DB */
+function parseRouteSnapshot(value: unknown): CommuteRouteInfo | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidate = value as Partial<CommuteRouteInfo>;
+
+  if (!Array.isArray(candidate.segments) || !candidate.segments.length) {
+    return null;
+  }
+
+  return {
+    pathType: candidate.pathType,
+    totalWalk: candidate.totalWalk,
+    busTransitCount: candidate.busTransitCount,
+    subwayTransitCount: candidate.subwayTransitCount,
+    totalStationCount: candidate.totalStationCount,
+    totalDistance: candidate.totalDistance,
+    segments: candidate.segments,
+    transferCount: typeof candidate.transferCount === 'number' ? candidate.transferCount : 0,
+    summary: typeof candidate.summary === 'string' ? candidate.summary : '도보',
+  };
+}
+
+/** Fetch all commute times for a given grid_id */
+export async function getCommuteTimesForGrid(gridId: string): Promise<CommuteTimeRow[]> {
+  const rows = await db.execute(sqlTag`
+    SELECT
+      destination_key AS "destinationKey",
+      time_minutes AS "timeMinutes"
+    FROM commute_times
+    WHERE grid_id = ${gridId}
+  `);
+
+  return rows.map((r: Record<string, unknown>) => ({
+    destinationKey: String(r.destinationKey),
+    timeMinutes: r.timeMinutes !== null ? Number(r.timeMinutes) : null,
+  }));
+}
+
+/** Fetch single commute time + route snapshot for a given grid_id */
+export async function getCommuteTimeWithRouteForGrid(
+  gridId: string,
+  destinationKey: string,
+): Promise<CommuteTimeWithRouteRow | null> {
+  const rows = await db.execute(sqlTag`
+    SELECT
+      time_minutes AS "timeMinutes",
+      route_snapshot AS "routeSnapshot"
+    FROM commute_times
+    WHERE grid_id = ${gridId}
+      AND destination_key = ${destinationKey}
+    LIMIT 1
+  `);
+
+  if (rows.length === 0) return null;
+
+  const r = rows[0] as Record<string, unknown>;
+  return {
+    timeMinutes: r.timeMinutes !== null ? Number(r.timeMinutes) : null,
+    routeSnapshot: parseRouteSnapshot(r.routeSnapshot),
+  };
+}
+
+/** Fetch single commute time (backward-compatible) */
+export async function getCommuteTimeForGrid(
+  gridId: string,
+  destinationKey: string,
+): Promise<number | null> {
+  const row = await getCommuteTimeWithRouteForGrid(gridId, destinationKey);
+  return row?.timeMinutes ?? null;
 }

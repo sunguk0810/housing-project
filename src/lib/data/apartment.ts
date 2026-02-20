@@ -1,17 +1,20 @@
-import { eq, desc, sql } from "drizzle-orm";
-import { db } from "@/db/connection";
-import { apartments, apartmentPrices, safetyStats } from "@/db/schema";
-import { findNearbyChildcare, findNearbySchools, findNearestGrid } from "@/lib/engines/spatial";
-import type { ApartmentDetailResponse } from "@/types/api";
+import { eq, desc, sql } from 'drizzle-orm';
+import { db } from '@/db/connection';
+import { apartments, apartmentPrices, safetyStats } from '@/db/schema';
+import {
+  findNearbyChildcare,
+  findNearbySchools,
+  findNearestGrid,
+  getCommuteTimesForGrid,
+} from '@/lib/engines/spatial';
+import type { ApartmentDetailResponse } from '@/types/api';
 
 /**
  * Fetch apartment detail with nearby facilities.
  * Shared between API route and server component page.
  * Source of Truth: M2 spec Section 6.2
  */
-export async function getApartmentDetail(
-  aptId: number,
-): Promise<ApartmentDetailResponse | null> {
+export async function getApartmentDetail(aptId: number): Promise<ApartmentDetailResponse | null> {
   // Step 1: Fetch apartment basic info
   const aptRows = await db
     .select({
@@ -19,6 +22,7 @@ export async function getApartmentDetail(
       aptCode: apartments.aptCode,
       aptName: apartments.aptName,
       address: apartments.address,
+      regionCode: apartments.regionCode,
       builtYear: apartments.builtYear,
       householdCount: apartments.householdCount,
       areaMin: apartments.areaMin,
@@ -42,6 +46,7 @@ export async function getApartmentDetail(
       year: apartmentPrices.year,
       month: apartmentPrices.month,
       averagePrice: apartmentPrices.averagePrice,
+      monthlyRentAvg: apartmentPrices.monthlyRentAvg,
       dealCount: apartmentPrices.dealCount,
       areaAvg: apartmentPrices.areaAvg,
       areaMin: apartmentPrices.areaMin,
@@ -63,19 +68,22 @@ export async function getApartmentDetail(
   const schoolItems = await findNearbySchools(aptLon, aptLat, 1500);
 
   // Step 5: Safety stats
-  const safetyRows = await db
-    .select({
-      regionCode: safetyStats.regionCode,
-      regionName: safetyStats.regionName,
-      calculatedScore: safetyStats.calculatedScore,
-      crimeRate: safetyStats.crimeRate,
-      cctvDensity: safetyStats.cctvDensity,
-      shelterCount: safetyStats.shelterCount,
-      dataDate: safetyStats.dataDate,
-    })
-    .from(safetyStats)
-    .where(sql`${safetyStats.regionCode} = SUBSTRING(${apt.aptCode} FROM 5 FOR 5)`)
-    .limit(1);
+  const safetyRows = apt.regionCode
+    ? await db
+        .select({
+          regionCode: safetyStats.regionCode,
+          regionName: safetyStats.regionName,
+          calculatedScore: safetyStats.calculatedScore,
+          crimeRate: safetyStats.crimeRate,
+          cctvDensity: safetyStats.cctvDensity,
+          shelterCount: safetyStats.shelterCount,
+          dataDate: safetyStats.dataDate,
+        })
+        .from(safetyStats)
+        .where(eq(safetyStats.regionCode, apt.regionCode))
+        .orderBy(desc(safetyStats.dataDate))
+        .limit(1)
+    : [];
 
   const s = safetyRows[0];
   const safety = s
@@ -92,6 +100,8 @@ export async function getApartmentDetail(
 
   // Step 6: Commute grid
   const grid = await findNearestGrid(aptLon, aptLat);
+  const commuteRows = grid ? await getCommuteTimesForGrid(grid.gridId) : [];
+  const commuteMap = new Map(commuteRows.map((r) => [r.destinationKey, r.timeMinutes]));
 
   return {
     apartment: {
@@ -104,10 +114,11 @@ export async function getApartmentDetail(
       areaMin: apt.areaMin,
       areaMax: apt.areaMax,
       prices: priceRows.map((r) => ({
-        tradeType: (r.tradeType ?? "") as "sale" | "jeonse",
+        tradeType: (r.tradeType ?? '') as 'sale' | 'jeonse' | 'monthly',
         year: r.year ?? 0,
         month: r.month ?? 0,
         averagePrice: Number(r.averagePrice ?? 0),
+        monthlyRentAvg: r.monthlyRentAvg != null ? Number(r.monthlyRentAvg) : null,
         dealCount: r.dealCount ?? 0,
         areaAvg: r.areaAvg ? Number(r.areaAvg) : null,
         areaMin: r.areaMin ? Number(r.areaMin) : null,
@@ -126,15 +137,15 @@ export async function getApartmentDetail(
       safety,
     },
     commute: {
-      toGbd: grid?.toGbdTime ?? null,
-      toYbd: grid?.toYbdTime ?? null,
-      toCbd: grid?.toCbdTime ?? null,
-      toPangyo: grid?.toPangyoTime ?? null,
+      toGbd: commuteMap.get('GBD') ?? null,
+      toYbd: commuteMap.get('YBD') ?? null,
+      toCbd: commuteMap.get('CBD') ?? null,
+      toPangyo: commuteMap.get('PANGYO') ?? null,
     },
     sources: {
       priceDate: firstPrice
-        ? `${firstPrice.year}-${String(firstPrice.month ?? 0).padStart(2, "0")}`
-        : "N/A",
+        ? `${firstPrice.year}-${String(firstPrice.month ?? 0).padStart(2, '0')}`
+        : 'N/A',
       safetyDate: safety?.dataDate ?? null,
     },
   };

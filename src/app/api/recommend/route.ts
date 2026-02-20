@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { isRateLimited, getClientIp } from '@/lib/rate-limit';
-import { eq, lte, desc, and, sql } from 'drizzle-orm';
+import { desc, sql, inArray } from 'drizzle-orm';
 import pLimit from 'p-limit';
 import { db } from '@/db/connection';
-import { apartments, apartmentPrices, safetyStats } from '@/db/schema';
+import { safetyStats } from '@/db/schema';
 import { recommendRequestSchema } from '@/lib/validators/recommend';
 import { calculateBudget, estimateApartmentMonthlyCost } from '@/lib/engines/budget';
 import { calculateFinalScore } from '@/lib/engines/scoring';
@@ -112,43 +112,104 @@ export async function POST(
       );
     }
 
-    // Step 4: Budget calculation
+    // Step 4: Budget calculation (policy-based, 2-axis)
     const budget = calculateBudget({
       cash: input.cash,
       income: input.income,
       loans: input.loans,
       monthlyBudget: input.monthlyBudget,
       tradeType: input.tradeType,
+      budgetProfile: input.budgetProfile,
+      loanProgram: input.loanProgram,
     });
 
     // Step 5: Spatial filter — apartments within budget
-    // selectDistinctOn: per-apartment 1 row (latest price) to avoid JOIN duplicates
-    const candidateRows = await db
-      .selectDistinctOn([apartments.id], {
-        id: apartments.id,
-        aptCode: apartments.aptCode,
-        aptName: apartments.aptName,
-        address: apartments.address,
-        longitude: sql<number>`ST_X(${apartments.location}::geometry)`,
-        latitude: sql<number>`ST_Y(${apartments.location}::geometry)`,
-        builtYear: apartments.builtYear,
-        householdCount: apartments.householdCount,
-        areaMin: apartments.areaMin,
-        averagePrice: apartmentPrices.averagePrice,
-        dealCount: apartmentPrices.dealCount,
-        priceYear: apartmentPrices.year,
-        priceMonth: apartmentPrices.month,
-      })
-      .from(apartments)
-      .innerJoin(apartmentPrices, eq(apartments.id, apartmentPrices.aptId))
-      .where(
-        and(
-          eq(apartmentPrices.tradeType, input.tradeType),
-          lte(sql<number>`CAST(${apartmentPrices.averagePrice} AS INTEGER)`, budget.maxPrice),
-        ),
-      )
-      .orderBy(apartments.id, desc(apartmentPrices.year), desc(apartmentPrices.month))
-      .limit(50);
+    // Fix 3: Filter recent prices (last 2 years)
+    const minYear = new Date().getFullYear() - 2;
+    const candidateLimit = 200;
+
+    const rawCandidateRows = (await db.execute(sql`
+      SELECT
+        "apartments"."id",
+        "apartments"."apt_code" AS "aptCode",
+        "apartments"."apt_name" AS "aptName",
+        "apartments"."address" AS "address",
+        "apartments"."region_code" AS "regionCode",
+        ST_X("apartments"."location"::geometry) AS "longitude",
+        ST_Y("apartments"."location"::geometry) AS "latitude",
+        "apartments"."built_year" AS "builtYear",
+        "apartments"."household_count" AS "householdCount",
+        "apartments"."area_min" AS "areaMin",
+        "latest_price_per_apt"."average_price" AS "averagePrice",
+        "latest_price_per_apt"."monthly_rent_avg" AS "monthlyRentAvg",
+        "latest_price_per_apt"."deal_count" AS "dealCount",
+        "latest_price_per_apt"."year" AS "priceYear",
+        "latest_price_per_apt"."month" AS "priceMonth"
+      FROM "apartments"
+      INNER JOIN (
+        SELECT
+          "latest_row"."apt_id",
+          "latest_row"."average_price",
+          "latest_row"."monthly_rent_avg",
+          "latest_row"."deal_count",
+          "latest_row"."year",
+          "latest_row"."month"
+        FROM "apartment_prices" AS "latest_row"
+        INNER JOIN (
+          SELECT
+            "apartment_prices"."apt_id",
+            MAX(("apartment_prices"."year" * 100 + "apartment_prices"."month")::int4) AS "yearMonth"
+          FROM "apartment_prices"
+          WHERE
+            "apartment_prices"."trade_type" = ${input.tradeType}
+            AND "apartment_prices"."average_price" <= ${budget.maxPrice}
+            AND "apartment_prices"."year" >= ${minYear}
+          GROUP BY "apartment_prices"."apt_id"
+        ) AS "latest_meta"
+          ON "latest_meta"."apt_id" = "latest_row"."apt_id"
+          AND ("latest_row"."year" * 100 + "latest_row"."month") = "latest_meta"."yearMonth"
+          AND "latest_row"."trade_type" = ${input.tradeType}
+          AND "latest_row"."average_price" <= ${budget.maxPrice}
+          AND "latest_row"."year" >= ${minYear}
+      ) AS "latest_price_per_apt"
+        ON "apartments"."id" = "latest_price_per_apt"."apt_id"
+      LIMIT ${candidateLimit}
+    `)) as Array<{
+      id: number;
+      aptCode: string;
+      aptName: string;
+      address: string;
+      regionCode: string | null;
+      longitude: number;
+      latitude: number;
+      builtYear: number | null;
+      householdCount: number | null;
+      areaMin: number | null;
+      averagePrice: string | number | null;
+      monthlyRentAvg: string | number | null;
+      dealCount: number | null;
+      priceYear: number | null;
+      priceMonth: number | null;
+    }>;
+
+    // Fix 2: LIMIT 200 for broader candidate pool (safe with batch safety query)
+    const candidateRows = rawCandidateRows.map((r) => ({
+      id: Number(r.id),
+      aptCode: r.aptCode,
+      aptName: r.aptName,
+      address: r.address,
+      regionCode: r.regionCode,
+      longitude: Number(r.longitude),
+      latitude: Number(r.latitude),
+      builtYear: r.builtYear === null ? null : Number(r.builtYear),
+      householdCount: r.householdCount === null ? null : Number(r.householdCount),
+      areaMin: r.areaMin === null ? null : Number(r.areaMin),
+      averagePrice: r.averagePrice,
+      monthlyRentAvg: r.monthlyRentAvg,
+      dealCount: r.dealCount === null ? null : Number(r.dealCount),
+      priceYear: r.priceYear === null ? null : Number(r.priceYear),
+      priceMonth: r.priceMonth === null ? null : Number(r.priceMonth),
+    }));
 
     if (candidateRows.length === 0) {
       return NextResponse.json({
@@ -160,11 +221,69 @@ export async function POST(
       });
     }
 
+    // Monthly: pre-filter by monthlyBudget using (rent + financed deposit / 24m)
+    const candidatesForScoring =
+      input.tradeType === 'monthly'
+        ? candidateRows.filter((row) => {
+            const deposit = Number(row.averagePrice ?? 0);
+            const rent = Number(row.monthlyRentAvg ?? 0);
+            const monthlyCost = estimateApartmentMonthlyCost(deposit, input.cash, 'monthly', {
+              monthlyRent: rent,
+            });
+            return monthlyCost <= input.monthlyBudget;
+          })
+        : candidateRows;
+
+    if (candidatesForScoring.length === 0) {
+      return NextResponse.json({
+        recommendations: [],
+        meta: {
+          totalCandidates: 0,
+          computedAt: new Date().toISOString(),
+        },
+      });
+    }
+
+    // Step 5.5: Batch safety query (Fix 5 — eliminates N+1)
+    const uniqueRegionCodes = [
+      ...new Set(candidatesForScoring.map((r) => r.regionCode).filter(Boolean)),
+    ] as string[];
+
+    const regionSafetyMap = new Map<string, {
+      crimeLevel: number;
+      cctvDensity: number;
+      shelterCount: number;
+      dataDate: string | null;
+    }>();
+
+    if (uniqueRegionCodes.length > 0) {
+      const safetyBatch = await db
+        .selectDistinctOn([safetyStats.regionCode], {
+          regionCode: safetyStats.regionCode,
+          crimeLevel: sql<number>`COALESCE(CAST(${safetyStats.crimeRate} AS REAL), 5)`,
+          cctvDensity: sql<number>`COALESCE(CAST(${safetyStats.cctvDensity} AS REAL), 2)`,
+          shelterCount: sql<number>`COALESCE(${safetyStats.shelterCount}, 3)`,
+          dataDate: safetyStats.dataDate,
+        })
+        .from(safetyStats)
+        .where(inArray(safetyStats.regionCode, uniqueRegionCodes))
+        .orderBy(safetyStats.regionCode, desc(safetyStats.dataDate));
+
+      for (const row of safetyBatch) {
+        regionSafetyMap.set(row.regionCode, {
+          crimeLevel: row.crimeLevel,
+          cctvDensity: row.cctvDensity,
+          shelterCount: row.shelterCount,
+          dataDate: row.dataDate,
+        });
+      }
+    }
+
     // Step 6-10: Score each candidate (parallelized with concurrency limit)
     const limit = pLimit(5);
 
     const scoredCandidates = await Promise.all(
-      candidateRows.map((row) =>
+      candidatesForScoring.map((row) =>
         limit(async (): Promise<{ item: RecommendationItem; score: number }> => {
           const aptId = row.id;
           const aptLon = row.longitude;
@@ -185,19 +304,10 @@ export async function POST(
           `);
           const avgSchoolScore = Number((schoolRows[0] as Record<string, unknown>)?.avgScore ?? 0);
 
-          // Step 8: Safety mapping — match by regionCode extracted from aptCode
-          const safetyRows = await db
-            .select({
-              crimeLevel: sql<number>`COALESCE(CAST(${safetyStats.crimeRate} AS REAL), 5)`,
-              cctvDensity: sql<number>`COALESCE(CAST(${safetyStats.cctvDensity} AS REAL), 2)`,
-              shelterCount: sql<number>`COALESCE(${safetyStats.shelterCount}, 3)`,
-              dataDate: safetyStats.dataDate,
-            })
-            .from(safetyStats)
-            .where(sql`${safetyStats.regionCode} = SUBSTRING(${row.aptCode} FROM 5 FOR 5)`)
-            .limit(1);
-
-          const safetyData = safetyRows[0];
+          // Step 8: Safety — from batch map (Fix 5)
+          const safetyData = row.regionCode
+            ? regionSafetyMap.get(row.regionCode)
+            : undefined;
 
           // Step 9: Commute times
           const commute1 =
@@ -225,15 +335,18 @@ export async function POST(
             commute2Time = c2.timeMinutes;
           }
 
-          // Step 10: Scoring — per-apartment monthly cost based on actual price
+          // Step 10: Scoring — price utilization + per-apartment monthly cost
           const monthlyCost = estimateApartmentMonthlyCost(
             Number(row.averagePrice),
             input.cash,
             input.tradeType,
+            input.tradeType === 'monthly'
+              ? { monthlyRent: Number(row.monthlyRentAvg ?? 0) }
+              : undefined,
           );
           const scoringInput: ScoringInput = {
-            maxBudget: input.monthlyBudget,
-            monthlyCost,
+            apartmentPrice: Number(row.averagePrice),
+            maxPrice: budget.maxPrice,
             commuteTime1: commute1.timeMinutes,
             commuteTime2: commute2Time,
             childcareCount800m: childcareItems.length,
@@ -276,7 +389,8 @@ export async function POST(
               },
               sources: {
                 priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, '0')}`,
-                safetyDate: safetyData?.dataDate ?? 'N/A',
+                // Fix 5: explicit Korean label for missing safety data
+                safetyDate: safetyData?.dataDate ?? '데이터 없음',
               },
             },
           };
@@ -294,7 +408,7 @@ export async function POST(
     const response: RecommendResponse = {
       recommendations: top10,
       meta: {
-        totalCandidates: candidateRows.length,
+        totalCandidates: candidatesForScoring.length,
         computedAt: new Date().toISOString(),
       },
     };
@@ -302,10 +416,27 @@ export async function POST(
     return NextResponse.json(response);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal server error';
+    const stack = err instanceof Error ? err.stack : undefined;
+    const rawErrorCode =
+      err && typeof err === 'object' && 'code' in err ? (err as { code?: unknown }).code : undefined;
+    const dbErrorCode =
+      typeof rawErrorCode === 'string' || typeof rawErrorCode === 'number'
+        ? String(rawErrorCode)
+        : undefined;
+    const rawErrorCause =
+      err && typeof err === 'object' && 'cause' in err ? (err as { cause?: unknown }).cause : undefined;
+    const dbErrorCause =
+      rawErrorCause && typeof rawErrorCause === 'object' && 'message' in rawErrorCause
+        ? String((rawErrorCause as { message?: unknown }).message)
+        : undefined;
     console.error(
       JSON.stringify({
         event: 'recommend_error',
+        tradeType: input.tradeType,
         error: message,
+        code: dbErrorCode,
+        cause: dbErrorCause,
+        stack,
         timestamp: new Date().toISOString(),
       }),
     );

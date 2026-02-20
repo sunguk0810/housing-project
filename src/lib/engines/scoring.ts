@@ -7,9 +7,8 @@ import type {
 
 /**
  * 5-dimension scoring engine.
- * All formulas are 100% transcribed from PHASE1 S4.
  *
- * Source of Truth: PHASE1 S4
+ * Source of Truth: PHASE1 S4 (normalization formulas updated for V2)
  */
 
 export const WEIGHT_PROFILES: Record<
@@ -39,12 +38,34 @@ export const WEIGHT_PROFILES: Record<
   },
 };
 
-// --- Normalization functions (PHASE1 S4) ---
+// --- Normalization functions ---
 
-/** Budget: max(0, (max_budget - monthly_cost) / max_budget) */
-function normalizeBudget(maxBudget: number, monthlyCost: number): number {
-  if (maxBudget <= 0) return 0;
-  return Math.max(0, (maxBudget - monthlyCost) / maxBudget);
+/**
+ * Budget: Price utilization curve.
+ * Rewards apartments that make good use of the budget capacity,
+ * not just the cheapest ones.
+ *
+ * - 0-50% utilization:  0.3 → 0.85 (underutilizing — could get better)
+ * - 50-85% utilization: 0.85 → 1.0 (sweet spot)
+ * - 85-100% utilization: 1.0 → 0.7 (tight budget)
+ */
+function normalizeBudget(
+  apartmentPrice: number,
+  maxPrice: number,
+): number {
+  if (maxPrice <= 0) return 0;
+  const ratio = Math.min(apartmentPrice / maxPrice, 1.0);
+
+  if (ratio <= 0.5) {
+    // Linear ramp: 0.3 at 0% → 0.85 at 50%
+    return 0.3 + ratio * 1.1;
+  }
+  if (ratio <= 0.85) {
+    // Linear ramp: 0.85 at 50% → 1.0 at 85%
+    return 0.85 + ((ratio - 0.5) / 0.35) * 0.15;
+  }
+  // Linear ramp down: 1.0 at 85% → 0.7 at 100%
+  return 1.0 - ((ratio - 0.85) / 0.15) * 0.3;
 }
 
 /** Commute: max(0, (60 - max(commute1, commute2)) / 60) */
@@ -56,9 +77,15 @@ function normalizeCommute(
   return Math.max(0, (60 - maxCommute) / 60);
 }
 
-/** Childcare: min(childcare_count_800m, 10) / 10 */
+/**
+ * Childcare: diminishing returns via square root.
+ * sqrt(count / 30) — 30 centers = 1.0, natural diminishing returns.
+ *
+ * Examples: 0→0, 5→0.41, 8→0.52, 10→0.58, 15→0.71, 20→0.82, 30→1.0
+ */
 function normalizeChildcare(childcareCount800m: number): number {
-  return Math.min(childcareCount800m, 10) / 10;
+  if (childcareCount800m <= 0) return 0;
+  return Math.min(Math.sqrt(childcareCount800m / 30), 1);
 }
 
 /**
@@ -86,7 +113,7 @@ function normalizeSchool(achievementScore: number): number {
 
 export function normalizeScore(input: ScoringInput): DimensionScores {
   return {
-    budget: normalizeBudget(input.maxBudget, input.monthlyCost),
+    budget: normalizeBudget(input.apartmentPrice, input.maxPrice),
     commute: normalizeCommute(input.commuteTime1, input.commuteTime2),
     childcare: normalizeChildcare(input.childcareCount800m),
     safety: normalizeSafety(
@@ -101,7 +128,7 @@ export function normalizeScore(input: ScoringInput): DimensionScores {
 // --- Reason/WhyNot generation ---
 
 const DIMENSION_LABELS: Record<keyof DimensionScores, string> = {
-  budget: "예산 여유",
+  budget: "예산 적합도",
   commute: "통근시간",
   childcare: "보육시설",
   safety: "안전 환경",
@@ -109,7 +136,7 @@ const DIMENSION_LABELS: Record<keyof DimensionScores, string> = {
 };
 
 const DIMENSION_WHY_NOT: Record<keyof DimensionScores, string> = {
-  budget: "월 고정비가 예산 상한에 근접",
+  budget: "예산 대비 가격이 다소 낮거나 높음",
   commute: "통근시간이 비교적 길 수 있음",
   childcare: "반경 800m 내 보육시설이 적은 편",
   safety: "안전 지표가 평균 이하",
@@ -142,7 +169,7 @@ function generateReason(
       case "commute":
         return `${label} 양호`;
       case "childcare":
-        return `보육시설 ${Math.round(c.score * 10)}곳`;
+        return `보육시설 ${Math.round(c.score * 30)}곳`;
       case "safety":
         return `${label} 양호`;
       case "school":

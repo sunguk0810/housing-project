@@ -11,6 +11,8 @@
 
 export type TradeType = 'sale' | 'jeonse' | 'monthly';
 export type WeightProfile = 'balanced' | 'budget_focused' | 'commute_focused';
+export type BudgetProfile = 'firstTime' | 'noProperty' | 'homeowner';
+export type LoanProgram = 'bankMortgage' | 'bogeumjari';
 
 export interface Coordinate {
   readonly lat: number;
@@ -32,6 +34,8 @@ export interface RecommendRequest {
   readonly job2Remote?: boolean;
   readonly tradeType: TradeType;
   readonly weightProfile: WeightProfile;
+  readonly budgetProfile: BudgetProfile;
+  readonly loanProgram: LoanProgram;
 }
 
 export interface SourceInfo {
@@ -88,6 +92,7 @@ export interface PriceHistoryItem {
   readonly year: number;
   readonly month: number;
   readonly averagePrice: number;
+  readonly monthlyRentAvg: number | null;
   readonly dealCount: number;
   readonly areaAvg: number | null;
   readonly areaMin: number | null;

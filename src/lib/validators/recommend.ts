@@ -7,15 +7,27 @@ import { z } from 'zod';
  * Units: cash/income/loans in 만원 (integer), monthlyBudget in 만원/월 (integer)
  */
 
-export const tradeTypeSchema = z.enum(['sale', 'jeonse'], {
+export const tradeTypeSchema = z.enum(['sale', 'jeonse', 'monthly'], {
   errorMap: () => ({
-    message: 'tradeType은 sale, jeonse만 허용됩니다.',
+    message: 'tradeType은 sale, jeonse, monthly만 허용됩니다.',
   }),
 });
 
 export const weightProfileSchema = z.enum(['balanced', 'budget_focused', 'commute_focused'], {
   errorMap: () => ({
     message: 'weightProfile은 balanced, budget_focused, commute_focused만 허용됩니다.',
+  }),
+});
+
+export const budgetProfileSchema = z.enum(['firstTime', 'noProperty', 'homeowner'], {
+  errorMap: () => ({
+    message: 'budgetProfile은 firstTime, noProperty, homeowner만 허용됩니다.',
+  }),
+});
+
+export const loanProgramSchema = z.enum(['bankMortgage', 'bogeumjari'], {
+  errorMap: () => ({
+    message: 'loanProgram은 bankMortgage, bogeumjari만 허용됩니다.',
   }),
 });
 
@@ -58,6 +70,10 @@ export const recommendRequestSchema = z
     tradeType: tradeTypeSchema,
 
     weightProfile: weightProfileSchema,
+
+    budgetProfile: budgetProfileSchema.default('noProperty'),
+
+    loanProgram: loanProgramSchema.default('bankMortgage'),
   })
   .superRefine((value, ctx) => {
     if (!value.job1Remote && value.job1.trim().length === 0) {
