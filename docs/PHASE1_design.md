@@ -94,6 +94,7 @@ CREATE TABLE apartments (
   apt_name TEXT NOT NULL,
   address TEXT NOT NULL,
   region_code VARCHAR(10),
+  building_type VARCHAR(20) NOT NULL DEFAULT 'apartment' CHECK (building_type IN ('apartment','officetel','other')),
   location GEOMETRY(Point, 4326) NOT NULL,
   built_year INTEGER,
   household_count INTEGER,           -- 건축물대장 총괄표제부 hhldCnt 기반
@@ -140,14 +141,30 @@ CREATE TABLE apartment_details (
   UNIQUE(apt_id)
 );
 
--- 2. 실거래가(매매/전세) 요약
+-- 1-2. 평형(전유면적)별 세대수 (unit-mix)
+-- ⚠️ PII 비저장: 동/호 등 "호별 식별자"를 저장하지 않고 집계 결과만 저장한다.
+CREATE TABLE apartment_unit_types (
+  id SERIAL PRIMARY KEY,
+  apt_id INTEGER REFERENCES apartments(id) NOT NULL,
+  area_sqm NUMERIC NOT NULL,          -- 전유면적 (㎡, bucketed)
+  area_pyeong REAL,                   -- 전유면적 (평, 표시용 캐시)
+  household_count INTEGER NOT NULL,   -- 해당 면적 세대수
+  source TEXT,                        -- 예: "bldRgst_expos"
+  data_date DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(apt_id, area_sqm)
+);
+
+-- 2. 실거래가(매매/전세/월세) 요약
 CREATE TABLE apartment_prices (
   id SERIAL PRIMARY KEY,
   apt_id INTEGER REFERENCES apartments(id),
-  trade_type VARCHAR(10) CHECK (trade_type IN ('sale','jeonse')),
+  trade_type VARCHAR(10) CHECK (trade_type IN ('sale','jeonse','monthly')),
   year INTEGER,
   month INTEGER,
-  average_price NUMERIC,
+  average_price NUMERIC,             -- sale=매매가, jeonse/monthly=보증금
+  monthly_rent_avg NUMERIC,          -- monthly 전용(월세 평균). sale/jeonse는 NULL
   deal_count INTEGER,
   area_avg NUMERIC,
   area_min NUMERIC,
@@ -164,22 +181,54 @@ CREATE TABLE childcare_centers (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   address TEXT,
+  external_id VARCHAR(30),
   location GEOMETRY(Point, 4326) NOT NULL,
   capacity INTEGER,
   current_enrollment INTEGER,
   evaluation_grade VARCHAR(10),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(external_id)
 );
 
 -- 4. 학교 정보 (학군)
 CREATE TABLE schools (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
+  school_code VARCHAR(20),
   school_level VARCHAR(10) CHECK (school_level IN ('elem','middle','high')),
   location GEOMETRY(Point, 4326) NOT NULL,
   achievement_score NUMERIC,
   assignment_area GEOMETRY(Polygon, 4326),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(school_code)
+);
+
+-- 4-1. 시설 POI 원천 (단지 주변 시설)
+-- 원천 적재는 스냅샷(CSV) 방식 허용. 대규모(예: 버스정류장)는 ETL에서 동적 BBOX 필터 의무.
+CREATE TABLE facility_points (
+  id SERIAL PRIMARY KEY,
+  type VARCHAR(30) NOT NULL CHECK (type IN ('subway_station','bus_stop','police','fire_station','shelter','hospital','pharmacy')),
+  name TEXT,
+  address TEXT,
+  region_code VARCHAR(10),
+  location GEOMETRY(Point, 4326) NOT NULL,
+  external_id VARCHAR(60),
+  source TEXT,
+  data_date DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(type, external_id)
+);
+
+-- 4-2. 단지별 시설 통계 프리컴퓨트 (성능 최적화용)
+CREATE TABLE apartment_facility_stats (
+  id SERIAL PRIMARY KEY,
+  apt_id INTEGER REFERENCES apartments(id) NOT NULL,
+  type VARCHAR(30) NOT NULL CHECK (type IN ('subway_station','bus_stop','police','fire_station','shelter','hospital','pharmacy')),
+  within_radius_count INTEGER NOT NULL,
+  nearest_distance_m NUMERIC,
+  radius_m INTEGER NOT NULL,
+  computed_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(apt_id, type, radius_m)
 );
 
 -- 5. 안전 인프라 (치안) 지표
@@ -194,6 +243,17 @@ CREATE TABLE safety_stats (
   shelter_count INTEGER,
   calculated_score NUMERIC,
   data_date DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(region_code, data_date)
+);
+
+-- 5-1. 안전 인프라 원천 (CCTV/안심이/가로등)
+CREATE TABLE safety_infra (
+  id SERIAL PRIMARY KEY,
+  type VARCHAR(20) NOT NULL CHECK (type IN ('cctv', 'safecam', 'lamp')),
+  location GEOMETRY(Point, 4326) NOT NULL,
+  source TEXT,
+  camera_count INTEGER DEFAULT 1,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -202,11 +262,31 @@ CREATE TABLE commute_grid (
   id SERIAL PRIMARY KEY,
   grid_id VARCHAR(20) NOT NULL,
   location GEOMETRY(Point, 4326) NOT NULL,
-  to_gbd_time INTEGER,  -- 강남 업무지구
-  to_ybd_time INTEGER,  -- 여의도 업무지구
-  to_cbd_time INTEGER,  -- 종로 업무지구
-  to_pangyo_time INTEGER, -- 판교
-  calculated_at TIMESTAMPTZ DEFAULT NOW()
+  calculated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(grid_id)
+);
+
+-- 6-1. 통근 목적지(업무권)
+-- 목적지 추가 시 스키마 변경 없이 row 추가로 확장한다.
+CREATE TABLE commute_destinations (
+  destination_key VARCHAR(20) PRIMARY KEY,
+  name TEXT NOT NULL,
+  location GEOMETRY(Point, 4326) NOT NULL,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6-2. 통근 시간 (grid_id x destination_key)
+-- 충돌 정책: "처음값 고정" (재실행 시 기존 값 유지)
+CREATE TABLE commute_times (
+  id SERIAL PRIMARY KEY,
+  grid_id VARCHAR(20) NOT NULL REFERENCES commute_grid(grid_id) ON DELETE CASCADE,
+  destination_key VARCHAR(20) NOT NULL REFERENCES commute_destinations(destination_key),
+  time_minutes INTEGER,
+  -- 이동 경로 스냅샷(JSON): ODsay 경로 요약(세그먼트/환승/거리)
+  route_snapshot JSONB,
+  calculated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(grid_id, destination_key)
 );
 
 -- 인덱스
@@ -214,7 +294,13 @@ CREATE INDEX idx_apartments_location ON apartments USING GIST(location);
 CREATE INDEX idx_childcare_location ON childcare_centers USING GIST(location);
 CREATE INDEX idx_schools_location ON schools USING GIST(location);
 CREATE INDEX idx_commute_grid_location ON commute_grid USING GIST(location);
+CREATE INDEX idx_commute_times_grid_id ON commute_times(grid_id);
+CREATE INDEX idx_commute_times_destination_key ON commute_times(destination_key);
 CREATE INDEX idx_apartment_prices_apt_id ON apartment_prices(apt_id);
+CREATE INDEX idx_apartment_unit_types_apt_id ON apartment_unit_types(apt_id);
+CREATE INDEX idx_facility_points_location ON facility_points USING GIST(location);
+CREATE INDEX idx_facility_points_type ON facility_points(type);
+CREATE INDEX idx_apartment_facility_stats_apt_id ON apartment_facility_stats(apt_id);
 CREATE INDEX idx_safety_stats_region ON safety_stats(region_code);
 ```
 
@@ -222,10 +308,13 @@ CREATE INDEX idx_safety_stats_region ON safety_stats(region_code);
 
 - `apartments` 1:N `apartment_prices` (단지별 다건 거래 이력)
 - `apartments` 1:1 `apartment_details` (K-apt 상세정보, apt_id UNIQUE)
+- `apartments` 1:N `apartment_unit_types` (평형별 세대수 집계)
+- `apartments` 1:N `apartment_facility_stats` (시설 POI 통계 프리컴퓨트)
 - `schools.assignment_area` ↔ `apartments.location` (공간 교차: 학군 매핑)
 - `childcare_centers.location` ↔ `apartments.location` (반경 800m: `ST_DWithin`)
-- `safety_stats.region_code` ↔ `apartments.address` (행정구역 코드 매핑)
+- `safety_stats.region_code` ↔ `apartments.region_code` (행정구역 코드 매핑)
 - `commute_grid.location` ↔ `apartments.location` (최근접 그리드 포인트)
+- `commute_times.grid_id` ↔ `commute_grid.grid_id` + `commute_times.destination_key` ↔ `commute_destinations.destination_key` (목적지별 통근 시간)
 
 ## 3. Data Pipeline
 
@@ -240,7 +329,7 @@ CREATE INDEX idx_safety_stats_region ON safety_stats(region_code);
 
 | 제공자            | 데이터                         | 용도                 | 호출 제한           |
 | ----------------- | ------------------------------ | -------------------- | ------------------- |
-| 국토교통부        | 실거래가 (매매/전세)           | 가격 데이터          | 일 2,000건          |
+| 국토교통부        | 실거래가 (매매/전세/월세)      | 가격 데이터          | 일 2,000건          |
 | 사회보장정보원    | 어린이집/유치원                | 보육 지표            | 공공데이터포털 기준 |
 | 교육부 학교알리미 | 학교 기본정보/성취도           | 학군 지표            | 공공데이터포털 기준 |
 | 행정안전부        | 재난안전데이터 (CCTV/대피시설) | 안전 지표            | 공공데이터포털 기준 |
@@ -260,17 +349,30 @@ CREATE INDEX idx_safety_stats_region ON safety_stats(region_code);
 
 ### 정규화 함수
 
+> 정규화 결과는 0~1 범위이며, 최종 점수에서 가중치 합산 후 0~100으로 스케일링합니다.
+
+### Budget 정규화 (예산 적합도, utilization curve)
+
+예산을 "최대한 효율적으로" 쓰는 구간(50~85%)을 선호하도록 곡선을 둔다.
+
 ```
-normalize(value, min, max) = (value - min) / (max - min)    // 0~1 범위
+util = min(apartment_price / max_price, 1.0)
+
+if util <= 0.5:
+  budget_norm = 0.3 + util * 1.1
+else if util <= 0.85:
+  budget_norm = 0.85 + ((util - 0.5) / 0.35) * 0.15
+else:
+  budget_norm = 1.0 - ((util - 0.85) / 0.15) * 0.3
 ```
 
 ### 지표별 정규화 로직
 
 | 지표      | 정규화 방식                                               | 범위                |
 | --------- | --------------------------------------------------------- | ------------------- |
-| budget    | `max(0, (max_budget - monthly_cost) / max_budget)`        | 0~1 (높을수록 여유) |
+| budget    | utilization curve (상단 정의)                             | 0~1 (높을수록 적합) |
 | commute   | `max(0, (60 - max(commute1, commute2)) / 60)`             | 0~1 (짧을수록 높음) |
-| childcare | `min(childcare_count_800m, 10) / 10`                      | 0~1 (많을수록 높음) |
+| childcare | `min(sqrt(childcare_count_800m / 30), 1)`                 | 0~1 (많을수록 높음) |
 | safety    | `0.5 * crime_norm + 0.3 * cctv_norm + 0.2 * shelter_norm` | 0~1 (복합)          |
 | school    | `achievement_score / 100`                                 | 0~1 (높을수록 높음) |
 
@@ -290,6 +392,31 @@ shelter_norm  = min(shelter_count, 10) / 10      // 최대 10개소
 | 예산 중심 | 0.40   | 0.20    | 0.15      | 0.15   | 0.10   |
 | 통근 중심 | 0.20   | 0.40    | 0.15      | 0.15   | 0.10   |
 
+### 월세(monthly) 처리 (S4 보조 정의)
+
+`trade_type = 'monthly'` 컬럼 의미:
+
+- `apartment_prices.average_price` = 보증금 평균(만원)
+- `apartment_prices.monthly_rent_avg` = 월세 평균(만원/월)
+
+스코어링 입력 현금 정의:
+
+- `cash` = 사용자 입력 `input.cash` (주거에 투입 가능한 현금, 만원)
+- 월세 월부담(표시/필터용, 환산 전세 전환율 사용 안 함):
+
+```
+deposit_avg = apartment_prices.average_price
+monthly_rent_avg = apartment_prices.monthly_rent_avg
+deposit_financed = max(0, deposit_avg - cash)
+term_months = 24
+monthly_cost = monthly_rent_avg + deposit_financed / term_months
+```
+
+후보 필터(월세 풀 내부에서만 비교):
+
+- `deposit_avg <= budget.maxPrice`
+- `monthly_cost <= input.monthlyBudget`
+
 ### 최종 점수 산출
 
 ```
@@ -303,6 +430,34 @@ final_score = round(100 * (
 ```
 
 결과: 0~100점 스케일. 상위 10개 단지를 추천 결과로 반환.
+
+### 의사결정 확정 (2026-02-20)
+
+**cash 정의** (`src/types/engine.ts` BudgetInput.cash):
+사용자가 주거에 투입 가능한 현금 보유액 (만원).
+
+- 매매: down payment (자기자본)
+- 전세/월세: deposit (보증금)
+
+**월세 환산 공식** (`src/lib/engines/budget.ts` estimateApartmentMonthlyCost):
+통합 방식 확정 (풀 분리 안 함).
+`monthly_cost = monthly_rent_avg + max(0, deposit - cash) / 24`
+
+**BBOX** (`src/etl/adapters/poi-snapshot.ts` deriveBboxFromRegions):
+`regions.ts` TARGET_REGIONS 기반 동적 계산 유지.
+margin=0.2도, 하드코딩 불필요.
+
+**시설 POI 소스 확정**:
+| 시설 | 소스 | 비고 |
+|------|------|------|
+| 통근 시간 | ODsay API 그리드 | commute_times 테이블 (commute_grid + 목적지 정규화) |
+| 지하철역 (subway_station) | Kakao Places SW8 카테고리 검색 | |
+| 병원 (hospital) | Kakao Places HP8 카테고리 검색 | |
+| 약국 (pharmacy) | Kakao Places PM9 카테고리 검색 | |
+| 경찰서 (police) | Kakao Places 키워드 검색 "경찰서" | |
+| 소방서 (fire_station) | Kakao Places 키워드 검색 "소방서" | |
+| 대피소 (shelter) | MOIS safety_infra 테이블에 이미 존재 | |
+| 버스정류장 (bus_stop) | 이번 범위 제외 (post-launch) | |
 
 ## 5. API Design
 
