@@ -7,7 +7,7 @@
 
 | #   | 항목                                              | 상태    |
 | --- | ------------------------------------------------- | ------- |
-| 1   | Vercel 프로덕션 배포 완료                         | pending |
+| 1   | CloudFront + Lightsail Docker Compose 배포 완료   | pending |
 | 2   | 환경변수 설정 (DB/API 키/Redis)                   | pending |
 | 3   | HTTPS/TLS 적용 확인                               | pending |
 | 4   | 커스텀 도메인 설정 (선택)                         | pending |
@@ -38,15 +38,15 @@
 
 | 트리거           | 임계치        | 최소 표본        | 즉시 조치                           |
 | ---------------- | ------------- | ---------------- | ----------------------------------- |
-| 5xx 에러율       | >= 5% (5분간) | 5분간 요청 >= 50 | 이전 배포로 Vercel instant rollback |
-| API 응답시간 p95 | > 5초 (5분간) | 5분간 요청 >= 50 | 이전 배포로 rollback                |
-| DB 연결 실패     | 연속 3회      | -                | 점검 모드 전환 + 이전 배포 rollback |
+| 5xx 에러율       | >= 5% (5분간) | 5분간 요청 >= 50 | Docker 이미지 태그 기반 rollback    |
+| API 응답시간 p95 | > 5초 (5분간) | 5분간 요청 >= 50 | Docker 이미지 태그 기반 rollback    |
+| DB 연결 실패     | 연속 3회      | -                | 점검 모드 전환 + 이전 이미지 rollback |
 
 ### 롤백 절차
 
-1. Vercel Dashboard > Deployments > 이전 배포 "Promote to Production"
+1. `docker compose -f compose.prod.yml up -d --no-deps app` (이전 이미지 태그로)
 2. 원인 분석 후 아래 Learning Log에 기록
-3. 수정 후 재배포
+3. 수정 후 재빌드 + 재배포
 
 ## 4. Metrics
 

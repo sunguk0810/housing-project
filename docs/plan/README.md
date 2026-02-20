@@ -41,7 +41,7 @@
 | 29  | 2026-02-15_claude-code_showcase-fullscreen-pages.md | 2026-02-15 | claude-code | PHASE2 | done | 풀스크린 프리뷰 + 전체 16개 페이지 쇼케이스 완성 |
 | 30  | 2026-02-15_claude-code_m2-implementation-spec.md | 2026-02-15 | claude-code | PHASE2 | done | M2 Data+Engine 구현 상세 설계 (10개 섹션, 52파일 맵) |
 | 31  | 2026-02-15_claude-code_m2-ralph-loop-sessions.md | 2026-02-15 | claude-code | PHASE2 | done | M2 Ralph Loop 5세션 실행 (54파일 자율 구현) |
-| 32  | 2026-02-16_claude-code_m2-orm-refactor.md | 2026-02-16 | claude-code | PHASE2 | in_progress | M2 Raw SQL -> Drizzle ORM Query Builder 전환 설계 |
+| 32  | 2026-02-16_claude-code_m2-orm-refactor.md | 2026-02-16 | claude-code | PHASE2 | done | M2 Raw SQL -> Drizzle ORM Query Builder 전환 설계 |
 | 33  | 2026-02-16_claude-code_m3-implementation-spec.md | 2026-02-16 | claude-code | PHASE3 | done | M3 Frontend 구현 설계서 (10섹션, 59파일, 1781줄) |
 | 34  | 2026-02-16_claude-code_showcase-production-upgrade.md | 2026-02-16 | claude-code | PHASE2 | done | 쇼케이스 16페이지 프로덕션 수준 고도화 (5 Phase) |
 | 35  | 2026-02-16_claude-code_m3-results-card-dedup.md | 2026-02-16 | claude-code | PHASE3 | done | /results PropertyCard 쇼케이스 매칭 + API 데이터 중복 수정 |
@@ -57,8 +57,10 @@
 | 45  | 2026-02-20_claude-code_pre-launch-review.md             | 2026-02-20 | claude-code | PHASE1   | done | 출시 전 종합 점검 (ETL 실행/검증/문서 마감)                 |
 | 46  | 2026-02-20_codex_phase1-commute-destination-normalize.md | 2026-02-20 | codex       | PHASE1   | partial | 통근 목적지 정규화(1:N) 스키마/코드 전환                    |
 | 47  | 2026-02-20_codex_odsay-grid-debug-full-refresh.md      | 2026-02-20 | codex       | PHASE1   | partial | ODsay 디버그 로그 및 전체 갱신 옵션 정비                 |
-| 48  | 2026-02-20_codex_phase1-commute-schema-sync.md         | 2026-02-20 | codex       | PHASE1   | partial | 통근 스키마 정합성 및 journal 동기화 정비                         |
+| 48  | 2026-02-20_codex_phase1-commute-schema-sync.md         | 2026-02-20 | codex       | PHASE1   | done    | 통근 스키마 정합성 및 journal 동기화 정비                         |
 | 49  | 2026-02-20_claude-code_drizzle-baseline-reset.md       | 2026-02-20 | claude-code | PHASE1   | done    | Drizzle 마이그레이션 추적 정합성 복구 (Fresh Baseline)            |
+| 50  | 2026-02-20_claude-code_api-schema-alignment.md         | 2026-02-20 | claude-code | PHASE1   | done    | API 스키마 정합성 정리 (타입/라우트 통일)                         |
+| 51  | 2026-02-20_claude-code_portfolio-deploy.md             | 2026-02-20 | claude-code | PHASE0-4 | partial | 포트폴리오 배포 (Lightsail + Docker Compose + Terraform IaC)      |
 
 ## Archive
 

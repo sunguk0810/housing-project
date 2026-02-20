@@ -3,7 +3,10 @@ import Script from 'next/script';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: '집콕신혼',
   description: '신혼부부를 위한 주거 분석 서비스',
   icons: {
@@ -25,7 +28,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-const KAKAO_APP_KEY = process.env.NEXT_PUBLIC_KAKAO_APP_KEY ?? '';
+const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? '';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? '';
 
 export default function RootLayout({
@@ -44,10 +47,10 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
-        {KAKAO_APP_KEY && (
+        {KAKAO_JS_KEY && (
           <>
             <Script
-              src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&autoload=false&libraries=services`}
+              src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false&libraries=services`}
               strategy="afterInteractive"
             />
             <Script

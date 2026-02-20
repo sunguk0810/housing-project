@@ -53,6 +53,24 @@ test-results/
 # Data files (ETL source/output — too large for git)
 /data/
 
+# Production environment
+.env.production
+
+# Terraform
+infra/.terraform/
+infra/**/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/**/*.tfstate
+infra/**/*.tfstate.backup
+infra/terraform.tfvars
+infra/backend.hcl
+infra/.terraform.lock.hcl
+infra/**/.terraform.lock.hcl
+
+# Docker data (local dumps)
+*.dump
+
 # Misc
 *.pem
 .turbo

@@ -1,0 +1,77 @@
+name: housing
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      - CF_SECRET_TOKEN=${CF_SECRET_TOKEN}
+    depends_on:
+      app:
+        condition: service_healthy
+    mem_limit: 32m
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      platform: linux/amd64
+    expose:
+      - "3000"
+    env_file: .env.production
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=384
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)throw r.status}).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    mem_limit: 512m
+    restart: unless-stopped
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env.production
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U housing"]
+      interval: 10s
+      retries: 5
+    mem_limit: 512m
+    restart: unless-stopped
+    command: >
+      postgres
+        -c shared_buffers=128MB
+        -c work_mem=4MB
+        -c maintenance_work_mem=64MB
+        -c effective_cache_size=256MB
+        -c max_connections=20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    command: redis-server --maxmemory 50mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    mem_limit: 80m
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

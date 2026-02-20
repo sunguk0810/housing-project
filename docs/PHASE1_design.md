@@ -59,7 +59,7 @@ flowchart TD
 - DB: PostgreSQL + PostGIS
 - Cache: Redis
 - Map: Kakao Maps JS SDK
-- Deploy: Vercel + Supabase/AWS RDS
+- Deploy: CloudFront (HTTPS/TLS) + AWS Lightsail Docker Compose (Nginx + Next.js standalone + PostgreSQL/PostGIS + Redis)
 
 ### 보안 설계 (NFR-3)
 
@@ -516,6 +516,171 @@ margin=0.2도, 하드코딩 불필요.
 }
 ```
 
+### GET /api/apartments/:id
+
+**Response** (ApartmentDetailResponse 샘플):
+
+```json
+{
+  "apartment": {
+    "id": 1,
+    "aptCode": "11680-100",
+    "aptName": "래미안 OO",
+    "address": "서울 강남구 ...",
+    "builtYear": 2005,
+    "householdCount": 1200,
+    "areaMin": 59.9,
+    "areaMax": 114.5,
+    "prices": [
+      {
+        "tradeType": "sale",
+        "year": 2026,
+        "month": 1,
+        "averagePrice": 120000,
+        "monthlyRentAvg": null,
+        "dealCount": 5,
+        "areaAvg": 84.5,
+        "areaMin": 59.9,
+        "areaMax": 114.5,
+        "floorAvg": 12.3,
+        "floorMin": 3,
+        "floorMax": 25
+      }
+    ],
+    "details": {
+      "kaptCode": "A10027501",
+      "dongCount": 12,
+      "doroJuso": "서울특별시 강남구 ...",
+      "useDate": "20050315",
+      "builder": "삼성물산",
+      "heatType": "지역",
+      "hallType": "복도식",
+      "totalArea": 95000.5,
+      "parkingGround": 200,
+      "parkingUnderground": 1500,
+      "elevatorCount": 48,
+      "cctvCount": 120,
+      "evChargerGround": 5,
+      "evChargerUnderground": 20,
+      "subwayLine": "2호선",
+      "subwayStation": "역삼역",
+      "subwayDistance": "300m"
+    },
+    "unitTypes": [
+      { "areaSqm": 59.9, "areaPyeong": 18.1, "householdCount": 400 },
+      { "areaSqm": 84.5, "areaPyeong": 25.5, "householdCount": 500 },
+      { "areaSqm": 114.5, "areaPyeong": 34.6, "householdCount": 300 }
+    ]
+  },
+  "nearby": {
+    "childcare": { "count": 5, "items": [] },
+    "schools": [],
+    "safety": null
+  },
+  "commute": {
+    "toGbd": 25,
+    "toYbd": 40,
+    "toCbd": 35,
+    "toPangyo": 50,
+    "destinations": [
+      {
+        "destinationKey": "CBD",
+        "name": "종로(CBD)",
+        "timeMinutes": 35,
+        "route": {
+          "segments": [
+            { "trafficType": 1, "lineName": "2호선", "stationCount": 8 },
+            { "trafficType": 1, "lineName": "1호선", "stationCount": 2 }
+          ],
+          "transferCount": 1,
+          "summary": "2호선 → 1호선"
+        }
+      },
+      {
+        "destinationKey": "GBD",
+        "name": "강남(GBD)",
+        "timeMinutes": 25,
+        "route": {
+          "segments": [
+            { "trafficType": 1, "lineName": "2호선", "stationCount": 3 }
+          ],
+          "transferCount": 0,
+          "summary": "2호선"
+        }
+      }
+    ],
+    "routes": {
+      "segments": [
+        { "trafficType": 1, "lineName": "2호선", "stationCount": 3 }
+      ],
+      "transferCount": 0,
+      "summary": "2호선"
+    }
+  },
+  "sources": { "priceDate": "2026-01", "safetyDate": null }
+}
+```
+
+**신규 필드 명세**:
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `apartment.details` | `ApartmentDetailInfo \| null` | K-apt 데이터 없으면 null |
+| `apartment.unitTypes` | `UnitTypeItem[]` | 데이터 없으면 빈 배열 |
+| `commute.destinations` | `CommuteDestinationInfo[]` | active 전체 목적지 (destinationKey ASC 정렬) |
+| `commute.routes` | `CommuteRouteDetail` (**deprecated**) | GBD route 우선, 없으면 첫 유효 목적지 route 폴백. `destinations[].route` 사용 권장 |
+
+**X-Deprecated-Fields 응답 헤더**: `commute.routes` 필드가 응답에 포함되면 `X-Deprecated-Fields: commute.routes` 헤더가 CSV 형식으로 포함됨.
+
+### RecommendationItem 신규 필드
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `areaMax` | `number \| null` | 최대 면적 (㎡) |
+| `areaAvg` | `number \| null` | 평균 면적 (㎡) |
+| `floorMin` | `number \| null` | 최저 층수 |
+| `floorMax` | `number \| null` | 최고 층수 |
+| `monthlyRentAvg` | `number \| null` | 평균 월세 (만원) |
+| `builtYear` | `number \| null` | 준공연도 |
+
+### CommuteInfo.routes 폴백 정책 [R2]
+
+```
+CommuteInfo.routes 병행 유지 정책:
+- Primary source: GBD destination의 route_snapshot
+- Fallback: GBD route가 없으면 destinations 중 첫 번째 유효 route 사용
+- None: 전체 route 없으면 undefined (기존 동작 유지, 회귀 없음)
+- 로그에 source 필드 기록 (GBD / first_valid)
+```
+
+### CommuteInfo.routes 제거 4-gate 정책 [F5+U4]
+
+```
+CommuteInfo.routes 제거 4-gate:
+
+1. Code Gate [V4 CI 재현 가능]
+   검증: grep -rn '.routes' --include='*.ts' --include='*.tsx' src/
+   에서 types/api.ts, @deprecated, deprecated_routes, X-Deprecated-Fields,
+   테스트 파일을 배제한 결과가 0건이어야 PASS.
+
+2. Runtime Gate [V5 측정 체계]
+   - 서버 로그: deprecated_routes_populated (샘플링 1%)
+   - 응답 헤더: X-Deprecated-Fields: commute.routes
+   패스 기준: 2주(14일) 연속 집계에서 내부 프론트엔드 UA 외 소비자 0건.
+
+3. Test Gate [V7]
+   패스 기준: routes 필드를 제거한 브랜치에서:
+   (a) pnpm run build 성공 + pnpm run lint 통과
+   (b) 통합 테스트 전체 통과
+   (c) UI: CommutePanel이 destinations 기반으로 route badges 정상 렌더링
+   (d) 레거시: destinations 없는 mock 응답에서 legacy fallback 정상 동작
+
+4. Doc Gate
+   패스 기준: PHASE1_design.md routes 제거 PR이 프로젝트 오너 승인 완료
+
+→ 4개 모두 통과 후 별도 plan으로 제거 실행
+```
+
 ### 입력값 검증 규칙
 
 - 숫자값 음수 금지, 합리적 범위 체크
@@ -618,7 +783,7 @@ border-radius:
 2. **데이터 엔지니어링** — 5개 공공 API ETL + PostGIS 공간 연산 + Redis 캐시
 3. **스코어링 설계** — 설명 가능한 가중치 기반 점수 체계 + Why-Not 표시
 4. **컴플라이언스 준수** — 법무 체크리스트 10항목, 중개 회피 설계, 개인정보 비저장
-5. **1인 개발 풀스택** — Next.js + TypeScript + PostgreSQL + Vercel 배포
+5. **1인 개발 풀스택** — Next.js + TypeScript + PostgreSQL + CloudFront + Lightsail Docker Compose + Terraform IaC
 
 ---
 
