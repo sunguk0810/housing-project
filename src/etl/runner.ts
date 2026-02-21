@@ -5,12 +5,13 @@
  *   pnpm exec tsx src/etl/runner.ts [options]
  *
  * Options:
- *   --adapter=molit|moe|mohw|mois|unit-mix|poi|facility-stats|all
+ *   --adapter=molit|moe|mohw|mois|unit-mix|unit-mix-file|poi|facility-stats|all
  *   --region=11680          (single region code)
  *   --dry-run               (fetch only, no DB writes)
  *   --months=6              (default 6)
  *   --limit=200             (optional: adapter-specific cap)
  *   --radius=800            (optional: meters, for facility-stats)
+ *   --verbose               (additional debug logs for adapter progress)
  *
  * Source of Truth: M2 spec Section 4.2
  */
@@ -20,6 +21,7 @@ import { MohwAdapter } from "./adapters/mohw";
 import { MoeAdapter } from "./adapters/moe";
 import { MoisAdapter } from "./adapters/mois";
 import { collectUnitMixForRegion } from "./adapters/unit-mix";
+import { collectUnitMixFromFile } from "./adapters/unit-mix-file";
 import { loadFacilityPointsSnapshot } from "./adapters/poi-snapshot";
 import { precomputeApartmentFacilityStats } from "./adapters/facility-stats";
 import { DATA_GO_KR_LIMITER } from "./utils/rate-limiter";
@@ -34,6 +36,7 @@ interface CliOptions {
   adapter: string;
   region: string | null;
   dryRun: boolean;
+  verbose: boolean;
   months: number;
   limit: number;
   radius: number;
@@ -45,6 +48,7 @@ function parseArgs(): CliOptions {
     adapter: "all",
     region: null,
     dryRun: false,
+    verbose: false,
     months: 6,
     limit: 0,
     radius: 800,
@@ -63,6 +67,8 @@ function parseArgs(): CliOptions {
       opts.radius = Number(arg.split("=")[1]) || 800;
     } else if (arg === "--dry-run") {
       opts.dryRun = true;
+    } else if (arg === "--verbose") {
+      opts.verbose = true;
     }
   }
 
@@ -356,6 +362,7 @@ async function runUnitMix(
   regions: RegionConfig[],
   dryRun: boolean,
   limit: number,
+  verbose: boolean,
 ): Promise<AdapterResult[]> {
   const results: AdapterResult[] = [];
   let regionIdx = 0;
@@ -375,17 +382,54 @@ async function runUnitMix(
 
     const start = Date.now();
     try {
-      const { insertedRows, processedApts } = await collectUnitMixForRegion({
+      log("unit_mix_region_start", {
+        region: region.name,
+        progress: `[${regionIdx}/${regions.length}]`,
+        dryRun,
+        limit,
+        apiUsed: DATA_GO_KR_LIMITER.usedDaily,
+        apiRemaining: DATA_GO_KR_LIMITER.remainingDaily,
+      });
+
+      const {
+        totalTargets,
+        insertedRows,
+        processedApts,
+        skippedApts,
+        skippedNoAddress,
+        skippedNoBjd,
+        skippedNoArea,
+      } = await collectUnitMixForRegion({
         regionCode: region.code,
         dryRun,
         limit,
+        verbose,
       });
+
+      if (verbose) {
+        log("unit_mix_region_complete", {
+          region: region.name,
+          totalTargets,
+          processedApts,
+          skippedApts,
+          insertedRows,
+          skippedNoAddress,
+          skippedNoBjd,
+          skippedNoArea,
+        });
+      }
+
       const result: AdapterResult = {
         adapter: "UNIT_MIX",
         region: region.name,
         recordCount: insertedRows,
         status: processedApts > 0 ? "success" : "skipped",
-        message: processedApts > 0 ? undefined : "No target apartments",
+        message:
+          processedApts > 0
+            ? undefined
+            : totalTargets === 0
+              ? "No target apartments"
+              : `No processable apartments (skipped total=${skippedApts})`,
         durationMs: Date.now() - start,
       };
       log("etl_adapter_result", result);
@@ -465,6 +509,72 @@ async function runFacilityStats(
   }
 }
 
+async function runUnitMixFile(
+  regions: RegionConfig[],
+  dryRun: boolean,
+  verbose: boolean,
+): Promise<AdapterResult[]> {
+  const results: AdapterResult[] = [];
+
+  for (const region of regions) {
+    const start = Date.now();
+    try {
+      log("unit_mix_file_region_start", {
+        region: region.name,
+        dryRun,
+      });
+
+      const res = await collectUnitMixFromFile({
+        regionCode: region.code,
+        dryRun,
+        verbose,
+      });
+
+      if (!res.csvFile) {
+        const result: AdapterResult = {
+          adapter: "UNIT_MIX_FILE",
+          region: region.name,
+          recordCount: 0,
+          status: "skipped",
+          message: "No CSV file found for region",
+          durationMs: Date.now() - start,
+        };
+        log("etl_adapter_result", result);
+        results.push(result);
+        continue;
+      }
+
+      const result: AdapterResult = {
+        adapter: "UNIT_MIX_FILE",
+        region: region.name,
+        recordCount: res.insertedRows,
+        status: res.matchedApts > 0 ? "success" : "skipped",
+        message:
+          res.matchedApts > 0
+            ? `matched=${res.matchedApts} conflict=${res.conflictSkipped} unmatched=${res.unmatchedRecords}`
+            : "No apartments matched",
+        durationMs: Date.now() - start,
+      };
+      log("etl_adapter_result", result);
+      results.push(result);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      const result: AdapterResult = {
+        adapter: "UNIT_MIX_FILE",
+        region: region.name,
+        recordCount: 0,
+        status: "error",
+        message: msg,
+        durationMs: Date.now() - start,
+      };
+      log("etl_adapter_result", result);
+      results.push(result);
+    }
+  }
+
+  return results;
+}
+
 // ─── Main ───
 
 async function main(): Promise<void> {
@@ -478,6 +588,7 @@ async function main(): Promise<void> {
     adapter: opts.adapter,
     region: opts.region,
     dryRun: opts.dryRun,
+    verbose: opts.verbose,
     months: opts.months,
     limit: opts.limit,
     radius: opts.radius,
@@ -526,7 +637,17 @@ async function main(): Promise<void> {
   }
 
   if (adapterName === "unit-mix") {
-    const results = await runUnitMix(regions, opts.dryRun, opts.limit);
+    const results = await runUnitMix(
+      regions,
+      opts.dryRun,
+      opts.limit,
+      opts.verbose,
+    );
+    allResults.push(...results);
+  }
+
+  if (adapterName === "unit-mix-file") {
+    const results = await runUnitMixFile(regions, opts.dryRun, opts.verbose);
     allResults.push(...results);
   }
 

@@ -1,63 +1,128 @@
 import { fetchAllPages } from "../utils/paginate";
 import { DATA_GO_KR_LIMITER } from "../utils/rate-limiter";
+import { parseJibunFromAddress } from "../utils/address";
 import { db } from "@/db/connection";
 import { apartmentUnitTypes } from "@/db/schema/apartment-unit-types";
 import { sql } from "drizzle-orm";
 
-const EXPOS_ENDPOINT =
-  "https://apis.data.go.kr/1613000/BldRgstHubService/getBrExposInfo";
+// getBrExposPubuseAreaInfo returns per-unit area data (전유/공용면적)
+// getBrExposInfo only returns registry metadata without area fields
+const EXPOS_AREA_ENDPOINT =
+  "https://apis.data.go.kr/1613000/BldRgstHubService/getBrExposPubuseAreaInfo";
 
 export interface UnitMixRunOptions {
   regionCode: string;
   dryRun: boolean;
   /** Max apartments to process (0 = unlimited) */
   limit: number;
+  verbose?: boolean;
+}
+
+export interface UnitMixRunResult {
+  totalTargets: number;
+  processedApts: number;
+  insertedRows: number;
+  skippedApts: number;
+  skippedNoAddress: number;
+  skippedNoBjd: number;
+  skippedNoArea: number;
 }
 
 export async function collectUnitMixForRegion(
   opts: UnitMixRunOptions,
-): Promise<{ processedApts: number; insertedRows: number; skippedApts: number }> {
+): Promise<UnitMixRunResult> {
   const serviceKey = process.env.MOLIT_API_KEY;
   if (!serviceKey) {
     throw new Error("[UNIT_MIX] MOLIT_API_KEY not configured");
   }
   const encodedKey = encodeURIComponent(serviceKey);
+  const debugEnabled = opts.verbose === true;
+  const now = () => new Date().toISOString();
+  const debug = (event: string, data: Record<string, unknown>): void => {
+    if (!debugEnabled) return;
+    console.log(
+      JSON.stringify({
+        event,
+        ...data,
+        timestamp: now(),
+      }),
+    );
+  };
 
   const limitClause = opts.limit > 0 ? sql`LIMIT ${opts.limit}` : sql``;
 
   const targets = (await db.execute(sql`
-    SELECT id, address
-    FROM apartments
-    WHERE region_code = ${opts.regionCode}
-    ORDER BY id
+    SELECT a.id, a.address
+    FROM apartments a
+    WHERE a.region_code = ${opts.regionCode}
+      AND NOT EXISTS (
+        SELECT 1 FROM apartment_unit_types ut
+        WHERE ut.apt_id = a.id AND ut.source = 'bldRgst_file'
+      )
+    ORDER BY a.id
     ${limitClause}
   `)) as unknown as Array<{ id: number; address: string }>;
 
+  debug("unit_mix_targets_query_done", {
+    regionCode: opts.regionCode,
+    totalTargets: targets.length,
+    dryRun: opts.dryRun,
+    limit: opts.limit,
+  });
+
   if (targets.length === 0) {
-    return { processedApts: 0, insertedRows: 0, skippedApts: 0 };
+    return {
+      totalTargets: 0,
+      processedApts: 0,
+      insertedRows: 0,
+      skippedApts: 0,
+      skippedNoAddress: 0,
+      skippedNoBjd: 0,
+      skippedNoArea: 0,
+    };
   }
 
   const dongBjdMap = await fetchDongBjdMap(encodedKey, opts.regionCode);
+  debug("unit_mix_bjd_map_done", {
+    regionCode: opts.regionCode,
+    bjdCount: dongBjdMap.size,
+  });
 
   let processedApts = 0;
   let insertedRows = 0;
   let skippedApts = 0;
+  let skippedNoAddress = 0;
+  let skippedNoBjd = 0;
+  let skippedNoArea = 0;
+  let processedCount = 0;
 
   for (const apt of targets) {
+    processedCount++;
     if (DATA_GO_KR_LIMITER.isExhausted) break;
 
     const parsed = parseJibunFromAddress(apt.address);
     if (!parsed) {
       skippedApts++;
+      skippedNoAddress++;
+      debug("unit_mix_skip_no_address", {
+        aptId: apt.id,
+        address: apt.address,
+      });
       continue;
     }
 
     const bjdongCd = dongBjdMap.get(parsed.dong.normalize("NFC"));
     if (!bjdongCd) {
       skippedApts++;
+      skippedNoBjd++;
+      debug("unit_mix_skip_no_bjd", {
+        aptId: apt.id,
+        dong: parsed.dong,
+      });
       continue;
     }
 
+    const startedAt = Date.now();
     const items = await fetchAllPages<Record<string, unknown>>(
       async (pageNo, pageSize) => {
         await DATA_GO_KR_LIMITER.acquire();
@@ -71,10 +136,10 @@ export async function collectUnitMixForRegion(
         params.set("numOfRows", String(pageSize));
         params.set("pageNo", String(pageNo));
 
-        const url = `${EXPOS_ENDPOINT}?serviceKey=${encodedKey}&${params.toString()}`;
+        const url = `${EXPOS_AREA_ENDPOINT}?serviceKey=${encodedKey}&${params.toString()}`;
         const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
         if (!res.ok) {
-          throw new Error(`[UNIT_MIX] HTTP ${res.status} for getBrExposInfo`);
+          throw new Error(`[UNIT_MIX] HTTP ${res.status} for getBrExposPubuseAreaInfo`);
         }
         const json = (await res.json()) as unknown;
         const parsedRes = parseBldgExposResponse(json);
@@ -84,12 +149,24 @@ export async function collectUnitMixForRegion(
           pageNo,
         };
       },
-      { pageSize: 1000, delayMs: 200, maxPages: 50 },
+      // API caps at ~100 items/page despite numOfRows; use 100 for correct pagination
+      { pageSize: 100, delayMs: 200, maxPages: 200 },
     );
 
-    const areaCounts = aggregateAreaCounts(items);
+    // Filter to 전유 (exclusive use) only — exposPubuseGbCd "1"
+    const exclusiveItems = items.filter(
+      (it) => String(it["exposPubuseGbCd"]) === "1",
+    );
+    const areaCounts = aggregateAreaCounts(exclusiveItems);
     if (areaCounts.length === 0) {
       skippedApts++;
+      skippedNoArea++;
+      debug("unit_mix_skip_no_area", {
+        aptId: apt.id,
+        totalItems: items.length,
+        exclusiveItems: exclusiveItems.length,
+        durationMs: Date.now() - startedAt,
+      });
       continue;
     }
 
@@ -111,14 +188,61 @@ export async function collectUnitMixForRegion(
       areaSqm: String(row.areaSqm),
       areaPyeong: row.areaPyeong,
       householdCount: row.householdCount,
-      source: "bldRgst_expos",
+      source: "bldRgst_exposPubuseArea",
     }));
 
     await db.insert(apartmentUnitTypes).values(values);
     insertedRows += values.length;
+
+    debug("unit_mix_apt_complete", {
+      aptId: apt.id,
+      durationMs: Date.now() - startedAt,
+      bucketCount: areaCounts.length,
+      totalProcessed: processedApts,
+      totalSkipped: skippedApts,
+    });
+
+    if (debugEnabled && processedCount % 10 === 0) {
+      debug("unit_mix_progress", {
+        regionCode: opts.regionCode,
+        processed: processedCount,
+        skipped: skippedApts,
+        targets: targets.length,
+        insertedRows,
+      });
+    }
   }
 
-  return { processedApts, insertedRows, skippedApts };
+  if (DATA_GO_KR_LIMITER.isExhausted) {
+    debug("unit_mix_rate_limit_stop", {
+      regionCode: opts.regionCode,
+      processed: processedCount,
+      skipped: skippedApts,
+      remaining: DATA_GO_KR_LIMITER.remainingDaily,
+    });
+  }
+
+  debug("unit_mix_collect_summary", {
+    regionCode: opts.regionCode,
+    totalTargets: targets.length,
+    processedApts,
+    skippedApts,
+    skippedNoAddress,
+    skippedNoBjd,
+    skippedNoArea,
+    insertedRows,
+    dryRun: opts.dryRun,
+  });
+
+  return {
+    totalTargets: targets.length,
+    processedApts,
+    insertedRows,
+    skippedApts,
+    skippedNoAddress,
+    skippedNoBjd,
+    skippedNoArea,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -182,34 +306,6 @@ async function fetchDongBjdMap(
   }
 
   return dongMap;
-}
-
-function parseJibunFromAddress(address: string): {
-  dong: string;
-  bun: string;
-  ji: string;
-  platGbCd: "0" | "1";
-} | null {
-  const parts = address.trim().split(/\s+/);
-  if (parts.length < 2) return null;
-
-  const jibunRaw = parts[parts.length - 1] ?? "";
-  const dong = parts[parts.length - 2] ?? "";
-  if (!dong || !jibunRaw) return null;
-
-  let platGbCd: "0" | "1" = "0";
-  let jibun = jibunRaw;
-  if (jibun.startsWith("산")) {
-    platGbCd = "1";
-    jibun = jibun.slice(1);
-  }
-
-  const [bunPart, jiPart] = jibun.split("-");
-  if (!bunPart || !/^\d+$/.test(bunPart)) return null;
-  const bun = bunPart.padStart(4, "0").slice(0, 4);
-  const ji = (jiPart && /^\d+$/.test(jiPart) ? jiPart : "0").padStart(4, "0").slice(0, 4);
-
-  return { dong, bun, ji, platGbCd };
 }
 
 function parseBldgExposResponse(json: unknown): {
