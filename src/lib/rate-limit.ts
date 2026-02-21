@@ -43,9 +43,16 @@ export function isRateLimited(key: string, maxRequests: number): boolean {
 }
 
 export function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    request.headers.get('x-real-ip') ??
-    'unknown'
-  );
+  // Prefer x-real-ip (set by nginx to $remote_addr — most trusted).
+  // Fallback: last entry of x-forwarded-for (appended by nginx, harder to spoof).
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+
+  const xff = request.headers.get('x-forwarded-for');
+  if (xff) {
+    const parts = xff.split(',');
+    return parts[parts.length - 1].trim();
+  }
+
+  return 'unknown';
 }

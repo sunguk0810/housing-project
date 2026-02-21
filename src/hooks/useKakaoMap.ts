@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useState, useEffect } from "react";
 import { isKakaoMapsLoaded, type KakaoMapInstance, type KakaoCustomOverlay } from "@/lib/kakao";
+import { stripDangerousHtml } from "@/lib/sanitize";
 
 interface UseKakaoMapOptions {
   center: { lat: number; lng: number };
@@ -56,7 +57,7 @@ export function useKakaoMap(containerRef: React.RefObject<HTMLDivElement | null>
     markers.forEach((marker) => {
       const position = new window.kakao!.maps.LatLng(marker.lat, marker.lng);
       const el = document.createElement("div");
-      el.innerHTML = marker.content;
+      el.innerHTML = stripDangerousHtml(marker.content);
       if (marker.onClick) {
         el.addEventListener("click", marker.onClick);
       }
@@ -93,7 +94,7 @@ export function useKakaoMap(containerRef: React.RefObject<HTMLDivElement | null>
 
     const position = markerOverlay.getPosition();
     const el = document.createElement("div");
-    el.innerHTML = content;
+    el.innerHTML = stripDangerousHtml(content);
 
     const overlay = new window.kakao!.maps.CustomOverlay({
       position,

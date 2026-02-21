@@ -1,5 +1,6 @@
 import type { Coordinate } from "@/types/api";
 import { getRedis } from "@/lib/redis";
+import { sanitizeCacheKey } from "@/lib/sanitize";
 
 /**
  * Kakao Geocoding helper — address to coordinate conversion.
@@ -64,7 +65,7 @@ export async function geocodeAddress(
   const redis = getRedis();
   if (redis) {
     try {
-      const cacheKey = `geocode:${normalized}`;
+      const cacheKey = `geocode:${sanitizeCacheKey(normalized)}`;
       const cached = await redis.get(cacheKey);
       if (cached) {
         const coord = JSON.parse(cached) as Coordinate;
@@ -136,7 +137,7 @@ async function geocodeKakao(
   // Cache result
   const redis = getRedis();
   if (redis) {
-    const cacheKey = `geocode:${address}`;
+    const cacheKey = `geocode:${sanitizeCacheKey(address)}`;
     redis.setex(cacheKey, CACHE_TTL_SECONDS, JSON.stringify(coordinate)).catch(() => {
       // Ignore cache write failures
     });

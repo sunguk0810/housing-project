@@ -1,6 +1,6 @@
 ---
 plan-id: "2026-02-21_claude-code_fix-code-vulnerabilities"
-status: "in_progress"
+status: "done"
 phase: "PHASE0-4"
 template-version: "1.1"
 work-type: "ops"
@@ -184,18 +184,38 @@ USER appuser
 
 ## 검증 기준
 
-- [ ] `next.config.ts`에 보안 헤더 6종 이상 포함
-- [ ] Health 엔드포인트에서 에러 메시지/버전 정보 노출 제거
-- [ ] Rate Limiter IP 추출 시 신뢰 가능한 소스 우선 사용
-- [ ] `useKakaoMap`에서 innerHTML 사용 시 sanitization 적용
-- [ ] geocode 캐시 키에 `sanitizeCacheKey` 적용
-- [ ] Dockerfile에 non-root `USER` 지시어 포함
-- [ ] `compose.yml` PostgreSQL 포트가 `127.0.0.1`에 바인딩
-- [ ] `pnpm run build` 성공
-- [ ] 기존 테스트 통과 (`pnpm run test`)
+- [x] `next.config.ts`에 보안 헤더 6종 포함 (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, X-DNS-Prefetch-Control, HSTS)
+- [x] Health 엔드포인트에서 에러 메시지를 `"unavailable"`로 일반화, 프로덕션 버전 정보 제거
+- [x] Rate Limiter IP 추출: `x-real-ip` 우선, XFF는 마지막 값 사용
+- [x] `useKakaoMap`에서 innerHTML 사용 시 `stripDangerousHtml` 적용
+- [x] geocode 캐시 키에 `sanitizeCacheKey` 적용
+- [x] Dockerfile에 non-root `USER appuser` 지시어 포함
+- [x] `compose.yml` PostgreSQL/Redis 포트가 `127.0.0.1`에 바인딩
+- [x] 프로덕션 에러 로깅에서 stack trace 제외
+- [x] `pnpm run build` 성공
+- [x] 기존 테스트 통과 (22 files, 202 tests passed)
+- [x] `pnpm run lint` 통과
 
 ## 결과/결정
 
-**상태**: `in_progress`
+**상태**: `done`
 
-작업 시작 전 사용자 승인 대기 중.
+### 완료된 작업 (8건)
+
+| ID | 취약점 | 심각도 | 수정 파일 |
+|----|--------|--------|-----------|
+| V-01 | 보안 헤더 추가 | HIGH | `next.config.ts` |
+| V-02 | Health 정보 노출 제한 | MEDIUM | `api/health/route.ts`, `types/api.ts` |
+| V-03 | Rate Limiter IP 스푸핑 방지 | MEDIUM | `middleware.ts`, `lib/rate-limit.ts` |
+| V-05 | innerHTML XSS 방어 | MEDIUM | `hooks/useKakaoMap.ts`, `lib/sanitize.ts` |
+| V-06 | 캐시 키 sanitization | LOW | `etl/adapters/kakao-geocoding.ts` |
+| V-07 | Docker non-root 실행 | LOW | `Dockerfile` |
+| V-08 | 개발 DB 외부 차단 | LOW | `compose.yml` |
+| V-09 | 에러 로깅 stack 제어 | LOW | `api/recommend/route.ts` |
+
+### 미착수 항목 (별도 Plan 권장)
+
+| ID | 취약점 | 사유 |
+|----|--------|------|
+| V-04 | 인메모리→Redis Rate Limiter 전환 | 구조 변경 규모가 크므로 별도 Plan 분리 |
+| V-10 | 명시적 CORS 정책 | 동일 도메인 운영이므로 모니터링 후 판단 |
