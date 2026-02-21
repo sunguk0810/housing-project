@@ -13,14 +13,14 @@ import {
 } from "recharts";
 import { formatAmount } from "@/lib/format";
 import { formatPriceAxis } from "@/lib/price-utils";
-import type { PriceHistoryItem } from "@/types/api";
+import type { PriceTradeItem } from "@/types/api";
 
 const COLOR_SALE = "var(--color-compare-1)";
 const COLOR_JEONSE = "var(--color-compare-2)";
 const COLOR_MONTHLY = "var(--color-compare-3)";
 
 interface PriceChartProps {
-  prices: ReadonlyArray<PriceHistoryItem>;
+  prices: ReadonlyArray<PriceTradeItem>;
   className?: string;
   annotations?: {
     highest?: { name: string; price: number };
@@ -42,31 +42,49 @@ export interface DualChartDatum {
   monthlyDeposit?: number | null;
 }
 
+/** Aggregate individual trades by month for chart display */
 export function mergePricesByMonth(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
 ): ReadonlyArray<DualChartDatum> {
+  // Group by month + tradeType, then average
+  const groups = new Map<string, PriceTradeItem[]>();
+  for (const p of prices) {
+    const key = `${p.year}.${String(p.month).padStart(2, "0")}|${p.tradeType}`;
+    const existing = groups.get(key) ?? [];
+    existing.push(p);
+    groups.set(key, existing);
+  }
+
   const map = new Map<string, DualChartDatum>();
 
-  for (const p of prices) {
-    const key = `${p.year}.${String(p.month).padStart(2, "0")}`;
-    const existing = map.get(key) ?? { name: key };
+  for (const [key, items] of groups) {
+    const [monthKey] = key.split("|");
+    const existing = map.get(monthKey) ?? { name: monthKey };
+    const tradeType = items[0].tradeType;
+    const avgPrice = Math.round(items.reduce((s, p) => s + p.price, 0) / items.length);
+    const avgArea = items.filter((p) => p.exclusiveArea != null).length > 0
+      ? Math.round(items.reduce((s, p) => s + (p.exclusiveArea ?? 0), 0) / items.filter((p) => p.exclusiveArea != null).length * 10) / 10
+      : null;
 
-    if (p.tradeType === "sale") {
-      existing.salePrice = p.averagePrice;
-      existing.saleDealCount = p.dealCount;
-      existing.saleArea = p.areaAvg;
-    } else if (p.tradeType === "jeonse") {
-      existing.jeonsePrice = p.averagePrice;
-      existing.jeonseDealCount = p.dealCount;
-      existing.jeonseArea = p.areaAvg;
-    } else if (p.tradeType === "monthly") {
-      existing.monthlyRent = p.monthlyRentAvg ?? p.averagePrice;
-      existing.monthlyDealCount = p.dealCount;
-      existing.monthlyArea = p.areaAvg;
-      existing.monthlyDeposit = p.averagePrice;
+    if (tradeType === "sale") {
+      existing.salePrice = avgPrice;
+      existing.saleDealCount = items.length;
+      existing.saleArea = avgArea;
+    } else if (tradeType === "jeonse") {
+      existing.jeonsePrice = avgPrice;
+      existing.jeonseDealCount = items.length;
+      existing.jeonseArea = avgArea;
+    } else if (tradeType === "monthly") {
+      const avgRent = items.filter((p) => p.monthlyRent != null).length > 0
+        ? Math.round(items.reduce((s, p) => s + (p.monthlyRent ?? 0), 0) / items.filter((p) => p.monthlyRent != null).length)
+        : avgPrice;
+      existing.monthlyRent = avgRent;
+      existing.monthlyDealCount = items.length;
+      existing.monthlyArea = avgArea;
+      existing.monthlyDeposit = avgPrice;
     }
 
-    map.set(key, existing);
+    map.set(monthKey, existing);
   }
 
   return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));

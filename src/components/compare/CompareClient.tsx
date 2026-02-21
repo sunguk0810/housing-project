@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Wallet, Train, Baby, Shield, Scale, Clock, AlertCircle, BarChart3, RotateCcw } from "lucide-react";
+import { ArrowLeft, Wallet, Train, Baby, Shield, Scale, Clock, AlertCircle, BarChart3, RotateCcw, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { useCompare } from "@/contexts/CompareContext";
@@ -192,6 +192,25 @@ export function CompareClient() {
     },
   ];
 
+  const complexScaleRows: CompareRowConfig[] = [
+    {
+      label: "단지 규모 점수",
+      render: (item) => <ScoreBar label="" score={item.dimensions.complexScale * 100} compact />,
+      highlight: true,
+      getValue: (item) => item.dimensions.complexScale,
+    },
+    {
+      label: "세대수",
+      render: (item) => (
+        <div className="text-[length:var(--text-body-sm)] font-semibold">
+          {item.householdCount != null ? `${item.householdCount.toLocaleString()}세대` : "정보 없음"}
+        </div>
+      ),
+      highlight: true,
+      getValue: (item) => item.householdCount ?? 0,
+    },
+  ];
+
   // ─── Main render ──────────────────────────────────────────────────────────
   return (
     <div className="pb-[var(--space-12)]">
@@ -241,6 +260,9 @@ export function CompareClient() {
 
         {/* 안전 편의시설 현황 */}
         <CategorySection title="안전 편의시설 현황" icon={Shield} items={resolvedItems} rows={safetyRows} />
+
+        {/* 단지 규모 */}
+        <CategorySection title="단지 규모" icon={Building2} items={resolvedItems} rows={complexScaleRows} />
 
         {/* Footer */}
         <CompareFooter />

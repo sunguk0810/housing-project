@@ -37,13 +37,12 @@ import {
   safeTradeTypeLabel,
   getAvailableViewTabs,
   viewTabToMonths,
-  totalDealCount,
   filterByPyeong,
   getPyeongBracketSummaries,
 } from "@/lib/price-utils";
 import { mergePricesByMonth } from "@/components/complex/PriceChart";
 import type { ViewTabValue } from "@/lib/price-utils";
-import type { TradeType, PriceHistoryItem } from "@/types/api";
+import type { TradeType, PriceTradeItem } from "@/types/api";
 
 interface DimensionScores {
   readonly budget: number;
@@ -54,45 +53,45 @@ interface DimensionScores {
 }
 
 interface BudgetPanelProps {
-  prices: ReadonlyArray<PriceHistoryItem>;
+  prices: ReadonlyArray<PriceTradeItem>;
   dimensions: DimensionScores | null;
   priceDate: string;
 }
 
-function computeAreaFloorSummary(prices: ReadonlyArray<PriceHistoryItem>) {
-  const withArea = prices.filter((p) => p.areaAvg != null);
-  const withFloor = prices.filter((p) => p.floorAvg != null);
+function computeAreaFloorSummary(prices: ReadonlyArray<PriceTradeItem>) {
+  const withArea = prices.filter((p) => p.exclusiveArea != null);
+  const withFloor = prices.filter((p) => p.floor != null);
 
   if (withArea.length === 0 && withFloor.length === 0) return null;
 
   const areaMin =
     withArea.length > 0
-      ? Math.min(...withArea.map((p) => p.areaMin ?? Infinity))
+      ? Math.min(...withArea.map((p) => p.exclusiveArea!))
       : null;
   const areaMax =
     withArea.length > 0
-      ? Math.max(...withArea.map((p) => p.areaMax ?? -Infinity))
+      ? Math.max(...withArea.map((p) => p.exclusiveArea!))
       : null;
   const areaAvg =
     withArea.length > 0
       ? Math.round(
-          withArea.reduce((sum, p) => sum + (p.areaAvg ?? 0), 0) /
+          withArea.reduce((sum, p) => sum + (p.exclusiveArea ?? 0), 0) /
             withArea.length,
         )
       : null;
 
   const floorMin =
     withFloor.length > 0
-      ? Math.min(...withFloor.map((p) => p.floorMin ?? Infinity))
+      ? Math.min(...withFloor.map((p) => p.floor!))
       : null;
   const floorMax =
     withFloor.length > 0
-      ? Math.max(...withFloor.map((p) => p.floorMax ?? -Infinity))
+      ? Math.max(...withFloor.map((p) => p.floor!))
       : null;
   const floorAvg =
     withFloor.length > 0
       ? Math.round(
-          withFloor.reduce((sum, p) => sum + (p.floorAvg ?? 0), 0) /
+          withFloor.reduce((sum, p) => sum + (p.floor ?? 0), 0) /
             withFloor.length,
         )
       : null;
@@ -197,18 +196,18 @@ export function BudgetPanel({
 
   // Latest price + deal count (from pyeong-filtered data)
   const latestSelected = pyeongFiltered.at(-1);
-  const deals = useMemo(() => totalDealCount(pyeongFiltered), [pyeongFiltered]);
+  const deals = pyeongFiltered.length;
 
   // Annotations: only in single-type mode
   const annotations = useMemo(() => {
     if (isDual || chartPrices.length < 2) return undefined;
 
-    const priceFor = (p: PriceHistoryItem) =>
-      p.tradeType === "monthly" ? (p.monthlyRentAvg ?? p.averagePrice) : p.averagePrice;
+    const priceFor = (p: PriceTradeItem) =>
+      p.tradeType === "monthly" ? (p.monthlyRent ?? p.price) : p.price;
     const comparable = chartPrices.map((p) => ({ item: p, price: priceFor(p) }));
 
-    let highest: PriceHistoryItem | null = null;
-    let lowest: PriceHistoryItem | null = null;
+    let highest: PriceTradeItem | null = null;
+    let lowest: PriceTradeItem | null = null;
     let highestPrice = Number.NEGATIVE_INFINITY;
     let lowestPrice = Number.POSITIVE_INFINITY;
 
@@ -225,10 +224,10 @@ export function BudgetPanel({
 
     if (!highest) return undefined;
 
-    const toAnnotation = (p: PriceHistoryItem) => ({
+    const toAnnotation = (p: PriceTradeItem) => ({
       name: `${p.year}.${String(p.month).padStart(2, "0")}`,
       price:
-        p.tradeType === "monthly" ? (p.monthlyRentAvg ?? p.averagePrice) : p.averagePrice,
+        p.tradeType === "monthly" ? (p.monthlyRent ?? p.price) : p.price,
     });
 
     return {

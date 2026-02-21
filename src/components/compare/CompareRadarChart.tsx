@@ -23,6 +23,7 @@ const DIMENSION_LABELS: Record<string, string> = {
   commute: "통근",
   childcare: "보육",
   safety: "안전",
+  complexScale: "규모",
 };
 
 function truncateName(name: string, max = 12): string {
@@ -32,7 +33,7 @@ function truncateName(name: string, max = 12): string {
 export function CompareRadarChart({ items }: CompareRadarChartProps) {
   if (items.length < 2) return null;
 
-  const dimensions = ["budget", "commute", "childcare", "safety"] as const;
+  const dimensions = ["budget", "commute", "childcare", "safety", "complexScale"] as const;
 
   const chartData = dimensions.map((dim) => {
     const entry: Record<string, string | number> = {

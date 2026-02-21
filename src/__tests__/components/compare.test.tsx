@@ -14,6 +14,9 @@ function makeItem(overrides: Partial<RecommendationItem> & { aptId: number }): R
     averagePrice: 30000,
     householdCount: 500,
     areaMin: 84,
+    areaMax: 114,
+    monthlyRentAvg: null,
+    builtYear: 2005,
     monthlyCost: 2000,
     commuteTime1: 40,
     commuteTime2: null,
@@ -29,6 +32,7 @@ function makeItem(overrides: Partial<RecommendationItem> & { aptId: number }): R
       childcare: 0.5,
       safety: 0.5,
       school: 0.5,
+      complexScale: 0.5,
     },
     sources: {
       priceDate: "2026-01",
@@ -66,9 +70,9 @@ describe("getBestAptIds — highlight logic", () => {
 
   it("highlights only the highest when one stands out (3 items)", () => {
     const items = [
-      makeItem({ aptId: 1, dimensions: { budget: 0.9, commute: 0.5, childcare: 0.5, safety: 0.5, school: 0.5 } }),
-      makeItem({ aptId: 2, dimensions: { budget: 0.5, commute: 0.5, childcare: 0.5, safety: 0.5, school: 0.5 } }),
-      makeItem({ aptId: 3, dimensions: { budget: 0.7, commute: 0.5, childcare: 0.5, safety: 0.5, school: 0.5 } }),
+      makeItem({ aptId: 1, dimensions: { budget: 0.9, commute: 0.5, childcare: 0.5, safety: 0.5, school: 0.5, complexScale: 0.5 } }),
+      makeItem({ aptId: 2, dimensions: { budget: 0.5, commute: 0.5, childcare: 0.5, safety: 0.5, school: 0.5, complexScale: 0.5 } }),
+      makeItem({ aptId: 3, dimensions: { budget: 0.7, commute: 0.5, childcare: 0.5, safety: 0.5, school: 0.5, complexScale: 0.5 } }),
     ];
     const best = getBestAptIds(items, (i) => i.dimensions.budget);
     expect(best).toEqual(new Set([1]));

@@ -2,10 +2,10 @@
 
 import { formatAmount } from "@/lib/format";
 import { findHighestPriceIndex, safeTradeTypeLabel } from "@/lib/price-utils";
-import type { PriceHistoryItem } from "@/types/api";
+import type { PriceTradeItem } from "@/types/api";
 
 interface PriceTableProps {
-  prices: ReadonlyArray<PriceHistoryItem>;
+  prices: ReadonlyArray<PriceTradeItem>;
   className?: string;
 }
 
@@ -38,20 +38,20 @@ export function PriceTable({ prices, className }: PriceTableProps) {
               면적(㎡)
             </th>
             <th scope="col" className="py-1 text-right font-semibold text-[var(--color-on-surface-muted)]">
-              건수
+              층
             </th>
           </tr>
         </thead>
         <tbody>
           {descPrices.map((p, i) => (
-            <tr key={`${p.year}-${p.month}-${p.tradeType}`} className="border-b border-[var(--color-neutral-100)]">
+            <tr key={p.id} className="border-b border-[var(--color-neutral-100)]">
               <td className="py-1 pr-2 tabular-nums">
                 {p.year}.{String(p.month).padStart(2, "0")}
               </td>
               <td className="py-1 pr-2">{safeTradeTypeLabel(p.tradeType)}</td>
               <td className="py-1 pr-2 text-right tabular-nums font-medium">
                 <span className="inline-flex items-center gap-1">
-                  {formatAmount(p.averagePrice)}
+                  {formatAmount(p.price)}
                   {i === descHighestIdx && (
                     <span className="inline-block rounded-[var(--radius-s7-full)] bg-[var(--color-accent)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
                       신고가
@@ -60,9 +60,11 @@ export function PriceTable({ prices, className }: PriceTableProps) {
                 </span>
               </td>
               <td className="py-1 pr-2 text-right tabular-nums">
-                {p.areaAvg != null ? `${p.areaAvg}` : "-"}
+                {p.exclusiveArea != null ? `${p.exclusiveArea}` : "-"}
               </td>
-              <td className="py-1 text-right tabular-nums">{p.dealCount}건</td>
+              <td className="py-1 text-right tabular-nums">
+                {p.floor != null ? `${p.floor}층` : "-"}
+              </td>
             </tr>
           ))}
         </tbody>
