@@ -106,24 +106,11 @@ export function Step5Loading({ formData, onGoPrev }: Step5Props) {
 
     async function analyze() {
       try {
-        const {
-          marriagePlannedAt,
-          livingAreas,
-          childPlan,
-          job1Remote,
-          job2Remote,
-          ...rest
-        } = formDataRef.current;
-        void marriagePlannedAt;
-        void livingAreas;
-        void childPlan;
+        const formValues = formDataRef.current;
 
         const apiPayload = {
-          ...rest,
-          job1Remote,
-          job2Remote,
-          job1: rest.job1,
-          job2: job2Remote ? '' : rest.job2,
+          ...formValues,
+          job2: formValues.job2Remote ? '' : formValues.job2,
         };
 
         const res = await fetch('/api/recommend', {

@@ -2,10 +2,7 @@
 
 import { EmojiCardSelector } from '@/components/onboarding/EmojiCardSelector';
 import { WEIGHT_PROFILE_ICONS } from '@/components/onboarding/card-icons';
-import { FamilyPlanSelector } from '@/components/onboarding/FamilyPlanSelector';
-import { LivingAreaChipSelector } from '@/components/onboarding/LivingAreaChipSelector';
 import type { WeightProfile } from '@/types/api';
-import type { ChildPlan, LivingAreaKey } from '@/types/ui';
 
 const WEIGHT_PROFILE_OPTIONS = [
   {
@@ -29,24 +26,30 @@ const WEIGHT_PROFILE_OPTIONS = [
     icon: WEIGHT_PROFILE_ICONS.commute_focused,
     description: '출퇴근 시간을 가장 먼저 따져요',
   },
+  {
+    value: 'complex_focused' as const,
+    label: '대단지 우선',
+    emoji: '',
+    icon: WEIGHT_PROFILE_ICONS.complex_focused,
+    description: '세대수가 많은 단지를 우선해요',
+  },
+  {
+    value: 'value_maximized' as const,
+    label: '가치 극대화',
+    emoji: '',
+    icon: WEIGHT_PROFILE_ICONS.value_maximized,
+    description: '예산 안에서 최고 품질을 찾아요',
+  },
 ] as const;
 
 interface Step4Props {
   weightProfile: WeightProfile;
-  livingAreas: readonly LivingAreaKey[];
-  childPlan?: ChildPlan;
   onWeightProfileChange: (value: WeightProfile) => void;
-  onLivingAreasChange: (values: LivingAreaKey[]) => void;
-  onChildPlanChange: (value: ChildPlan) => void;
 }
 
 export function Step4Priorities({
   weightProfile,
-  livingAreas,
-  childPlan,
   onWeightProfileChange,
-  onLivingAreasChange,
-  onChildPlanChange,
 }: Step4Props) {
   return (
     <div className="space-y-[var(--space-8)]">
@@ -57,12 +60,10 @@ export function Step4Priorities({
         options={WEIGHT_PROFILE_OPTIONS}
         value={weightProfile}
         onSelect={onWeightProfileChange}
-        columns="3"
+        columns="4"
         ariaLabel="분석 프로필 선택"
         className="[&>button]:min-h-[120px]"
       />
-      <LivingAreaChipSelector values={livingAreas} onChange={onLivingAreasChange} />
-      <FamilyPlanSelector value={childPlan} onChange={onChildPlanChange} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Lock } from "lucide-react";
+import { Lock, Home, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AmountField } from "@/components/onboarding/AmountField";
 import { CustomKeypad } from "@/components/onboarding/CustomKeypad";
@@ -12,10 +12,10 @@ import type { ConsentState } from "@/types/ui";
 import type { BudgetProfileKey, LoanProgramKey } from "@/types/engine";
 import type { DesiredAreaKey } from "@/types/api";
 
-const AREA_OPTIONS: readonly { key: DesiredAreaKey; label: string }[] = [
-  { key: "small", label: "10평대 (≤49㎡)" },
-  { key: "medium", label: "20평대 (50~69㎡)" },
-  { key: "large", label: "30평대+ (70㎡~)" },
+const AREA_OPTIONS: readonly { key: DesiredAreaKey; label: string; sub: string }[] = [
+  { key: "small", label: "10평대", sub: "≤49㎡" },
+  { key: "medium", label: "20평대", sub: "50~69㎡" },
+  { key: "large", label: "30평대+", sub: "70㎡~" },
 ];
 
 interface Step3Props {
@@ -103,7 +103,7 @@ export function Step3Finance({
     [onCashChange, onIncomeChange],
   );
 
-  const budgetPreview = useMemo(() => {
+  const budgetResult = useMemo(() => {
     if (cash === 0 && income === 0) return null;
     const result = calculateBudget({
       cash,
@@ -114,8 +114,10 @@ export function Step3Finance({
       budgetProfile,
       loanProgram,
     });
-    return result.maxPrice;
+    return result;
   }, [cash, income, tradeType, budgetProfile, loanProgram]);
+
+  const tradeTypeLabel = tradeType === "jeonse" ? "전세금" : "매매가";
 
   useEffect(() => {
     onKeypadToggle?.(keypadOpen);
@@ -188,93 +190,145 @@ export function Step3Finance({
   }
 
   return (
-    <div className="space-y-[var(--space-4)]">
-      {/* Privacy inline note */}
-      <p className="flex items-center gap-[var(--space-2)] text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-        <Lock size={12} className="shrink-0" />
-        입력 정보는 저장되지 않으며, 분석 후 즉시 폐기됩니다.
-      </p>
+    <div className="space-y-[var(--space-6)]">
+      {/* ── Zone A: 금융 입력 ── */}
+      <div className="rounded-xl bg-[var(--color-surface-sunken)] p-[var(--space-4)] space-y-[var(--space-3)]">
+        {/* Privacy inline note */}
+        <p className="flex items-center gap-[var(--space-2)] text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+          <Lock size={12} className="shrink-0" />
+          입력 정보는 저장되지 않으며, 분석 후 즉시 폐기됩니다.
+        </p>
 
-      {/* Amount fields — compact list */}
-      <div className="space-y-[var(--space-2)]">
-        {FIELDS.map((field) => (
-          <AmountField
-            key={field.key}
-            label={field.label}
-            value={values[field.key]}
-            active={activeField === field.key}
-            onFocus={() => handleFieldFocus(field.key)}
-            exceptionLabel={field.exceptionLabel}
-            onExceptionToggle={
-              field.exceptionLabel
-                ? (checked: boolean) => handleExceptionToggle(field.key, checked)
-                : undefined
-            }
-            isException={exceptions[field.key]}
-          />
-        ))}
+        {/* Amount fields */}
+        <div className="space-y-[var(--space-2)]">
+          {FIELDS.map((field) => (
+            <AmountField
+              key={field.key}
+              label={field.label}
+              value={values[field.key]}
+              active={activeField === field.key}
+              onFocus={() => handleFieldFocus(field.key)}
+              exceptionLabel={field.exceptionLabel}
+              onExceptionToggle={
+                field.exceptionLabel
+                  ? (checked: boolean) => handleExceptionToggle(field.key, checked)
+                  : undefined
+              }
+              isException={exceptions[field.key]}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Budget preview */}
-      {budgetPreview != null && budgetPreview > 0 && (
-        <div className="rounded-[var(--radius-s4-md)] bg-[var(--color-brand-50)] px-[var(--space-4)] py-[var(--space-3)]">
-          <p className="text-[length:var(--text-body)] font-medium text-[var(--color-brand-600)]">
-            예상 가능 예산: 약 {formatPrice(budgetPreview)}
+      {/* ── Zone B: 예산 Hero Card ── */}
+      {budgetResult != null && budgetResult.maxPrice > 0 ? (
+        <div
+          key={budgetResult.maxPrice}
+          className={cn(
+            "rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-4)]",
+            "animate-[budgetPop_350ms_var(--ease-out-expo)]",
+          )}
+        >
+          <p className="flex items-center gap-[var(--space-1)] text-[length:var(--text-caption)] font-medium text-[var(--color-on-surface-muted)]">
+            <Home size={14} />
+            예상 가능 {tradeTypeLabel}
+          </p>
+          <p className="mt-[var(--space-1)] text-[length:var(--text-heading)] font-bold tabular-nums text-[var(--color-on-surface)]">
+            약 {formatPrice(budgetResult.maxPrice)}
+          </p>
+          <div className="mt-[var(--space-2)] rounded-lg bg-[var(--color-surface-sunken)] px-[var(--space-3)] py-[var(--space-2)]">
+            <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+              보유자산 {formatPrice(cash)} + 예상대출 {formatPrice(budgetResult.maxLoan)}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-[var(--color-neutral-200)] bg-[var(--color-surface)] p-[var(--space-4)]">
+          <p className="text-center text-[length:var(--text-body-sm)] text-[var(--color-neutral-400)]">
+            금액을 입력하면 예상 예산이 표시됩니다
           </p>
         </div>
       )}
 
-      {/* Desired area selection chips */}
-      <div className="space-y-[var(--space-2)]">
-        <p className="text-[length:var(--text-body)] font-medium text-[var(--color-on-surface)]">
-          원하는 평수 (복수 선택 가능)
-        </p>
-        <div className="flex flex-wrap gap-[var(--space-2)]">
-          {AREA_OPTIONS.map((opt) => {
-            const selected = desiredAreas.includes(opt.key);
-            const isLastSelected = selected && desiredAreas.length === 1;
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                aria-pressed={selected}
-                disabled={isLastSelected}
-                onClick={() => {
-                  if (isLastSelected) return;
-                  const next = selected
-                    ? desiredAreas.filter((k) => k !== opt.key)
-                    : [...desiredAreas, opt.key];
-                  onDesiredAreasChange(next as DesiredAreaKey[]);
-                }}
-                className={cn(
-                  "rounded-[var(--radius-s7-full)] border px-[var(--space-3)] py-[var(--space-2)]",
-                  "text-[length:var(--text-caption)] font-medium transition-colors",
-                  selected
-                    ? "border-[var(--color-brand-500)] bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"
-                    : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-on-surface-muted)]",
-                  isLastSelected && "cursor-not-allowed opacity-60",
-                )}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
+      {/* ── Zone C: 선호/동의 ── */}
+      <div className="space-y-[var(--space-4)]">
+        {/* Desired area selection chips */}
+        <div className="space-y-[var(--space-2)]">
+          <div className="flex items-baseline gap-[var(--space-2)]">
+            <p className="text-[length:var(--text-body)] font-semibold text-[var(--color-on-surface)]">
+              원하는 평수
+            </p>
+            <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+              복수 선택 가능
+            </p>
+          </div>
+          <div className="flex gap-[var(--space-2)]">
+            {AREA_OPTIONS.map((opt) => {
+              const selected = desiredAreas.includes(opt.key);
+              const isLastSelected = selected && desiredAreas.length === 1;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  aria-pressed={selected}
+                  disabled={isLastSelected}
+                  onClick={() => {
+                    if (isLastSelected) return;
+                    const next = selected
+                      ? desiredAreas.filter((k) => k !== opt.key)
+                      : [...desiredAreas, opt.key];
+                    onDesiredAreasChange(next as DesiredAreaKey[]);
+                  }}
+                  className={cn(
+                    "flex flex-1 flex-col items-center gap-0.5 rounded-lg border py-[var(--space-3)] transition-colors",
+                    selected
+                      ? "border-[var(--color-neutral-800)] bg-[var(--color-surface)]"
+                      : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-neutral-400)]",
+                    isLastSelected && "cursor-not-allowed opacity-60",
+                  )}
+                >
+                  <span className="flex items-center gap-1 text-[length:var(--text-body-sm)] font-semibold text-[var(--color-on-surface)]">
+                    {selected && <Check size={14} className="text-[var(--color-brand-500)]" />}
+                    {opt.label}
+                  </span>
+                  <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+                    {opt.sub}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Inline Consent */}
+        <InlineConsent consent={consent} onChange={onConsentChange} />
       </div>
 
-      {/* Inline Consent — compact */}
-      <InlineConsent consent={consent} onChange={onConsentChange} />
-
-      {/* Keypad slide-up panel */}
+      {/* ── Keypad slide-up panel ── */}
       {keypadOpen && (
       <div
         className={cn(
           "fixed bottom-14 left-0 right-0 z-20",
-          "border-t border-[var(--color-border)] bg-[var(--color-surface-elevated)]",
+          "bg-[var(--color-surface-elevated)]",
+          "shadow-[0_-2px_8px_rgb(0_0_0/0.06)]",
           "animate-[slideUp_200ms_var(--ease-out-expo)]",
           "lg:bottom-0",
         )}
       >
+        {/* Sticky budget bar */}
+        {budgetResult != null && budgetResult.maxPrice > 0 && (
+          <div className="border-b border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-[var(--space-4)] py-[var(--space-2)]">
+            <div className="mx-auto flex max-w-lg items-baseline justify-between">
+              <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+                예상 예산
+              </span>
+              <span className="text-[length:var(--text-subtitle)] font-bold tabular-nums text-[var(--color-on-surface)]">
+                약 {formatPrice(budgetResult.maxPrice)}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="mx-auto max-w-lg px-[var(--space-4)] pt-[var(--space-2)] pb-[var(--space-2)]">
           {/* Quick buttons + done */}
           <div className="mb-[var(--space-2)] flex items-center gap-[var(--space-2)]">
@@ -289,8 +343,8 @@ export function Step3Finance({
                       "shrink-0 rounded-[var(--radius-s7-full)]",
                       "border border-[var(--color-brand-400)] bg-[var(--color-surface)]",
                       "min-h-[36px] px-[var(--space-3)] text-[length:var(--text-caption)] font-semibold",
-                      "text-[var(--color-brand-500)] transition-colors",
-                      "active:bg-[var(--color-brand-50)]",
+                      "text-[var(--color-brand-500)] transition-all",
+                      "active:bg-[var(--color-brand-50)] active:scale-95",
                     )}
                   >
                     {btn.label}
