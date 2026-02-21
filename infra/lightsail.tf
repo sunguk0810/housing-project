@@ -1,5 +1,5 @@
 resource "aws_lightsail_instance" "main" {
-  name              = "housing-prod"
+  name              = "housing-prod-01"
   availability_zone = "${var.aws_region}a"
   blueprint_id      = "ubuntu_22_04"
   bundle_id         = var.lightsail_bundle_id

@@ -15,6 +15,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Dummy env vars for Next.js build — actual values injected at runtime via .env.production
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ENV REDIS_URL="redis://localhost:6379"
 RUN pnpm run build
 
 # ── Stage 3: Runtime ──

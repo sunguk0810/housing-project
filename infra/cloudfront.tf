@@ -40,7 +40,7 @@ resource "aws_cloudfront_distribution" "main" {
   comment         = "Housing project - portfolio"
 
   origin {
-    domain_name = aws_lightsail_static_ip.main.ip_address
+    domain_name = aws_route53_record.origin.fqdn
     origin_id   = "lightsail"
 
     custom_origin_config {
