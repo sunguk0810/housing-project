@@ -13,6 +13,7 @@ export interface DetailSessionData {
     readonly childcare: number;
     readonly safety: number;
     readonly school: number;
+    readonly complexScale: number;
   } | null;
   readonly finalScore: number;
   readonly commuteTime1: number | null;
@@ -40,6 +41,7 @@ interface DimensionsShape {
   childcare: number;
   safety: number;
   school: number;
+  complexScale: number;
 }
 
 function isValidDimensions(v: unknown): v is DimensionsShape {
@@ -50,7 +52,8 @@ function isValidDimensions(v: unknown): v is DimensionsShape {
     typeof obj.commute === "number" &&
     typeof obj.childcare === "number" &&
     typeof obj.safety === "number" &&
-    typeof obj.school === "number"
+    typeof obj.school === "number" &&
+    typeof obj.complexScale === "number"
   );
 }
 

@@ -3,12 +3,12 @@
  * Handles sorting, filtering, period tabs, and display formatting.
  */
 
-import type { PriceHistoryItem } from "@/types/api";
+import type { PriceTradeItem } from "@/types/api";
 
 /** Sort prices ascending by year/month (API returns desc, chart needs asc) */
 export function sortPricesAsc(
-  prices: ReadonlyArray<PriceHistoryItem>,
-): ReadonlyArray<PriceHistoryItem> {
+  prices: ReadonlyArray<PriceTradeItem>,
+): ReadonlyArray<PriceTradeItem> {
   return [...prices].sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
     return a.month - b.month;
@@ -17,9 +17,9 @@ export function sortPricesAsc(
 
 /** Filter prices to the most recent N months from the latest data point */
 export function filterByPeriod(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
   months: number | null,
-): ReadonlyArray<PriceHistoryItem> {
+): ReadonlyArray<PriceTradeItem> {
   if (months === null || prices.length === 0) return prices;
 
   const latest = prices[prices.length - 1];
@@ -38,7 +38,7 @@ export interface PeriodOption {
 
 /** Determine which period tabs should be active based on data range */
 export function getAvailablePeriods(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
 ): ReadonlyArray<PeriodOption> {
   if (prices.length < 2) {
     return [
@@ -71,16 +71,16 @@ export function getAvailablePeriods(
   ];
 }
 
-/** Find the index of the highest averagePrice in the array */
+/** Find the index of the highest price in the array */
 export function findHighestPriceIndex(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
 ): number {
   if (prices.length === 0) return -1;
   let maxIdx = 0;
-  let maxPrice = prices[0].averagePrice;
+  let maxPrice = prices[0].price;
   for (let i = 1; i < prices.length; i++) {
-    if (prices[i].averagePrice > maxPrice) {
-      maxPrice = prices[i].averagePrice;
+    if (prices[i].price > maxPrice) {
+      maxPrice = prices[i].price;
       maxIdx = i;
     }
   }
@@ -100,15 +100,15 @@ export function formatPriceAxis(manwon: number): string {
 
 /** Filter prices by trade type */
 export function filterByTradeType(
-  prices: ReadonlyArray<PriceHistoryItem>,
-  tradeType: PriceHistoryItem["tradeType"],
-): ReadonlyArray<PriceHistoryItem> {
+  prices: ReadonlyArray<PriceTradeItem>,
+  tradeType: PriceTradeItem["tradeType"],
+): ReadonlyArray<PriceTradeItem> {
   return prices.filter((p) => p.tradeType === tradeType);
 }
 
 /** Count available items per trade type (for tab disabled state) */
 export function getAvailableTradeTypes(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
 ): { sale: number; jeonse: number; monthly: number } {
   let sale = 0;
   let jeonse = 0;
@@ -150,7 +150,7 @@ export function viewTabToMonths(tab: ViewTabValue): number | null {
 
 /** Determine which view tabs should be enabled based on data range */
 export function getAvailableViewTabs(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
   hasBothTypes: boolean,
 ): ReadonlyArray<ViewTabOption> {
   if (prices.length < 2) {
@@ -186,8 +186,8 @@ export function getAvailableViewTabs(
 
 /** Find the highest and lowest priced items in the array */
 export function findPriceExtremes(
-  prices: ReadonlyArray<PriceHistoryItem>,
-): { highest: PriceHistoryItem | null; lowest: PriceHistoryItem | null } {
+  prices: ReadonlyArray<PriceTradeItem>,
+): { highest: PriceTradeItem | null; lowest: PriceTradeItem | null } {
   if (prices.length === 0) return { highest: null, lowest: null };
   if (prices.length === 1) return { highest: prices[0], lowest: null };
 
@@ -195,23 +195,14 @@ export function findPriceExtremes(
   let lowest = prices[0];
 
   for (let i = 1; i < prices.length; i++) {
-    if (prices[i].averagePrice > highest.averagePrice) highest = prices[i];
-    if (prices[i].averagePrice < lowest.averagePrice) lowest = prices[i];
+    if (prices[i].price > highest.price) highest = prices[i];
+    if (prices[i].price < lowest.price) lowest = prices[i];
   }
 
   // If highest and lowest are the same item, only return highest
   if (highest === lowest) return { highest, lowest: null };
 
   return { highest, lowest };
-}
-
-/** Sum all dealCount values in the array */
-export function totalDealCount(
-  prices: ReadonlyArray<PriceHistoryItem>,
-): number {
-  let total = 0;
-  for (const p of prices) total += p.dealCount;
-  return total;
 }
 
 /* ------------------------------------------------------------------ */
@@ -258,13 +249,13 @@ export interface PyeongOption {
 
 /** Extract available pyeong brackets from price data */
 export function getAvailablePyeongOptions(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
 ): ReadonlyArray<PyeongOption> {
   const found = new Set<number>();
 
   for (const p of prices) {
-    if (p.areaAvg == null) continue;
-    const bracket = sqmToBracket(p.areaAvg);
+    if (p.exclusiveArea == null) continue;
+    const bracket = sqmToBracket(p.exclusiveArea);
     if (bracket !== null) found.add(bracket);
   }
 
@@ -283,15 +274,15 @@ export function getAvailablePyeongOptions(
 
 /** Filter prices by pyeong bracket */
 export function filterByPyeong(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
   bracketValue: number | null,
-): ReadonlyArray<PriceHistoryItem> {
+): ReadonlyArray<PriceTradeItem> {
   if (bracketValue === null) return prices;
   const bracket = PYEONG_BRACKETS.find((b) => b.value === bracketValue);
   if (!bracket) return prices;
   return prices.filter((p) => {
-    if (p.areaAvg == null) return false;
-    return p.areaAvg >= bracket.minSqm && p.areaAvg < bracket.maxSqm;
+    if (p.exclusiveArea == null) return false;
+    return p.exclusiveArea >= bracket.minSqm && p.exclusiveArea < bracket.maxSqm;
   });
 }
 
@@ -309,22 +300,22 @@ export interface PyeongBracketSummary {
 
 /** Compute summary per pyeong bracket for the area drawer */
 export function getPyeongBracketSummaries(
-  prices: ReadonlyArray<PriceHistoryItem>,
+  prices: ReadonlyArray<PriceTradeItem>,
 ): ReadonlyArray<PyeongBracketSummary> {
   const buckets = new Map<
     number,
     {
       areas: number[];
-      salePrices: PriceHistoryItem[];
-      jeonsePrices: PriceHistoryItem[];
-      monthlyPrices: PriceHistoryItem[];
+      salePrices: PriceTradeItem[];
+      jeonsePrices: PriceTradeItem[];
+      monthlyPrices: PriceTradeItem[];
       totalDeals: number;
     }
   >();
 
   for (const p of prices) {
-    if (p.areaAvg == null) continue;
-    const bv = sqmToBracket(p.areaAvg);
+    if (p.exclusiveArea == null) continue;
+    const bv = sqmToBracket(p.exclusiveArea);
     if (bv === null) continue;
 
     let bucket = buckets.get(bv);
@@ -339,8 +330,8 @@ export function getPyeongBracketSummaries(
       buckets.set(bv, bucket);
     }
 
-    bucket.areas.push(p.areaAvg);
-    bucket.totalDeals += p.dealCount;
+    bucket.areas.push(p.exclusiveArea);
+    bucket.totalDeals += 1;
 
     if (p.tradeType === "sale") bucket.salePrices.push(p);
     else if (p.tradeType === "jeonse") bucket.jeonsePrices.push(p);
@@ -365,10 +356,10 @@ export function getPyeongBracketSummaries(
       label: b.label,
       areaMin: Math.round(Math.min(...bucket.areas)),
       areaMax: Math.round(Math.max(...bucket.areas)),
-      latestSalePrice: latestSale?.averagePrice ?? null,
-      latestJeonsePrice: latestJeonse?.averagePrice ?? null,
+      latestSalePrice: latestSale?.price ?? null,
+      latestJeonsePrice: latestJeonse?.price ?? null,
       latestMonthlyPrice:
-        latestMonthly?.monthlyRentAvg ?? latestMonthly?.averagePrice ?? null,
+        latestMonthly?.monthlyRent ?? latestMonthly?.price ?? null,
       dealCount: bucket.totalDeals,
     });
   }

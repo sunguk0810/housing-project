@@ -10,7 +10,7 @@ import {
 
 type PriceInsert = InferInsertModel<typeof apartmentPrices>;
 
-// 50 apartments x 6 months = 300 records (3 sale + 3 jeonse per apartment)
+// 50 apartments x ~30 individual trades = ~1500 records
 export function generatePrices(apartmentCount: number): PriceInsert[] {
   const rng = createRng(43);
   const result: PriceInsert[] = [];
@@ -33,57 +33,42 @@ export function generatePrices(apartmentCount: number): PriceInsert[] {
       ),
     );
 
-    // 3 sale months + 3 jeonse months = 6 records per apartment
+    // Generate individual trades: 3 sale months + 3 jeonse months, multiple trades per month
     for (let m = 0; m < 6; m++) {
       const period = months[m];
       const tradeType = m < 3 ? "sale" : "jeonse";
 
-      let avgPrice: number;
-      if (tradeType === "sale") {
-        // Sale price with small monthly variation
-        avgPrice = Math.round(baseSalePrice * (1 + (rng() - 0.5) * 0.05));
-      } else {
-        // Jeonse = sale price * ratio (50~65%)
-        const ratio = randomFloat(
-          rng,
-          PRICE_RANGES.jeonse.ratioMin,
-          PRICE_RANGES.jeonse.ratioMax,
-        );
-        avgPrice = Math.round(baseSalePrice * ratio);
+      // 2~5 individual trades per month
+      const tradeCount = Math.max(2, Math.round(rng() * 3 + 2));
+
+      for (let t = 0; t < tradeCount; t++) {
+        let dealPrice: number;
+        if (tradeType === "sale") {
+          dealPrice = Math.round(baseSalePrice * (1 + (rng() - 0.5) * 0.1));
+        } else {
+          const ratio = randomFloat(
+            rng,
+            PRICE_RANGES.jeonse.ratioMin,
+            PRICE_RANGES.jeonse.ratioMax,
+          );
+          dealPrice = Math.round(baseSalePrice * ratio * (1 + (rng() - 0.5) * 0.08));
+        }
+
+        // Individual trade area and floor
+        const area = Math.round((59 + rng() * 75) * 100) / 100; // 59~134㎡
+        const floorNum = Math.max(1, Math.round(rng() * 30 + 1)); // 1~31
+
+        result.push({
+          aptId,
+          tradeType,
+          year: period.year,
+          month: period.month,
+          price: String(dealPrice),
+          monthlyRent: null,
+          exclusiveArea: String(area),
+          floor: floorNum,
+        });
       }
-
-      // Poisson-like deal count (lambda=8)
-      let dealCount = 0;
-      const L = Math.exp(-8);
-      let p = 1;
-      do {
-        dealCount++;
-        p *= rng();
-      } while (p > L);
-      dealCount = Math.max(1, dealCount - 1);
-
-      // B-4: Area/floor statistics
-      const areaMin = Math.round(59 + rng() * 20); // 59~79㎡
-      const areaMax = Math.round(areaMin + 10 + rng() * 45); // +10~55㎡ → max ~134㎡
-      const areaAvg = Math.round((areaMin + areaMax) / 2);
-      const floorMin = Math.max(2, Math.round(rng() * 5 + 1)); // 2~6
-      const floorMax = Math.round(floorMin + 5 + rng() * 25); // +5~30 → max ~35
-      const floorAvg = Math.round((floorMin + floorMax) / 2);
-
-      result.push({
-        aptId,
-        tradeType,
-        year: period.year,
-        month: period.month,
-        averagePrice: String(avgPrice),
-        dealCount,
-        areaAvg: String(areaAvg),
-        areaMin: String(areaMin),
-        areaMax: String(areaMax),
-        floorAvg: String(floorAvg),
-        floorMin,
-        floorMax,
-      });
     }
   }
 

@@ -40,25 +40,21 @@ export async function getApartmentDetail(aptId: number): Promise<ApartmentDetail
   const aptLon = apt.longitude;
   const aptLat = apt.latitude;
 
-  // Step 2: Fetch prices
+  // Step 2: Fetch prices (individual trade records)
   const priceRows = await db
     .select({
+      id: apartmentPrices.id,
       tradeType: apartmentPrices.tradeType,
       year: apartmentPrices.year,
       month: apartmentPrices.month,
-      averagePrice: apartmentPrices.averagePrice,
-      monthlyRentAvg: apartmentPrices.monthlyRentAvg,
-      dealCount: apartmentPrices.dealCount,
-      areaAvg: apartmentPrices.areaAvg,
-      areaMin: apartmentPrices.areaMin,
-      areaMax: apartmentPrices.areaMax,
-      floorAvg: apartmentPrices.floorAvg,
-      floorMin: apartmentPrices.floorMin,
-      floorMax: apartmentPrices.floorMax,
+      price: apartmentPrices.price,
+      monthlyRent: apartmentPrices.monthlyRent,
+      exclusiveArea: apartmentPrices.exclusiveArea,
+      floor: apartmentPrices.floor,
     })
     .from(apartmentPrices)
     .where(eq(apartmentPrices.aptId, aptId))
-    .orderBy(desc(apartmentPrices.year), desc(apartmentPrices.month));
+    .orderBy(desc(apartmentPrices.year), desc(apartmentPrices.month), desc(apartmentPrices.id));
 
   const firstPrice = priceRows[0];
 
@@ -186,18 +182,14 @@ export async function getApartmentDetail(aptId: number): Promise<ApartmentDetail
       areaMin: safeNum(apt.areaMin),
       areaMax: safeNum(apt.areaMax),
       prices: priceRows.map((r) => ({
+        id: r.id,
         tradeType: (r.tradeType ?? '') as 'sale' | 'jeonse' | 'monthly',
         year: r.year ?? 0,
         month: r.month ?? 0,
-        averagePrice: safeNumRequired(r.averagePrice, 'prices.averagePrice'),
-        monthlyRentAvg: safeNum(r.monthlyRentAvg),
-        dealCount: r.dealCount ?? 0,
-        areaAvg: safeNum(r.areaAvg),
-        areaMin: safeNum(r.areaMin),
-        areaMax: safeNum(r.areaMax),
-        floorAvg: safeNum(r.floorAvg),
-        floorMin: safeNum(r.floorMin),
-        floorMax: safeNum(r.floorMax),
+        price: safeNumRequired(r.price, 'prices.price'),
+        monthlyRent: safeNum(r.monthlyRent),
+        exclusiveArea: safeNum(r.exclusiveArea),
+        floor: safeNum(r.floor),
       })),
       details,
       unitTypes,

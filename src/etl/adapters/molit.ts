@@ -48,26 +48,7 @@ interface MolitApiItem {
   monthlyRent?: string;
 }
 
-/** Aggregated price statistics per apartment + month */
-interface PriceAggregate {
-  aptKey: string;
-  aptName: string;
-  address: string;
-  regionCode: string;
-  builtYear: number;
-  tradeType: "sale" | "jeonse" | "monthly";
-  year: number;
-  month: number;
-  avgPrice: number;
-  monthlyRentAvg: number | null;
-  dealCount: number;
-  areaAvg: number;
-  areaMin: number;
-  areaMax: number;
-  floorAvg: number;
-  floorMin: number;
-  floorMax: number;
-}
+const BATCH_SIZE = 100;
 
 const SALE_ENDPOINT =
   "https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade";
@@ -141,10 +122,9 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
 
     const allRecords = [...saleRecords, ...rentRecords];
 
-    // Aggregate and upsert if not dry run
+    // Upsert individual trade records if not dry run
     if (!dryRun && allRecords.length > 0) {
-      const aggregates = this.aggregateTradeRecords(allRecords);
-      await this.upsertAggregates(aggregates, lawdCd);
+      await this.upsertIndividualTrades(allRecords, lawdCd);
     }
 
     return allRecords;
@@ -232,64 +212,9 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
     };
   }
 
-  /** Group records by apartment + month and compute statistics */
-  private aggregateTradeRecords(
+  /** Upsert apartment masters and insert individual trade records */
+  private async upsertIndividualTrades(
     records: ApartmentTradeRecord[],
-  ): PriceAggregate[] {
-    const groups = new Map<string, ApartmentTradeRecord[]>();
-
-    for (const record of records) {
-      const key = `${record.aptName}|${record.address}|${record.tradeType}|${record.dealYear}|${record.dealMonth}`;
-      const existing = groups.get(key) ?? [];
-      existing.push(record);
-      groups.set(key, existing);
-    }
-
-    const aggregates: PriceAggregate[] = [];
-
-    for (const [key, group] of groups) {
-      const [aptName, address, tradeType, yearStr, monthStr] = key.split("|");
-      const areas = group.map((r) => r.exclusiveArea);
-      const floors = group.map((r) => r.floor);
-      const prices = group.map((r) => r.dealAmount);
-      const monthlyRents = group.map((r) => r.monthlyRent);
-
-      aggregates.push({
-        aptKey: `${group[0].regionCode}-${aptName}`,
-        aptName,
-        address,
-        regionCode: group[0].regionCode,
-        builtYear: group[0].builtYear,
-        tradeType: tradeType as "sale" | "jeonse" | "monthly",
-        year: Number(yearStr),
-        month: Number(monthStr),
-        avgPrice: Math.round(
-          prices.reduce((a, b) => a + b, 0) / prices.length,
-        ),
-        monthlyRentAvg:
-          tradeType === "monthly"
-            ? Number(
-                (
-                  monthlyRents.reduce((a, b) => a + b, 0) / monthlyRents.length
-                ).toFixed(1),
-              )
-            : null,
-        dealCount: group.length,
-        areaAvg: Number((areas.reduce((a, b) => a + b, 0) / areas.length).toFixed(2)),
-        areaMin: Math.min(...areas),
-        areaMax: Math.max(...areas),
-        floorAvg: Number((floors.reduce((a, b) => a + b, 0) / floors.length).toFixed(1)),
-        floorMin: Math.min(...floors),
-        floorMax: Math.max(...floors),
-      });
-    }
-
-    return aggregates;
-  }
-
-  /** Upsert apartment masters and price aggregates */
-  private async upsertAggregates(
-    aggregates: PriceAggregate[],
     regionCode: string,
   ): Promise<void> {
     // Resolve region name for geocoding address
@@ -297,7 +222,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
     const regionName = regionConfig?.name ?? "";
     const sidoName = regionConfig?.sidoCode === "11" ? "서울특별시" : "경기도";
 
-    // Extract unique apartments with area stats across all months
+    // Extract unique apartments with area stats across all records
     const aptMap = new Map<
       string,
       {
@@ -308,17 +233,18 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
         areas: number[];
       }
     >();
-    for (const agg of aggregates) {
-      const existing = aptMap.get(agg.aptKey);
+    for (const record of records) {
+      const aptKey = `${record.regionCode}-${record.aptName}`;
+      const existing = aptMap.get(aptKey);
       if (existing) {
-        existing.areas.push(agg.areaMin, agg.areaMax);
+        existing.areas.push(record.exclusiveArea);
       } else {
-        aptMap.set(agg.aptKey, {
-          aptName: agg.aptName,
-          address: agg.address,
-          builtYear: agg.builtYear,
-          regionCode: agg.regionCode,
-          areas: [agg.areaMin, agg.areaMax],
+        aptMap.set(aptKey, {
+          aptName: record.aptName,
+          address: record.address,
+          builtYear: record.builtYear,
+          regionCode: record.regionCode,
+          areas: [record.exclusiveArea],
         });
       }
     }
@@ -333,7 +259,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
         event: "molit_upsert_start",
         region: regionCode,
         apartments: totalApts,
-        priceRecords: aggregates.length,
+        tradeRecords: records.length,
       }),
     );
 
@@ -413,54 +339,57 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
       }
     }
 
-    // Upsert price aggregates
-    for (const agg of aggregates) {
-      const aptId = aptIdMap.get(agg.aptKey);
-      if (!aptId) continue;
+    // Validate and insert individual trade records in batches
+    const validRecords = records.filter((r) => {
+      const area = Number(r.exclusiveArea);
+      const flr = Number(r.floor);
+      const price = Number(r.dealAmount);
+      if (!Number.isFinite(area) || area <= 0) {
+        console.warn(JSON.stringify({ event: "molit_skip_invalid_area", aptName: r.aptName, area }));
+        return false;
+      }
+      if (!Number.isFinite(flr) || flr <= 0) {
+        console.warn(JSON.stringify({ event: "molit_skip_invalid_floor", aptName: r.aptName, floor: flr }));
+        return false;
+      }
+      if (!Number.isFinite(price) || price <= 0) {
+        console.warn(JSON.stringify({ event: "molit_skip_invalid_price", aptName: r.aptName, price }));
+        return false;
+      }
+      return true;
+    });
 
-      try {
-        await db
-          .insert(apartmentPrices)
-          .values({
+    let insertedCount = 0;
+    for (let i = 0; i < validRecords.length; i += BATCH_SIZE) {
+      const batch = validRecords.slice(i, i + BATCH_SIZE);
+      const values = batch
+        .map((record) => {
+          const aptKey = `${record.regionCode}-${record.aptName}`;
+          const aptId = aptIdMap.get(aptKey);
+          if (!aptId) return null;
+          return {
             aptId,
-            tradeType: agg.tradeType,
-            year: agg.year,
-            month: agg.month,
-            averagePrice: String(agg.avgPrice),
-            monthlyRentAvg: agg.monthlyRentAvg !== null ? String(agg.monthlyRentAvg) : null,
-            dealCount: agg.dealCount,
-            areaAvg: String(agg.areaAvg),
-            areaMin: String(agg.areaMin),
-            areaMax: String(agg.areaMax),
-            floorAvg: String(agg.floorAvg),
-            floorMin: agg.floorMin,
-            floorMax: agg.floorMax,
-          })
-          .onConflictDoUpdate({
-            target: [
-              apartmentPrices.aptId,
-              apartmentPrices.tradeType,
-              apartmentPrices.year,
-              apartmentPrices.month,
-            ],
-            set: {
-              averagePrice: sql`EXCLUDED."average_price"`,
-              monthlyRentAvg: sql`EXCLUDED."monthly_rent_avg"`,
-              dealCount: sql`EXCLUDED."deal_count"`,
-              areaAvg: sql`EXCLUDED."area_avg"`,
-              areaMin: sql`EXCLUDED."area_min"`,
-              areaMax: sql`EXCLUDED."area_max"`,
-              floorAvg: sql`EXCLUDED."floor_avg"`,
-              floorMin: sql`EXCLUDED."floor_min"`,
-              floorMax: sql`EXCLUDED."floor_max"`,
-            },
-          });
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (!msg.includes("duplicate key") && !msg.includes("unique constraint")) {
-          console.log(
-            JSON.stringify({ event: "molit_price_upsert_error", aptKey: agg.aptKey, message: msg }),
-          );
+            tradeType: record.tradeType,
+            year: record.dealYear,
+            month: record.dealMonth,
+            price: String(record.dealAmount),
+            monthlyRent: record.monthlyRent > 0 ? String(record.monthlyRent) : null,
+            exclusiveArea: String(record.exclusiveArea),
+            floor: record.floor,
+          };
+        })
+        .filter((v): v is NonNullable<typeof v> => v !== null);
+
+      if (values.length > 0) {
+        try {
+          await db
+            .insert(apartmentPrices)
+            .values(values)
+            .onConflictDoNothing();
+          insertedCount += values.length;
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          console.log(JSON.stringify({ event: "molit_price_batch_error", batch: i, message: msg }));
         }
       }
     }
@@ -473,7 +402,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
         event: "molit_upsert_complete",
         region: regionCode,
         apartments: aptIdMap.size,
-        priceRecords: aggregates.length,
+        tradeRecords: insertedCount,
       }),
     );
   }
@@ -1004,9 +933,11 @@ function parseAddress(address: string): {
   dong: string; bun: string; ji: string; platGbCd: string;
 } | null {
   // address format: "강남구 역삼동 722" or "역삼동 722-5" or "영등포구 양평동3가 103"
+  // 용산구 특수: "원효로1가 17-5", "한강로3가 65-7" (로N가 패턴)
   const parts = address.split(/\s+/);
-  // Find dong part (ends with 동 or 동+숫자+가, e.g. 양평동3가, 문래동6가)
-  const dongIdx = parts.findIndex((p) => /동(\d+가)?$/.test(p));
+  // Find dong-like part:
+  //   동, 동N가 (역삼동, 양평동3가) or 로N가 (원효로1가, 한강로3가)
+  const dongIdx = parts.findIndex((p) => /(?:동\d*가?|로\d+가)$/.test(p));
   if (dongIdx === -1) return null;
   const dong = parts[dongIdx];
 

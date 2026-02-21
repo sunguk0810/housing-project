@@ -69,24 +69,23 @@ CREATE TABLE apartment_unit_types (
   UNIQUE(apt_id, area_sqm)
 );
 
--- 2. 실거래가(매매/전세/월세) 요약
+-- 2. 실거래가 개별 거래 (1행 = 1건 거래)
+-- SoT: src/db/schema/prices.ts
 CREATE TABLE apartment_prices (
   id SERIAL PRIMARY KEY,
   apt_id INTEGER REFERENCES apartments(id),
   trade_type VARCHAR(10) CHECK (trade_type IN ('sale','jeonse','monthly')),
   year INTEGER,
   month INTEGER,
-  average_price NUMERIC,
-  monthly_rent_avg NUMERIC,
-  deal_count INTEGER,
-  area_avg NUMERIC,
-  area_min NUMERIC,
-  area_max NUMERIC,
-  floor_avg NUMERIC,
-  floor_min INTEGER,
-  floor_max INTEGER,
+  price NUMERIC NOT NULL,
+  monthly_rent NUMERIC,
+  exclusive_area NUMERIC,
+  floor INTEGER,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(apt_id, trade_type, year, month)
+  -- Dedup index created separately (NULLS NOT DISTINCT, PostgreSQL 15+)
+  -- CREATE UNIQUE INDEX apt_prices_dedup ON apartment_prices
+  --   (apt_id, trade_type, year, month, price, monthly_rent, exclusive_area, floor)
+  --   NULLS NOT DISTINCT;
 );
 
 -- 3. 보육시설 (어린이집) 정보
