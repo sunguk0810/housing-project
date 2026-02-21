@@ -513,7 +513,7 @@ export async function POST(
         error: message,
         code: dbErrorCode,
         cause: dbErrorCause,
-        stack,
+        ...(process.env.NODE_ENV !== 'production' && stack ? { stack } : {}),
         timestamp: new Date().toISOString(),
       }),
     );

@@ -21,13 +21,12 @@ async function checkPostgres(): Promise<HealthCheckItem> {
       status: "ok",
       latencyMs: Math.round(performance.now() - start),
     };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unknown error";
+  } catch {
     return {
       name: "postgres",
       status: "error",
       latencyMs: Math.round(performance.now() - start),
-      message: msg,
+      message: "unavailable",
     };
   }
 }
@@ -38,7 +37,7 @@ async function checkRedis(): Promise<HealthCheckItem> {
     return {
       name: "redis",
       status: "error",
-      message: "REDIS_URL not configured",
+      message: "not configured",
     };
   }
 
@@ -50,13 +49,12 @@ async function checkRedis(): Promise<HealthCheckItem> {
       status: "ok",
       latencyMs: Math.round(performance.now() - start),
     };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unknown error";
+  } catch {
     return {
       name: "redis",
       status: "error",
       latencyMs: Math.round(performance.now() - start),
-      message: msg,
+      message: "unavailable",
     };
   }
 }
@@ -70,7 +68,7 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
   const response: HealthResponse = {
     status: allOk ? "healthy" : "degraded",
     timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version ?? "0.0.0",
+    version: process.env.NODE_ENV === "production" ? undefined : process.env.npm_package_version ?? "0.0.0",
     checks,
   };
 

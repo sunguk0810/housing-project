@@ -234,7 +234,7 @@ export interface HealthCheckItem {
 export interface HealthResponse {
   readonly status: 'healthy' | 'degraded';
   readonly timestamp: string;
-  readonly version: string;
+  readonly version?: string;
   readonly checks: ReadonlyArray<HealthCheckItem>;
 }
 
