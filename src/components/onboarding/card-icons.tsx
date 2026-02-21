@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Landmark,
   FileText,
+  TrendingUp,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -87,6 +88,16 @@ export const WEIGHT_PROFILE_ICONS = {
   commute_focused: (
     <IconCircle>
       <Train size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+  complex_focused: (
+    <IconCircle>
+      <Building2 size={22} strokeWidth={1.6} />
+    </IconCircle>
+  ),
+  value_maximized: (
+    <IconCircle>
+      <TrendingUp size={22} strokeWidth={1.6} />
     </IconCircle>
   ),
 } as const;

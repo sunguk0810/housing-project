@@ -10,7 +10,7 @@ export type LoanProgramKey = "bankMortgage" | "bogeumjari";
 export interface BudgetInput {
   /** Cash on hand (만원) */
   cash: number;
-  /** Monthly household income (만원) */
+  /** Annual household income (만원/년) */
   income: number;
   /** Existing monthly loan payments (만원) */
   loans: number;
@@ -93,6 +93,8 @@ export interface ScoringInput {
   cctvDensity: number;
   shelterCount: number;
   achievementScore: number;
+  /** Total household count for the complex (null = unknown) */
+  householdCount: number | null;
 }
 
 export interface DimensionScores {
@@ -101,6 +103,7 @@ export interface DimensionScores {
   childcare: number;
   safety: number;
   school: number;
+  complexScale: number;
 }
 
 export interface FinalScoreResult {
@@ -110,4 +113,13 @@ export interface FinalScoreResult {
   whyNot: string;
 }
 
-export type WeightProfileKey = "balanced" | "budget_focused" | "commute_focused";
+/** Canonical key array — validators, forms, icons all derive from this */
+export const WEIGHT_PROFILE_KEYS = [
+  "balanced",
+  "budget_focused",
+  "commute_focused",
+  "complex_focused",
+  "value_maximized",
+] as const;
+
+export type WeightProfileKey = (typeof WEIGHT_PROFILE_KEYS)[number];

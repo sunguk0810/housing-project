@@ -22,6 +22,7 @@ function makeInput(overrides: Partial<ScoringInput> = {}): ScoringInput {
     cctvDensity: 3,
     shelterCount: 5,
     achievementScore: 50,
+    householdCount: 500,
     ...overrides,
   };
 }
@@ -153,6 +154,38 @@ describe("normalizeScore", () => {
     expect(normalizeScore(makeInput({ achievementScore: 50 })).school).toBeCloseTo(0.5, 5);
     expect(normalizeScore(makeInput({ achievementScore: 100 })).school).toBeCloseTo(1.0, 5);
   });
+
+  // S-27: Complex scale — null (neutral)
+  it("S-27: complexScale = 0.35 when householdCount is null", () => {
+    const dims = normalizeScore(makeInput({ householdCount: null }));
+    expect(dims.complexScale).toBeCloseTo(0.35, 2);
+  });
+
+  // S-28: Complex scale — 0 households
+  it("S-28: complexScale = 0 at 0 households", () => {
+    const dims = normalizeScore(makeInput({ householdCount: 0 }));
+    expect(dims.complexScale).toBe(0);
+  });
+
+  // S-29: Complex scale — 1000 households (large complex entry)
+  it("S-29: complexScale = 0.70 at 1000 households", () => {
+    const dims = normalizeScore(makeInput({ householdCount: 1000 }));
+    expect(dims.complexScale).toBeCloseTo(0.70, 2);
+  });
+
+  // S-30: Complex scale — 5000+ households (saturation cap)
+  it("S-30: complexScale = 1.0 at 5000+ households", () => {
+    const dims = normalizeScore(makeInput({ householdCount: 5000 }));
+    expect(dims.complexScale).toBe(1.0);
+    const dims2 = normalizeScore(makeInput({ householdCount: 10000 }));
+    expect(dims2.complexScale).toBe(1.0);
+  });
+
+  // S-31: Complex scale — 300 households (mandatory management)
+  it("S-31: complexScale = 0.30 at 300 households", () => {
+    const dims = normalizeScore(makeInput({ householdCount: 300 }));
+    expect(dims.complexScale).toBeCloseTo(0.30, 2);
+  });
 });
 
 describe("calculateFinalScore", () => {
@@ -168,6 +201,7 @@ describe("calculateFinalScore", () => {
       cctvDensity: 5,
       shelterCount: 10,
       achievementScore: 100,
+      householdCount: 5000,  // max complexScale = 1.0
     });
     const result = calculateFinalScore(input, "balanced");
     expect(result.finalScore).toBeCloseTo(100.0, 0);
@@ -185,9 +219,10 @@ describe("calculateFinalScore", () => {
       cctvDensity: 0,
       shelterCount: 0,
       achievementScore: 0,
+      householdCount: 0,  // worst complexScale = 0
     });
     const result = calculateFinalScore(input, "balanced");
-    // budget=0.3 → 0.3*0.3=0.09, rest=0 → score ≈ 9.0
+    // budget=0.3 → 0.28*0.3=0.084, rest=0 → score ≈ 8.4
     expect(result.finalScore).toBeLessThan(15);
   });
 
@@ -257,6 +292,7 @@ describe("calculateFinalScore", () => {
       cctvDensity: 4,
       shelterCount: 8,
       achievementScore: 60,
+      householdCount: 1000, // complexScale = 0.70 (≥ 0.5)
     });
     const result = calculateFinalScore(input, "balanced");
     expect(result.whyNot).toBe("");
@@ -274,6 +310,51 @@ describe("calculateFinalScore", () => {
     );
     expect(expensive.dimensions.budget).toBeGreaterThan(cheap.dimensions.budget);
   });
+
+  // S-32: value_maximized — budget weight=0, budget score does not affect finalScore
+  it("S-32: value_maximized budget weight=0 — budget dimension does not affect finalScore", () => {
+    const inputLow = makeInput({ apartmentPrice: 10000, maxPrice: 60000 });
+    const inputHigh = makeInput({ apartmentPrice: 51000, maxPrice: 60000 }); // 85% = budget peak
+    const resultLow = calculateFinalScore(inputLow, "value_maximized");
+    const resultHigh = calculateFinalScore(inputHigh, "value_maximized");
+    // Budget differs significantly but finalScore should be identical (same other dims)
+    expect(resultLow.dimensions.budget).not.toBeCloseTo(resultHigh.dimensions.budget, 1);
+    expect(resultLow.finalScore).toBeCloseTo(resultHigh.finalScore, 5);
+  });
+
+  // S-33: Near-budget-cap apartment with high quality dims scores higher in value_maximized
+  // At 99% utilization, budget penalty is severe (0.72) in balanced but irrelevant in value_maximized.
+  // High non-budget dims (>0.85) benefit more from value_maximized's redistributed weights.
+  it("S-33: near-cap apartment scores higher with value_maximized than balanced", () => {
+    const input = makeInput({
+      apartmentPrice: 59400,
+      maxPrice: 60000, // 99% utilization → budget ≈ 0.72 (heavy penalty)
+      commuteTime1: 5,
+      commuteTime2: 5,
+      childcareCount800m: 25,
+      crimeLevel: 2,
+      cctvDensity: 4.5,
+      shelterCount: 9,
+      achievementScore: 85,
+      householdCount: 2000,
+    });
+    const balanced = calculateFinalScore(input, "balanced");
+    const valuMax = calculateFinalScore(input, "value_maximized");
+    expect(valuMax.finalScore).toBeGreaterThan(balanced.finalScore);
+  });
+
+  // S-34: Large complex (2000) beats small complex (200) significantly in value_maximized
+  it("S-34: large complex significantly beats small complex in value_maximized", () => {
+    const large = calculateFinalScore(
+      makeInput({ householdCount: 2000 }),
+      "value_maximized",
+    );
+    const small = calculateFinalScore(
+      makeInput({ householdCount: 200 }),
+      "value_maximized",
+    );
+    expect(large.finalScore - small.finalScore).toBeGreaterThan(5);
+  });
 });
 
 describe("WEIGHT_PROFILES", () => {
@@ -284,7 +365,8 @@ describe("WEIGHT_PROFILES", () => {
         weights.commute +
         weights.childcare +
         weights.safety +
-        weights.school;
+        weights.school +
+        weights.complexScale;
       expect(sum).toBeCloseTo(1.0, 5);
     }
   });
