@@ -156,24 +156,21 @@ CREATE TABLE apartment_unit_types (
   UNIQUE(apt_id, area_sqm)
 );
 
--- 2. 실거래가(매매/전세/월세) 요약
+-- 2. 실거래가 개별 거래 (1행 = 1건 거래)
+-- SoT: src/db/schema/prices.ts (Drizzle 스키마가 유일한 권위자)
 CREATE TABLE apartment_prices (
   id SERIAL PRIMARY KEY,
   apt_id INTEGER REFERENCES apartments(id),
   trade_type VARCHAR(10) CHECK (trade_type IN ('sale','jeonse','monthly')),
   year INTEGER,
   month INTEGER,
-  average_price NUMERIC,             -- sale=매매가, jeonse/monthly=보증금
-  monthly_rent_avg NUMERIC,          -- monthly 전용(월세 평균). sale/jeonse는 NULL
-  deal_count INTEGER,
-  area_avg NUMERIC,
-  area_min NUMERIC,
-  area_max NUMERIC,
-  floor_avg NUMERIC,
-  floor_min INTEGER,
-  floor_max INTEGER,
+  price NUMERIC NOT NULL,              -- 개별 거래가 (만원). sale=매매가, jeonse/monthly=보증금
+  monthly_rent NUMERIC,                -- 월세 (만원/월). monthly 전용, sale/jeonse는 NULL
+  exclusive_area NUMERIC,              -- 전용면적 (㎡)
+  floor INTEGER,                        -- 층
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(apt_id, trade_type, year, month)
+  -- NULLS NOT DISTINCT: PostgreSQL 15+ (NULL == NULL for dedup)
+  UNIQUE NULLS NOT DISTINCT (apt_id, trade_type, year, month, price, monthly_rent, exclusive_area, floor)
 );
 
 -- 3. 보육시설 (어린이집) 정보
@@ -368,13 +365,14 @@ else:
 
 ### 지표별 정규화 로직
 
-| 지표      | 정규화 방식                                               | 범위                |
-| --------- | --------------------------------------------------------- | ------------------- |
-| budget    | utilization curve (상단 정의)                             | 0~1 (높을수록 적합) |
-| commute   | `max(0, (60 - max(commute1, commute2)) / 60)`             | 0~1 (짧을수록 높음) |
-| childcare | `min(sqrt(childcare_count_800m / 30), 1)`                 | 0~1 (많을수록 높음) |
-| safety    | `0.5 * crime_norm + 0.3 * cctv_norm + 0.2 * shelter_norm` | 0~1 (복합)          |
-| school    | `achievement_score / 100`                                 | 0~1 (높을수록 높음) |
+| 지표         | 정규화 방식                                               | 범위                |
+| ------------ | --------------------------------------------------------- | ------------------- |
+| budget       | utilization curve (상단 정의)                             | 0~1 (높을수록 적합) |
+| commute      | `max(0, (60 - max(commute1, commute2)) / 60)`             | 0~1 (짧을수록 높음) |
+| childcare    | `min(sqrt(childcare_count_800m / 30), 1)`                 | 0~1 (많을수록 높음) |
+| safety       | `0.5 * crime_norm + 0.3 * cctv_norm + 0.2 * shelter_norm` | 0~1 (복합)          |
+| school       | `achievement_score / 100`                                 | 0~1 (높을수록 높음) |
+| complexScale | 로그-보간 하이브리드 (하단 정의)                          | 0~1 (대단지일수록 높음) |
 
 ### Safety 세부 정규화
 
@@ -384,20 +382,67 @@ cctv_norm     = clamp(cctv_density / 5, 0, 1)   // 5대/km² 기준
 shelter_norm  = min(shelter_count, 10) / 10      // 최대 10개소
 ```
 
+### complexScale 정규화 (단지 규모, 로그-보간 하이브리드)
+
+R114 시장 구간 앵커 + ln 공간 보간으로 체감수익 자연 반영.
+학술 근거: 헤도닉 모형 ln(price)~ln(count), beta 0.03~0.08.
+제도적 근거: 주택건설기준 규정 제55조의2 (150/300/500세대).
+
+| 세대수 | 점수 | 비고 |
+| ------ | ---- | ---- |
+| NULL   | 0.35 | 중립 (비무작위 결측 대응) |
+| 0      | 0.00 | 최소 |
+| 50     | 0.05 | KB시세 최소 기준 |
+| 150    | 0.15 | 의무관리 경계 |
+| 300    | 0.30 | 의무관리 대상 (어린이집 의무) |
+| 500    | 0.45 | 주민운동시설·작은도서관 의무 |
+| 1,000  | 0.70 | 대단지 진입 (R114: +58%) |
+| 1,500  | 0.85 | 대단지 (R114: +89%, 희소 2%) |
+| 5,000+ | 1.00 | 포화 캡 (한계효용 체감) |
+
+구간 내 보간: `t = (ln(n) - ln(lo)) / (ln(hi) - ln(lo))`, `score = prev + t * (curr - prev)`
+1~49세대: 선형 축소 `0.05 * (n / 50)`
+
 ### 가중치 프로필
 
-| 프로필    | budget | commute | childcare | safety | school |
-| --------- | ------ | ------- | --------- | ------ | ------ |
-| 균형형    | 0.30   | 0.25    | 0.15      | 0.15   | 0.15   |
-| 예산 중심 | 0.40   | 0.20    | 0.15      | 0.15   | 0.10   |
-| 통근 중심 | 0.20   | 0.40    | 0.15      | 0.15   | 0.10   |
+| 프로필       | budget | commute | childcare | safety | school | complexScale |
+| ------------ | ------ | ------- | --------- | ------ | ------ | ------------ |
+| 균형형       | 0.28   | 0.24    | 0.14      | 0.14   | 0.12   | 0.08         |
+| 예산 중심    | 0.38   | 0.20    | 0.12      | 0.12   | 0.10   | 0.08         |
+| 통근 중심    | 0.20   | 0.38    | 0.12      | 0.12   | 0.10   | 0.08         |
+| 대단지 중심  | 0.20   | 0.18    | 0.12      | 0.12   | 0.13   | 0.25         |
+| 가치 극대화  | 0.00   | 0.30    | 0.18      | 0.18   | 0.15   | 0.19         |
+
+> **가치 극대화 프로필**: budget weight=0 — 예산은 SQL 필터(`HAVING avg_price <= maxPrice`)로만 동작하며 스코어링에서 제외. "예산 안에서 최고 품질"을 추구하는 사용자 의도에 부합.
+
+#### 다양성 재정렬 (가치 극대화 전용)
+
+`value_maximized` 프로필에서만 활성화되는 가격 티어 기반 다양성 재정렬:
+
+- **가격 티어 분류** (price / maxPrice 비율 기준):
+  - premium: ≥ 85%
+  - mid: 70% ~ 85%
+  - value: < 70%
+- **목표 분포**: premium 30% / mid 40% / value 30% (topK에 비례 스케일링)
+- **알고리즘**: greedy selection, λ=0.30, remaining-slots 기반 deficit 스케일링
+  - combined = (1 - λ) × norm_score + λ × deficit
+  - deficit = min(1.0, max(0, target[tier] - count[tier]) / remainingSlots)
+- **동점 처리**: combined 동점 시 원본 score가 높은 후보 우선 (determinism 보장)
+- **≤topK 분기**: score 내림차순 정렬 후 전체 반환 (함수 API 일관성)
 
 ### 월세(monthly) 처리 (S4 보조 정의)
 
-`trade_type = 'monthly'` 컬럼 의미:
+`trade_type = 'monthly'` 컬럼 의미 (개별 거래 기준):
 
-- `apartment_prices.average_price` = 보증금 평균(만원)
-- `apartment_prices.monthly_rent_avg` = 월세 평균(만원/월)
+- `apartment_prices.price` = 보증금 (만원, 개별 거래)
+- `apartment_prices.monthly_rent` = 월세 (만원/월, 개별 거래)
+
+recommend CTE에서 최신월 평균으로 집계:
+
+```sql
+AVG(p.price::numeric) as average_price          -- 보증금 평균
+AVG(p.monthly_rent::numeric) FILTER (...) as monthly_rent_avg  -- 월세 평균
+```
 
 스코어링 입력 현금 정의:
 
@@ -405,8 +450,8 @@ shelter_norm  = min(shelter_count, 10) / 10      // 최대 10개소
 - 월세 월부담(표시/필터용, 환산 전세 전환율 사용 안 함):
 
 ```
-deposit_avg = apartment_prices.average_price
-monthly_rent_avg = apartment_prices.monthly_rent_avg
+deposit_avg = CTE.average_price  -- 최신월 보증금 평균
+monthly_rent_avg = CTE.monthly_rent_avg  -- 최신월 월세 평균
 deposit_financed = max(0, deposit_avg - cash)
 term_months = 24
 monthly_cost = monthly_rent_avg + deposit_financed / term_months

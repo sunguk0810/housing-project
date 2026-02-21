@@ -28,7 +28,10 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-const KAKAO_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? '';
+const KAKAO_JS_KEY =
+  process.env.NEXT_PUBLIC_KAKAO_JS_KEY?.trim() ||
+  process.env.NEXT_PUBLIC_KAKAO_APP_KEY?.trim() ||
+  '';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? '';
 
 export default function RootLayout({

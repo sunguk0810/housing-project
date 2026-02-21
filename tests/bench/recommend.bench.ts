@@ -1,6 +1,7 @@
 import { bench, describe } from "vitest";
 import { calculateBudget } from "@/lib/engines/budget";
 import { calculateFinalScore, normalizeScore } from "@/lib/engines/scoring";
+import { diversityRerank } from "@/lib/engines/diversity";
 import type { ScoringInput, BudgetInput } from "@/types/engine";
 
 /**
@@ -13,7 +14,7 @@ import type { ScoringInput, BudgetInput } from "@/types/engine";
 
 const budgetInput: BudgetInput = {
   cash: 30000,
-  income: 500,
+  income: 6000, // annual (500만/월 × 12)
   loans: 100,
   monthlyBudget: 200,
   tradeType: "jeonse",
@@ -31,6 +32,7 @@ const scoringInput: ScoringInput = {
   cctvDensity: 3.5,
   shelterCount: 6,
   achievementScore: 72,
+  householdCount: 800,
 };
 
 describe("Engine module benchmarks", () => {
@@ -59,8 +61,31 @@ describe("Engine module benchmarks", () => {
         cctvDensity: 1 + (i % 5),
         shelterCount: i % 10,
         achievementScore: 40 + (i % 60),
+        householdCount: 200 + i * 50,
       };
       calculateFinalScore(input, "balanced");
     }
+  });
+
+  bench("calculateFinalScore value_maximized (single)", () => {
+    calculateFinalScore(scoringInput, "value_maximized");
+  });
+
+  bench("diversityRerank x50 candidates", () => {
+    const candidates = Array.from({ length: 50 }, (_, i) => ({
+      score: 95 - i * 0.5,
+      price: 20000 + i * 800,
+      item: { id: i },
+    }));
+    diversityRerank(candidates, 60000, 10);
+  });
+
+  bench("diversityRerank x200 candidates", () => {
+    const candidates = Array.from({ length: 200 }, (_, i) => ({
+      score: 95 - i * 0.2,
+      price: 15000 + i * 200,
+      item: { id: i },
+    }));
+    diversityRerank(candidates, 60000, 10);
   });
 });

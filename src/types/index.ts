@@ -21,7 +21,7 @@ export type {
   RecommendationItem,
   RecommendMeta,
   SourceInfo,
-  PriceHistoryItem,
+  PriceTradeItem,
   NearbyChildcareItem,
   NearbySchoolItem,
   SafetyDetail,
