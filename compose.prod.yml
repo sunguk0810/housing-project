@@ -7,8 +7,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-    environment:
-      - CF_SECRET_TOKEN=${CF_SECRET_TOKEN}
+    env_file: .env.production
     depends_on:
       app:
         condition: service_healthy
@@ -18,7 +17,6 @@ services:
   app:
     build:
       context: .
-      platform: linux/amd64
     expose:
       - "3000"
     env_file: .env.production
