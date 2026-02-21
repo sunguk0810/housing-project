@@ -30,16 +30,23 @@ function cleanupStaleEntries(now: number) {
 }
 
 function getClientIp(request: NextRequest): string {
-  // Prefer x-real-ip (set by nginx to $remote_addr — most trusted).
-  // Fallback: last entry of x-forwarded-for (appended by nginx, harder to spoof).
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
+  // Production topology: Viewer → CloudFront → nginx → app
+  // 1. CloudFront-Viewer-Address: set by CloudFront, contains viewer IP (most trusted)
+  // 2. X-Forwarded-For first entry: viewer IP added by CloudFront before nginx appends
+  // 3. X-Real-IP: nginx $remote_addr = CloudFront edge IP (least useful, fallback only)
+  const cfViewer = request.headers.get("cloudfront-viewer-address");
+  if (cfViewer) {
+    // May contain port (e.g. "1.2.3.4:12345"), strip it
+    return cfViewer.split(":")[0].trim();
+  }
 
   const xff = request.headers.get("x-forwarded-for");
   if (xff) {
-    const parts = xff.split(",");
-    return parts[parts.length - 1].trim();
+    return xff.split(",")[0].trim();
   }
+
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
 
   return "unknown";
 }
