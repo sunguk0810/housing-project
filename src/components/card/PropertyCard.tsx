@@ -6,7 +6,7 @@ import { Check, GitCompareArrows } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CircularGauge } from "@/components/score/CircularGauge";
-import { formatPrice, formatTradeTypeLabel, formatCommuteTime } from "@/lib/format";
+import { formatPrice, formatTradeTypeLabel, formatCommuteTime, formatAreaRange } from "@/lib/format";
 import { useCompare } from "@/contexts/CompareContext";
 import { trackEvent } from "@/lib/tracking";
 import { CTA_LINKS } from "@/lib/constants";
@@ -78,7 +78,7 @@ export const PropertyCard = memo(function PropertyCard({
       )}
       role="article"
       tabIndex={0}
-      aria-label={`${item.rank}위 ${item.aptName}, 종합점수 ${Math.round(item.finalScore)}점`}
+      aria-label={`${item.rank}위 ${item.aptName}, ${formatAreaRange(item.areaMin, item.areaMax) ?? "면적 정보 없음"}, 종합점수 ${Math.round(item.finalScore)}점`}
       onMouseEnter={() => onHover(item.aptId)}
       onClick={() => onClick(item.aptId)}
       onKeyDown={handleKeyDown}
@@ -139,14 +139,31 @@ export const PropertyCard = memo(function PropertyCard({
       {/* Rows 2-3: Left info + Right gauge */}
       <div className="mt-2 flex items-center justify-between gap-[var(--space-2)]">
         <div className="min-w-0 flex-1">
+          {/* Address line */}
           <p className="truncate text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
             {item.address}
-            {item.householdCount != null && ` \u00B7 ${item.householdCount.toLocaleString()}\uC138\uB300`}
-            {item.commuteTime1 != null && ` \u00B7 \u{1F687}${formatCommuteTime(item.commuteTime1)}`}
           </p>
+          {/* Spec line: area · builtYear · households · commute */}
+          <p className="mt-0.5 text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+            {[
+              formatAreaRange(item.areaMin, item.areaMax),
+              item.builtYear != null ? `${item.builtYear}년` : null,
+              item.householdCount != null ? `${item.householdCount.toLocaleString()}세대` : null,
+              item.commuteTime1 != null ? `\u{1F687}${formatCommuteTime(item.commuteTime1)}` : null,
+            ]
+              .filter(Boolean)
+              .join(" \u00B7 ")}
+          </p>
+          {/* Price line */}
           <p className="mt-0.5 text-[length:var(--text-body-sm)] font-bold tabular-nums">
             {formatTradeTypeLabel(item.tradeType)} {formatPrice(item.averagePrice)}
           </p>
+          {/* Monthly cost sub-line */}
+          {item.monthlyCost > 0 && (
+            <p className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+              월 약 {formatPrice(item.monthlyCost)}원
+            </p>
+          )}
         </div>
         <CircularGauge score={item.finalScore} size="compact" />
       </div>

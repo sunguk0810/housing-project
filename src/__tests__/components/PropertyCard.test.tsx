@@ -27,9 +27,6 @@ const mockItem: RecommendationItem = {
   householdCount: 1200,
   areaMin: 84,
   areaMax: 114,
-  areaAvg: 96,
-  floorMin: 3,
-  floorMax: 25,
   monthlyRentAvg: null,
   builtYear: 2005,
   monthlyCost: 3000,
@@ -47,6 +44,7 @@ const mockItem: RecommendationItem = {
     childcare: 0.5,
     safety: 0.6,
     school: 0.7,
+    complexScale: 0.5,
   },
   sources: {
     priceDate: "2026-01",
@@ -100,18 +98,18 @@ describe("PropertyCard", () => {
     expect(screen.getByText(/3\uC5B5 2,000\uB9CC/)).toBeInTheDocument();
   });
 
-  it("shows household count", () => {
+  it("shows household count in spec line", () => {
     renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
-    expect(screen.getByText(/1,200\uC138\uB300/)).toBeInTheDocument();
+    expect(screen.getByText(/1,200세대/)).toBeInTheDocument();
   });
 
-  it("shows commute time inline with address", () => {
+  it("shows commute time in spec line", () => {
     renderWithProviders(
       <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
-    expect(screen.getByText(/\uD83D\uDE8730\uBD84/)).toBeInTheDocument();
+    expect(screen.getByText(/🚇30분/)).toBeInTheDocument();
   });
 
   it("shows only commuteTime1 even when commuteTime2 exists", () => {
@@ -119,7 +117,45 @@ describe("PropertyCard", () => {
     renderWithProviders(
       <PropertyCard item={dualCommute} isSelected={false} onHover={() => {}} onClick={() => {}} />,
     );
-    // Compact card only shows commuteTime1
-    expect(screen.getByText(/\uD83D\uDE8730\uBD84/)).toBeInTheDocument();
+    expect(screen.getByText(/🚇30분/)).toBeInTheDocument();
+  });
+
+  it("shows area range in spec line", () => {
+    renderWithProviders(
+      <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
+    );
+    expect(screen.getByText(/84~114㎡/)).toBeInTheDocument();
+  });
+
+  it("shows built year in spec line", () => {
+    renderWithProviders(
+      <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
+    );
+    expect(screen.getByText(/2005년/)).toBeInTheDocument();
+  });
+
+  it("shows monthly cost below price", () => {
+    renderWithProviders(
+      <PropertyCard item={mockItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
+    );
+    expect(screen.getByText(/월 약 3,000만원/)).toBeInTheDocument();
+  });
+
+  it("hides area and built year when null", () => {
+    const nullSpecItem = { ...mockItem, areaMin: null, areaMax: null, builtYear: null };
+    renderWithProviders(
+      <PropertyCard item={nullSpecItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
+    );
+    // Only household + commute should remain in spec line
+    expect(screen.getByText(/1,200세대 · 🚇30분/)).toBeInTheDocument();
+    expect(screen.queryByText(/㎡/)).not.toBeInTheDocument();
+  });
+
+  it("hides monthly cost when zero", () => {
+    const zeroCostItem = { ...mockItem, monthlyCost: 0 };
+    renderWithProviders(
+      <PropertyCard item={zeroCostItem} isSelected={false} onHover={() => {}} onClick={() => {}} />,
+    );
+    expect(screen.queryByText(/월 약/)).not.toBeInTheDocument();
   });
 });
