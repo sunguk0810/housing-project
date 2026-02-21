@@ -6,29 +6,38 @@ import { cn } from "@/lib/utils";
 import { AmountField } from "@/components/onboarding/AmountField";
 import { CustomKeypad } from "@/components/onboarding/CustomKeypad";
 import { InlineConsent } from "@/components/onboarding/InlineConsent";
+import { calculateBudget } from "@/lib/engines/budget";
+import { formatPrice } from "@/lib/format";
 import type { ConsentState } from "@/types/ui";
+import type { BudgetProfileKey, LoanProgramKey } from "@/types/engine";
+import type { DesiredAreaKey } from "@/types/api";
+
+const AREA_OPTIONS: readonly { key: DesiredAreaKey; label: string }[] = [
+  { key: "small", label: "10평대 (≤49㎡)" },
+  { key: "medium", label: "20평대 (50~69㎡)" },
+  { key: "large", label: "30평대+ (70㎡~)" },
+];
 
 interface Step3Props {
   cash: number;
   income: number;
-  loans: number;
-  monthlyBudget: number;
   onCashChange: (value: number) => void;
   onIncomeChange: (value: number) => void;
-  onLoansChange: (value: number) => void;
-  onMonthlyBudgetChange: (value: number) => void;
   consent: ConsentState;
   onConsentChange: (consent: ConsentState) => void;
   onKeypadToggle?: (open: boolean) => void;
+  tradeType?: "sale" | "jeonse" | "monthly";
+  budgetProfile: BudgetProfileKey;
+  loanProgram: LoanProgramKey;
+  desiredAreas: readonly DesiredAreaKey[];
+  onDesiredAreasChange: (areas: DesiredAreaKey[]) => void;
 }
 
-type FieldKey = "cash" | "income" | "loans" | "monthlyBudget";
+type FieldKey = "cash" | "income";
 
 const FIELD_MAX: Record<FieldKey, number> = {
   cash: 5_000_000,
-  income: 1_000_000,
-  loans: 5_000_000,
-  monthlyBudget: 10_000,
+  income: 1_200_000,
 };
 
 interface FieldConfig {
@@ -51,62 +60,62 @@ const FIELD_QUICK_BUTTONS: Record<FieldKey, readonly QuickButton[]> = {
     { label: "+1억", value: 10000 },
   ],
   income: [
-    { label: "+50만", value: 50 },
-    { label: "+100만", value: 100 },
-    { label: "+300만", value: 300 },
     { label: "+500만", value: 500 },
-  ],
-  loans: [
-    { label: "+10만", value: 10 },
-    { label: "+50만", value: 50 },
-    { label: "+100만", value: 100 },
-    { label: "+200만", value: 200 },
-  ],
-  monthlyBudget: [
-    { label: "+10만", value: 10 },
-    { label: "+30만", value: 30 },
-    { label: "+50만", value: 50 },
-    { label: "+100만", value: 100 },
+    { label: "+1,000만", value: 1000 },
+    { label: "+3,000만", value: 3000 },
+    { label: "+5,000만", value: 5000 },
+    { label: "+1억", value: 10000 },
   ],
 };
 
 const FIELDS: readonly FieldConfig[] = [
   { key: "cash", label: "보유 자산 (현금성)" },
-  { key: "income", label: "월 가구 소득", exceptionLabel: "현재 소득이 없어요" },
-  { key: "loans", label: "월 대출 상환액", exceptionLabel: "대출이 없어요" },
-  { key: "monthlyBudget", label: "월 주거비 예산" },
+  { key: "income", label: "연 가구 소득", exceptionLabel: "현재 소득이 없어요" },
 ];
 
 export function Step3Finance({
   cash,
   income,
-  loans,
-  monthlyBudget,
   onCashChange,
   onIncomeChange,
-  onLoansChange,
-  onMonthlyBudgetChange,
   consent,
   onConsentChange,
   onKeypadToggle,
+  tradeType,
+  budgetProfile,
+  loanProgram,
+  desiredAreas,
+  onDesiredAreasChange,
 }: Step3Props) {
   const [activeField, setActiveField] = useState<FieldKey | null>(null);
   const [keypadOpen, setKeypadOpen] = useState(false);
   const [exceptions, setExceptions] = useState<Record<string, boolean>>({});
 
   const values = useMemo<Record<FieldKey, number>>(
-    () => ({ cash, income, loans, monthlyBudget }),
-    [cash, income, loans, monthlyBudget],
+    () => ({ cash, income }),
+    [cash, income],
   );
   const setters = useMemo<Record<FieldKey, (v: number) => void>>(
     () => ({
       cash: onCashChange,
       income: onIncomeChange,
-      loans: onLoansChange,
-      monthlyBudget: onMonthlyBudgetChange,
     }),
-    [onCashChange, onIncomeChange, onLoansChange, onMonthlyBudgetChange],
+    [onCashChange, onIncomeChange],
   );
+
+  const budgetPreview = useMemo(() => {
+    if (cash === 0 && income === 0) return null;
+    const result = calculateBudget({
+      cash,
+      income,
+      loans: 0,
+      monthlyBudget: 0,
+      tradeType: tradeType ?? "sale",
+      budgetProfile,
+      loanProgram,
+    });
+    return result.maxPrice;
+  }, [cash, income, tradeType, budgetProfile, loanProgram]);
 
   useEffect(() => {
     onKeypadToggle?.(keypadOpen);
@@ -157,7 +166,7 @@ export function Step3Finance({
     setters[activeField](parseInt(next, 10));
   }, [activeField, values, setters, exceptions]);
 
-  /* Bidirectional toggle: Switch ON → set exception, Switch OFF → clear exception */
+  /* Bidirectional toggle: Switch ON -> set exception, Switch OFF -> clear exception */
   function handleExceptionToggle(key: FieldKey, checked: boolean) {
     if (checked) {
       setExceptions((prev) => ({ ...prev, [key]: true }));
@@ -206,6 +215,53 @@ export function Step3Finance({
         ))}
       </div>
 
+      {/* Budget preview */}
+      {budgetPreview != null && budgetPreview > 0 && (
+        <div className="rounded-[var(--radius-s4-md)] bg-[var(--color-brand-50)] px-[var(--space-4)] py-[var(--space-3)]">
+          <p className="text-[length:var(--text-body)] font-medium text-[var(--color-brand-600)]">
+            예상 가능 예산: 약 {formatPrice(budgetPreview)}
+          </p>
+        </div>
+      )}
+
+      {/* Desired area selection chips */}
+      <div className="space-y-[var(--space-2)]">
+        <p className="text-[length:var(--text-body)] font-medium text-[var(--color-on-surface)]">
+          원하는 평수 (복수 선택 가능)
+        </p>
+        <div className="flex flex-wrap gap-[var(--space-2)]">
+          {AREA_OPTIONS.map((opt) => {
+            const selected = desiredAreas.includes(opt.key);
+            const isLastSelected = selected && desiredAreas.length === 1;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                aria-pressed={selected}
+                disabled={isLastSelected}
+                onClick={() => {
+                  if (isLastSelected) return;
+                  const next = selected
+                    ? desiredAreas.filter((k) => k !== opt.key)
+                    : [...desiredAreas, opt.key];
+                  onDesiredAreasChange(next as DesiredAreaKey[]);
+                }}
+                className={cn(
+                  "rounded-[var(--radius-s7-full)] border px-[var(--space-3)] py-[var(--space-2)]",
+                  "text-[length:var(--text-caption)] font-medium transition-colors",
+                  selected
+                    ? "border-[var(--color-brand-500)] bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"
+                    : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-on-surface-muted)]",
+                  isLastSelected && "cursor-not-allowed opacity-60",
+                )}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Inline Consent — compact */}
       <InlineConsent consent={consent} onChange={onConsentChange} />
 
@@ -220,7 +276,7 @@ export function Step3Finance({
         )}
       >
         <div className="mx-auto max-w-lg px-[var(--space-4)] pt-[var(--space-2)] pb-[var(--space-2)]">
-          {/* Quick buttons + 완료 */}
+          {/* Quick buttons + done */}
           <div className="mb-[var(--space-2)] flex items-center gap-[var(--space-2)]">
             <div className="flex flex-1 items-center gap-[var(--space-1)] overflow-x-auto scrollbar-none">
               {activeField &&

@@ -9,8 +9,10 @@
 // Common Types
 // ============================================================
 
+import type { WeightProfileKey } from './engine';
+
 export type TradeType = 'sale' | 'jeonse' | 'monthly';
-export type WeightProfile = 'balanced' | 'budget_focused' | 'commute_focused';
+export type WeightProfile = WeightProfileKey;
 export type BudgetProfile = 'firstTime' | 'noProperty' | 'homeowner';
 export type LoanProgram = 'bankMortgage' | 'bogeumjari';
 
@@ -23,11 +25,13 @@ export interface Coordinate {
 // POST /api/recommend
 // ============================================================
 
+export type DesiredAreaKey = 'small' | 'medium' | 'large';
+
 export interface RecommendRequest {
   readonly cash: number;
   readonly income: number;
-  readonly loans: number;
-  readonly monthlyBudget: number;
+  readonly loans?: number;
+  readonly monthlyBudget?: number;
   readonly job1: string;
   readonly job2?: string;
   readonly job1Remote?: boolean;
@@ -36,6 +40,7 @@ export interface RecommendRequest {
   readonly weightProfile: WeightProfile;
   readonly budgetProfile: BudgetProfile;
   readonly loanProgram: LoanProgram;
+  readonly desiredAreas?: readonly DesiredAreaKey[];
 }
 
 export interface SourceInfo {
@@ -55,9 +60,6 @@ export interface RecommendationItem {
   readonly householdCount: number | null;
   readonly areaMin: number | null; // min area in ㎡
   readonly areaMax: number | null;
-  readonly areaAvg: number | null;
-  readonly floorMin: number | null;
-  readonly floorMax: number | null;
   readonly monthlyRentAvg: number | null;
   readonly builtYear: number | null;
   readonly monthlyCost: number;
@@ -75,6 +77,7 @@ export interface RecommendationItem {
     readonly childcare: number;
     readonly safety: number;
     readonly school: number;
+    readonly complexScale: number;
   };
   readonly sources: SourceInfo;
 }
@@ -93,19 +96,15 @@ export interface RecommendResponse {
 // GET /api/apartments/[id]
 // ============================================================
 
-export interface PriceHistoryItem {
+export interface PriceTradeItem {
+  readonly id: number;                   // DB serial PK (React key)
   readonly tradeType: TradeType;
   readonly year: number;
   readonly month: number;
-  readonly averagePrice: number;
-  readonly monthlyRentAvg: number | null;
-  readonly dealCount: number;
-  readonly areaAvg: number | null;
-  readonly areaMin: number | null;
-  readonly areaMax: number | null;
-  readonly floorAvg: number | null;
-  readonly floorMin: number | null;
-  readonly floorMax: number | null;
+  readonly price: number;                // individual trade price (만원)
+  readonly monthlyRent: number | null;   // monthly rent (만원, monthly only)
+  readonly exclusiveArea: number | null; // exclusive area (㎡)
+  readonly floor: number | null;         // floor number
 }
 
 export interface NearbyChildcareItem {
@@ -202,7 +201,7 @@ export interface ApartmentDetailResponse {
     readonly householdCount: number | null;
     readonly areaMin: number | null;
     readonly areaMax: number | null;
-    readonly prices: ReadonlyArray<PriceHistoryItem>;
+    readonly prices: ReadonlyArray<PriceTradeItem>;
     readonly details: ApartmentDetailInfo | null;
     readonly unitTypes: ReadonlyArray<UnitTypeItem>;
   };

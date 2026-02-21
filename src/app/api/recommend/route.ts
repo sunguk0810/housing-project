@@ -11,9 +11,16 @@ import { calculateFinalScore } from '@/lib/engines/scoring';
 import { findNearbyChildcare } from '@/lib/engines/spatial';
 import { getCommuteTime } from '@/lib/engines/commute';
 import { geocodeAddress } from '@/etl/adapters/kakao-geocoding';
+import { diversityRerank, DEFAULT_TOP_K } from '@/lib/engines/diversity';
 import { safeNum } from '@/lib/utils/safe-num';
-import type { RecommendResponse, RecommendationItem, ApiErrorResponse } from '@/types/api';
+import type { RecommendResponse, RecommendationItem, ApiErrorResponse, DesiredAreaKey } from '@/types/api';
 import type { ScoringInput, WeightProfileKey } from '@/types/engine';
+
+const AREA_RANGES: Record<DesiredAreaKey, { min: number; max: number }> = {
+  small: { min: 0, max: 49 },
+  medium: { min: 50, max: 69 },
+  large: { min: 70, max: 9999 },
+};
 
 /**
  * POST /api/recommend — 10-step analysis pipeline.
@@ -125,69 +132,80 @@ export async function POST(
     });
 
     // Step 5: Spatial filter — apartments within budget
-    // Fix 3: Filter recent prices (last 24 months)
+    // Step 5: Spatial filter — apartments within budget
+    // Filter recent prices (last 24 months) using CTE with individual trades
     const now = new Date();
-    const currentMonthIndex = now.getFullYear() * 12 + (now.getMonth() + 1);
-    const minMonthIndex = currentMonthIndex - 23;
+    const minDate = new Date(now.getFullYear(), now.getMonth() - 23, 1);
+    const minYearMonth = minDate.getFullYear() * 100 + (minDate.getMonth() + 1);
     const candidateLimit = 200;
 
+    // Build area filter SQL fragment — skip when all 3 selected (accuracy guarantee)
+    const desiredAreas = input.desiredAreas;
+    let areaFilterSql = sql``;
+    if (desiredAreas.length < 3) {
+      const conditions = desiredAreas.map((key) => {
+        const range = AREA_RANGES[key];
+        if (key === 'small') {
+          // area_max > 0 AND area_min < 50 (or area_min IS NULL)
+          return sql`(a.area_max > 0 AND (a.area_min < ${range.max + 1} OR a.area_min IS NULL))`;
+        }
+        if (key === 'large') {
+          // area_max >= 70
+          return sql`(a.area_max >= ${range.min})`;
+        }
+        // medium: area_min < 70 AND area_max >= 50
+        return sql`(a.area_min < ${range.max + 1} AND a.area_max >= ${range.min})`;
+      });
+      // Combine with OR
+      areaFilterSql = sql`AND (${sql.join(conditions, sql` OR `)})`;
+    }
+
     const rawCandidateRows = (await db.execute(sql`
-      SELECT
-        "apartments"."id",
-        "apartments"."apt_code" AS "aptCode",
-        "apartments"."apt_name" AS "aptName",
-        "apartments"."address" AS "address",
-        "apartments"."region_code" AS "regionCode",
-        ST_X("apartments"."location"::geometry) AS "longitude",
-        ST_Y("apartments"."location"::geometry) AS "latitude",
-        "apartments"."built_year" AS "builtYear",
-        "apartments"."household_count" AS "householdCount",
-        "apartments"."area_min" AS "areaMin",
-        "apartments"."area_max" AS "areaMax",
-        "latest_price_per_apt"."average_price" AS "averagePrice",
-        "latest_price_per_apt"."monthly_rent_avg" AS "monthlyRentAvg",
-        "latest_price_per_apt"."deal_count" AS "dealCount",
-        "latest_price_per_apt"."area_avg" AS "areaAvg",
-        "latest_price_per_apt"."floor_min" AS "floorMin",
-        "latest_price_per_apt"."floor_max" AS "floorMax",
-        "latest_price_per_apt"."year" AS "priceYear",
-        "latest_price_per_apt"."month" AS "priceMonth"
-      FROM "apartments"
-      INNER JOIN (
+      WITH latest_month AS (
+        SELECT apt_id,
+          MAX(year * 100 + month) as ym
+        FROM apartment_prices
+        WHERE trade_type = ${input.tradeType}
+          AND (year * 100 + month) >= ${minYearMonth}
+        GROUP BY apt_id
+      ),
+      latest_agg AS (
         SELECT
-          "latest_row"."apt_id",
-          "latest_row"."average_price",
-          "latest_row"."monthly_rent_avg",
-          "latest_row"."deal_count",
-          "latest_row"."area_avg",
-          "latest_row"."floor_min",
-          "latest_row"."floor_max",
-          "latest_row"."year",
-          "latest_row"."month"
-          FROM "apartment_prices" AS "latest_row"
-        INNER JOIN (
-          SELECT
-            "apartment_prices"."apt_id",
-            MAX(("apartment_prices"."year" * 12 + "apartment_prices"."month")::int4) AS "yearMonth"
-          FROM "apartment_prices"
-          WHERE
-            "apartment_prices"."trade_type" = ${input.tradeType}
-            AND "apartment_prices"."average_price" <= ${budget.maxPrice}
-            AND ("apartment_prices"."year" * 12 + "apartment_prices"."month") >= ${minMonthIndex}
-          GROUP BY "apartment_prices"."apt_id"
-        ) AS "latest_meta"
-          ON "latest_meta"."apt_id" = "latest_row"."apt_id"
-          AND ("latest_row"."year" * 12 + "latest_row"."month") = "latest_meta"."yearMonth"
-          AND "latest_row"."trade_type" = ${input.tradeType}
-          AND "latest_row"."average_price" <= ${budget.maxPrice}
-          AND ("latest_row"."year" * 12 + "latest_row"."month") >= ${minMonthIndex}
-      ) AS "latest_price_per_apt"
-        ON "apartments"."id" = "latest_price_per_apt"."apt_id"
-      ORDER BY
-        "latest_price_per_apt"."year" DESC,
-        "latest_price_per_apt"."month" DESC,
-        "latest_price_per_apt"."average_price" DESC,
-        "apartments"."id" ASC
+          p.apt_id,
+          AVG(p.price::numeric) as average_price,
+          AVG(p.monthly_rent::numeric) FILTER (WHERE p.monthly_rent IS NOT NULL) as monthly_rent_avg,
+          COUNT(*) as deal_count,
+          MAX(p.year) as price_year,
+          MAX(p.month) as price_month
+        FROM apartment_prices p
+        INNER JOIN latest_month lm
+          ON p.apt_id = lm.apt_id
+          AND (p.year * 100 + p.month) = lm.ym
+        WHERE p.trade_type = ${input.tradeType}
+        GROUP BY p.apt_id
+        HAVING AVG(p.price::numeric) <= ${budget.maxPrice}
+      )
+      SELECT
+        a.id,
+        a.apt_code AS "aptCode",
+        a.apt_name AS "aptName",
+        a.address AS "address",
+        a.region_code AS "regionCode",
+        ST_X(a.location::geometry) AS "longitude",
+        ST_Y(a.location::geometry) AS "latitude",
+        a.built_year AS "builtYear",
+        a.household_count AS "householdCount",
+        a.area_min AS "areaMin",
+        a.area_max AS "areaMax",
+        la.average_price AS "averagePrice",
+        la.monthly_rent_avg AS "monthlyRentAvg",
+        la.deal_count AS "dealCount",
+        la.price_year AS "priceYear",
+        la.price_month AS "priceMonth"
+      FROM apartments a
+      INNER JOIN latest_agg la ON a.id = la.apt_id
+      WHERE 1=1 ${areaFilterSql}
+      ORDER BY la.price_year DESC, la.price_month DESC, la.average_price DESC, a.id ASC
       LIMIT ${candidateLimit}
     `)) as Array<{
       id: unknown;
@@ -204,9 +222,6 @@ export async function POST(
       averagePrice: unknown;
       monthlyRentAvg: unknown;
       dealCount: unknown;
-      areaAvg: unknown;
-      floorMin: unknown;
-      floorMax: unknown;
       priceYear: number | null;
       priceMonth: number | null;
     }>;
@@ -242,9 +257,6 @@ export async function POST(
         householdCount: safeNum(r.householdCount),
         areaMin: safeNum(r.areaMin),
         areaMax: safeNum(r.areaMax),
-        areaAvg: safeNum(r.areaAvg),
-        floorMin: safeNum(r.floorMin),
-        floorMax: safeNum(r.floorMax),
         averagePrice: safeNum(r.averagePrice),
         monthlyRentAvg: safeNum(r.monthlyRentAvg),
         dealCount: safeNum(r.dealCount),
@@ -270,6 +282,7 @@ export async function POST(
             const rent = row.monthlyRentAvg ?? 0;
             const monthlyCost = estimateApartmentMonthlyCost(deposit, input.cash, 'monthly', {
               monthlyRent: rent,
+              loanProgram: input.loanProgram,
             });
             return monthlyCost <= input.monthlyBudget;
           })
@@ -381,9 +394,10 @@ export async function POST(
             row.averagePrice ?? 0,
             input.cash,
             input.tradeType,
-            input.tradeType === 'monthly'
-              ? { monthlyRent: row.monthlyRentAvg ?? 0 }
-              : undefined,
+            {
+              monthlyRent: input.tradeType === 'monthly' ? (row.monthlyRentAvg ?? 0) : undefined,
+              loanProgram: input.loanProgram,
+            },
           );
           const scoringInput: ScoringInput = {
             apartmentPrice: row.averagePrice ?? 0,
@@ -395,6 +409,7 @@ export async function POST(
             cctvDensity: safetyData?.cctvDensity ?? 2,
             shelterCount: safetyData?.shelterCount ?? 3,
             achievementScore: avgSchoolScore,
+            householdCount: row.householdCount,
           };
 
           const result = calculateFinalScore(scoringInput, input.weightProfile as WeightProfileKey);
@@ -413,9 +428,6 @@ export async function POST(
               householdCount: row.householdCount,
               areaMin: row.areaMin,
               areaMax: row.areaMax,
-              areaAvg: row.areaAvg,
-              floorMin: row.floorMin,
-              floorMax: row.floorMax,
               monthlyRentAvg: row.monthlyRentAvg,
               builtYear: row.builtYear,
               monthlyCost: Math.round(monthlyCost),
@@ -433,6 +445,7 @@ export async function POST(
                 childcare: Math.round(result.dimensions.childcare * 100) / 100,
                 safety: Math.round(result.dimensions.safety * 100) / 100,
                 school: Math.round(result.dimensions.school * 100) / 100,
+                complexScale: Math.round(result.dimensions.complexScale * 100) / 100,
               },
               sources: {
                 priceDate: `${row.priceYear ?? 2026}-${String(row.priceMonth ?? 1).padStart(2, '0')}`,
@@ -445,15 +458,32 @@ export async function POST(
       ),
     );
 
-    // Sort by score descending, take top 10
+    // Sort by score descending, then apply diversity reranking for value_maximized
     scoredCandidates.sort((a, b) => b.score - a.score);
-    const top10 = scoredCandidates.slice(0, 10).map((c, idx) => ({
+
+    let finalCandidates: typeof scoredCandidates;
+
+    if (input.weightProfile === 'value_maximized' && scoredCandidates.length > DEFAULT_TOP_K) {
+      const wrapped = scoredCandidates.map((c) => ({
+        score: c.score,
+        price: c.item.averagePrice,
+        item: c,
+      }));
+      const diverse = diversityRerank(wrapped, budget.maxPrice);
+      const diverseSet = new Set(diverse.map((d) => d.item));
+      const rest = scoredCandidates.filter((c) => !diverseSet.has(c));
+      finalCandidates = [...diverse.map((d) => d.item), ...rest];
+    } else {
+      finalCandidates = scoredCandidates;
+    }
+
+    const ranked = finalCandidates.map((c, idx) => ({
       ...c.item,
       rank: idx + 1,
     }));
 
     const response: RecommendResponse = {
-      recommendations: top10,
+      recommendations: ranked,
       meta: {
         totalCandidates: candidatesForScoring.length,
         computedAt: new Date().toISOString(),

@@ -3,13 +3,13 @@ import { recommendRequestSchema } from "@/lib/validators/recommend";
 import { apartmentIdSchema } from "@/lib/validators/apartment";
 
 /**
- * Zod validators unit tests (V-1 ~ V-6).
+ * Zod validators unit tests (V-1 ~ V-9).
  * Source of Truth: M2 spec Section 8.1.5
  */
 
 const validInput = {
   cash: 30000,
-  income: 8000,
+  income: 96000, // annual (8000만/년)
   loans: 5000,
   monthlyBudget: 200,
   job1: "서울 강남구",
@@ -97,14 +97,90 @@ describe("recommendRequestSchema", () => {
     }
   });
 
-  // V-6: Missing required fields rejected
+  // V-6: Missing required fields rejected (loans/monthlyBudget are now optional)
   it("V-6: rejects when required fields are missing", () => {
     const result = recommendRequestSchema.safeParse({ cash: 30000 });
     expect(result.success).toBe(false);
     if (!result.success) {
-      // Should have errors for income, loans, monthlyBudget, job1, tradeType, weightProfile
-      expect(result.error.errors.length).toBeGreaterThanOrEqual(5);
+      // Should have errors for income, job1, tradeType, weightProfile
+      expect(result.error.errors.length).toBeGreaterThanOrEqual(3);
     }
+  });
+
+  // V-7: loans is optional, defaults to 0
+  it("V-7: loans is optional and defaults to 0", () => {
+    const { loans: _, ...inputWithoutLoans } = validInput;
+    void _;
+    const result = recommendRequestSchema.safeParse(inputWithoutLoans);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.loans).toBe(0);
+    }
+  });
+
+  // V-8: monthlyBudget is optional, defaults to 0
+  it("V-8: monthlyBudget is optional and defaults to 0", () => {
+    const { monthlyBudget: __, ...inputWithoutBudget } = validInput;
+    void __;
+    const result = recommendRequestSchema.safeParse(inputWithoutBudget);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.monthlyBudget).toBe(0);
+    }
+  });
+
+  // V-10: desiredAreas=['medium'] passes
+  it("V-10: desiredAreas=['medium'] passes", () => {
+    const result = recommendRequestSchema.safeParse({
+      ...validInput,
+      desiredAreas: ["medium"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.desiredAreas).toEqual(["medium"]);
+    }
+  });
+
+  // V-11: desiredAreas omitted defaults to all three
+  it("V-11: desiredAreas omitted defaults to all three", () => {
+    const result = recommendRequestSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.desiredAreas).toEqual(["small", "medium", "large"]);
+    }
+  });
+
+  // V-12: desiredAreas=[] rejected (min 1)
+  it("V-12: desiredAreas=[] rejected (min 1)", () => {
+    const result = recommendRequestSchema.safeParse({
+      ...validInput,
+      desiredAreas: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  // V-13: desiredAreas=['invalid'] rejected (enum)
+  it("V-13: desiredAreas=['invalid'] rejected (enum)", () => {
+    const result = recommendRequestSchema.safeParse({
+      ...validInput,
+      desiredAreas: ["invalid"],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  // V-9: income max is 1,200,000
+  it("V-9: income max is 1,200,000 (120억)", () => {
+    const result = recommendRequestSchema.safeParse({
+      ...validInput,
+      income: 1_200_001,
+    });
+    expect(result.success).toBe(false);
+
+    const resultAtMax = recommendRequestSchema.safeParse({
+      ...validInput,
+      income: 1_200_000,
+    });
+    expect(resultAtMax.success).toBe(true);
   });
 });
 

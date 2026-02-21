@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { WEIGHT_PROFILE_KEYS } from '@/types/engine';
 
 /**
  * Zod validation schema for POST /api/recommend.
@@ -13,9 +14,9 @@ export const tradeTypeSchema = z.enum(['sale', 'jeonse', 'monthly'], {
   }),
 });
 
-export const weightProfileSchema = z.enum(['balanced', 'budget_focused', 'commute_focused'], {
+export const weightProfileSchema = z.enum(WEIGHT_PROFILE_KEYS, {
   errorMap: () => ({
-    message: 'weightProfile은 balanced, budget_focused, commute_focused만 허용됩니다.',
+    message: `weightProfile은 ${WEIGHT_PROFILE_KEYS.join(', ')}만 허용됩니다.`,
   }),
 });
 
@@ -43,19 +44,23 @@ export const recommendRequestSchema = z
       .number({ required_error: 'income은 필수입니다.' })
       .int({ message: 'income은 정수여야 합니다.' })
       .min(0, { message: 'income은 0 이상이어야 합니다.' })
-      .max(1_000_000, { message: 'income은 10억 이하여야 합니다.' }),
+      .max(1_200_000, { message: 'income은 120억 이하여야 합니다.' }),
 
     loans: z
-      .number({ required_error: 'loans는 필수입니다.' })
-      .int({ message: 'loans는 정수여야 합니다.' })
-      .min(0, { message: 'loans는 0 이상이어야 합니다.' })
-      .max(5_000_000, { message: 'loans는 50억 이하여야 합니다.' }),
+      .number()
+      .int()
+      .min(0)
+      .max(5_000_000)
+      .optional()
+      .default(0),
 
     monthlyBudget: z
-      .number({ required_error: 'monthlyBudget은 필수입니다.' })
-      .int({ message: 'monthlyBudget은 정수여야 합니다.' })
-      .min(0, { message: 'monthlyBudget은 0 이상이어야 합니다.' })
-      .max(10_000, { message: 'monthlyBudget은 1000만원 이하여야 합니다.' }),
+      .number()
+      .int()
+      .min(0)
+      .max(10_000)
+      .optional()
+      .default(0),
 
     job1: z
       .string({ required_error: 'job1은 필수입니다.' })
@@ -74,6 +79,13 @@ export const recommendRequestSchema = z
     budgetProfile: budgetProfileSchema.default('noProperty'),
 
     loanProgram: loanProgramSchema.default('bankMortgage'),
+
+    desiredAreas: z
+      .array(z.enum(['small', 'medium', 'large']))
+      .min(1, { message: 'desiredAreas는 최소 1개 이상 선택해야 합니다.' })
+      .max(3, { message: 'desiredAreas는 최대 3개까지 선택 가능합니다.' })
+      .optional()
+      .default(['small', 'medium', 'large']),
   })
   .superRefine((value, ctx) => {
     if (!value.job1Remote && value.job1.trim().length === 0) {

@@ -17,12 +17,10 @@ describe('useStepForm', () => {
     const { result } = renderHook(() => useStepForm());
     const values = result.current.form.getValues();
     expect(values.tradeType).toBeUndefined();
-    expect(values.marriagePlannedAt).toBeUndefined();
-    expect(values.childPlan).toBeUndefined();
     expect(values.job1).toBe('');
     expect(values.cash).toBe(0);
+    expect(values.income).toBe(0);
     expect(values.weightProfile).toBe('balanced');
-    expect(values.livingAreas).toEqual([]);
   });
 
   it('navigates forward and backward', () => {
@@ -73,7 +71,13 @@ describe('useStepForm', () => {
     expect(result.current.isLastInputStep).toBe(true);
   });
 
-  it('saves form data to sessionStorage with schemaVersion 4', () => {
+  it('provides default desiredAreas with all three selected', () => {
+    const { result } = renderHook(() => useStepForm());
+    const values = result.current.form.getValues();
+    expect(values.desiredAreas).toEqual(['small', 'medium', 'large']);
+  });
+
+  it('saves form data to sessionStorage with schemaVersion 6', () => {
     const { result } = renderHook(() => useStepForm());
 
     act(() => {
@@ -85,15 +89,88 @@ describe('useStepForm', () => {
     expect(stored).toBeTruthy();
     if (stored) {
       const parsed = JSON.parse(stored);
-      expect(parsed.schemaVersion).toBe(4);
+      expect(parsed.schemaVersion).toBe(6);
       expect(parsed.data.cash).toBe(5000);
       expect(parsed.data.weightProfile).toBe('balanced');
       expect(parsed.data.budgetProfile).toBe('noProperty');
       expect(parsed.data.loanProgram).toBe('bankMortgage');
+      expect(parsed.data.desiredAreas).toEqual(['small', 'medium', 'large']);
     }
   });
 
-  it('restores from legacy v1 sessionStorage and migrates to weightProfile', () => {
+  it('restores from v5 session payload and adds desiredAreas default', () => {
+    sessionStorage.setItem(
+      'hc_form_data',
+      JSON.stringify({
+        schemaVersion: 5,
+        data: {
+          tradeType: 'sale',
+          job1: '판교역',
+          job2: '',
+          job1Remote: false,
+          job2Remote: false,
+          cash: 30000,
+          income: 96000,
+          weightProfile: 'commute_focused',
+          budgetProfile: 'firstTime',
+          loanProgram: 'bogeumjari',
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useStepForm());
+    const values = result.current.form.getValues();
+    expect(values.tradeType).toBe('sale');
+    expect(values.income).toBe(96000);
+    expect(values.budgetProfile).toBe('firstTime');
+    expect(values.desiredAreas).toEqual(['small', 'medium', 'large']);
+  });
+
+  it('restores from v4 session payload and migrates income to annual', () => {
+    sessionStorage.setItem(
+      'hc_form_data',
+      JSON.stringify({
+        schemaVersion: 4,
+        data: {
+          tradeType: 'sale',
+          marriagePlannedAt: 'within_1y',
+          childPlan: 'yes',
+          job1: '판교역',
+          job2: '',
+          job1Remote: false,
+          job2Remote: false,
+          cash: 30000,
+          income: 1000, // monthly
+          loans: 500,
+          monthlyBudget: 400,
+          weightProfile: 'commute_focused',
+          budgetProfile: 'firstTime',
+          loanProgram: 'bogeumjari',
+          livingAreas: ['pangyo'],
+        },
+      }),
+    );
+
+    const { result } = renderHook(() => useStepForm());
+    const values = result.current.form.getValues();
+    expect(values.tradeType).toBe('sale');
+    expect(values.weightProfile).toBe('commute_focused');
+    // v4->v5: income * 12 (monthly -> annual)
+    expect(values.income).toBe(12000);
+    // v4->v5: budgetProfile/loanProgram preserved
+    expect(values.budgetProfile).toBe('firstTime');
+    expect(values.loanProgram).toBe('bogeumjari');
+    // v4->v6: desiredAreas defaults added
+    expect(values.desiredAreas).toEqual(['small', 'medium', 'large']);
+    // removed fields should not be in v6 schema
+    expect('livingAreas' in values).toBe(false);
+    expect('childPlan' in values).toBe(false);
+    expect('marriagePlannedAt' in values).toBe(false);
+    expect('loans' in values).toBe(false);
+    expect('monthlyBudget' in values).toBe(false);
+  });
+
+  it('restores from legacy v1 sessionStorage and migrates to v5', () => {
     sessionStorage.setItem(
       'hc_form_data',
       JSON.stringify({
@@ -102,7 +179,7 @@ describe('useStepForm', () => {
         job1: '서울역',
         job2: '',
         cash: 10000,
-        income: 500,
+        income: 500, // monthly
         loans: 100,
         monthlyBudget: 200,
         priorities: ['budget'],
@@ -113,12 +190,11 @@ describe('useStepForm', () => {
     const values = result.current.form.getValues();
     expect(values.tradeType).toBe('sale');
     expect(values.cash).toBe(10000);
-    expect(values.childPlan).toBe('yes');
-    expect(values.marriagePlannedAt).toBeUndefined();
+    expect(values.income).toBe(6000); // 500 * 12
     expect(values.weightProfile).toBe('budget_focused');
   });
 
-  it('restores from v2 session payload and migrates priorityWeights to weightProfile', () => {
+  it('restores from v2 session payload and migrates to v5', () => {
     sessionStorage.setItem(
       'hc_form_data',
       JSON.stringify({
@@ -132,7 +208,7 @@ describe('useStepForm', () => {
           job1Remote: false,
           job2Remote: false,
           cash: 15000,
-          income: 700,
+          income: 700, // monthly
           loans: 200,
           monthlyBudget: 250,
           priorityWeights: {
@@ -149,8 +225,7 @@ describe('useStepForm', () => {
     const { result } = renderHook(() => useStepForm());
     const values = result.current.form.getValues();
     expect(values.tradeType).toBe('monthly');
-    expect(values.marriagePlannedAt).toBe('within_6m');
-    expect(values.livingAreas).toEqual(['gangnam']);
+    expect(values.income).toBe(8400); // 700 * 12
     expect(values.weightProfile).toBe('commute_focused');
   });
 
@@ -168,7 +243,7 @@ describe('useStepForm', () => {
           job1Remote: false,
           job2Remote: false,
           cash: 20000,
-          income: 800,
+          income: 800, // monthly
           loans: 0,
           monthlyBudget: 300,
           priorityWeights: {
@@ -185,9 +260,10 @@ describe('useStepForm', () => {
     const { result } = renderHook(() => useStepForm());
     const values = result.current.form.getValues();
     expect(values.weightProfile).toBe('balanced');
+    expect(values.income).toBe(9600); // 800 * 12
   });
 
-  it('restores from v3 session payload and migrates to v4 with defaults', () => {
+  it('restores from v3 session payload and migrates to v5', () => {
     sessionStorage.setItem(
       'hc_form_data',
       JSON.stringify({
@@ -201,7 +277,7 @@ describe('useStepForm', () => {
           job1Remote: false,
           job2Remote: false,
           cash: 30000,
-          income: 1000,
+          income: 1000, // monthly
           loans: 500,
           monthlyBudget: 400,
           weightProfile: 'commute_focused',
@@ -214,8 +290,8 @@ describe('useStepForm', () => {
     const values = result.current.form.getValues();
     expect(values.tradeType).toBe('sale');
     expect(values.weightProfile).toBe('commute_focused');
-    expect(values.livingAreas).toEqual(['pangyo']);
-    // v3→v4 migration adds default budgetProfile and loanProgram
+    expect(values.income).toBe(12000); // 1000 * 12
+    // v3->v5 migration adds default budgetProfile and loanProgram
     expect(values.budgetProfile).toBe('noProperty');
     expect(values.loanProgram).toBe('bankMortgage');
   });

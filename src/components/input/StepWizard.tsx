@@ -44,13 +44,9 @@ export function StepWizard() {
       case 2:
         return values.job1.length > 0 || values.job1Remote;
       case 3:
-        return consent.terms && consent.privacy;
+        return consent.terms && consent.privacy && values.desiredAreas.length >= 1;
       case 4:
-        return (
-          !!values.childPlan &&
-          values.livingAreas.length >= 1 &&
-          !!values.weightProfile
-        );
+        return !!values.weightProfile;
       default:
         return false;
     }
@@ -118,25 +114,22 @@ export function StepWizard() {
           <Step3Finance
             cash={values.cash}
             income={values.income}
-            loans={values.loans}
-            monthlyBudget={values.monthlyBudget}
             onCashChange={(v) => setValue('cash', v)}
             onIncomeChange={(v) => setValue('income', v)}
-            onLoansChange={(v) => setValue('loans', v)}
-            onMonthlyBudgetChange={(v) => setValue('monthlyBudget', v)}
             consent={consent}
             onConsentChange={setConsent}
             onKeypadToggle={handleKeypadToggle}
+            tradeType={values.tradeType}
+            budgetProfile={values.budgetProfile}
+            loanProgram={values.loanProgram}
+            desiredAreas={values.desiredAreas}
+            onDesiredAreasChange={(v) => setValue('desiredAreas', v)}
           />
         )}
         {currentStep === 4 && (
           <Step4Priorities
             weightProfile={values.weightProfile}
-            livingAreas={values.livingAreas}
-            childPlan={values.childPlan}
             onWeightProfileChange={(v) => setValue('weightProfile', v)}
-            onLivingAreasChange={(v) => setValue('livingAreas', v)}
-            onChildPlanChange={(v) => setValue('childPlan', v)}
           />
         )}
       </div>
