@@ -350,9 +350,19 @@ async function getTransitTime(
   const requestUrlBase = `https://api.odsay.com/v1/api/searchPubTransPathT?apiKey=${encodedKey}&${params.toString()}`;
 
   for (let attempt = 1; attempt <= ODSAY_REQUEST_ATTEMPTS; attempt += 1) {
-    await ODSAY_LIMITER.acquire();
-
     const requestUrl = requestUrlBase;
+
+    try {
+      await ODSAY_LIMITER.acquire();
+    } catch (acquireErr) {
+      const msg = acquireErr instanceof Error ? acquireErr.message : String(acquireErr);
+      if (msg.includes('Daily limit reached')) {
+        console.log(JSON.stringify({ event: 'odsay_daily_limit_reached' }));
+        return null;
+      }
+      throw acquireErr;
+    }
+
     debugODSAY('request_start', {
       attempt,
       from: formatCoordinatePair(fromLat, fromLng),

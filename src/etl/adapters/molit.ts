@@ -234,7 +234,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
       }
     >();
     for (const record of records) {
-      const aptKey = `${record.regionCode}-${record.aptName}`;
+      const aptKey = `${record.regionCode}-${record.aptName}-${record.address}`;
       const existing = aptMap.get(aptKey);
       if (existing) {
         existing.areas.push(record.exclusiveArea);
@@ -286,6 +286,16 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
             address: fullAddress,
           }),
         );
+        // Fallback: look up existing apt by apt_code to preserve price rows
+        const aptCode = aptKey.substring(0, 60);
+        const existing = await db
+          .select({ id: apartments.id })
+          .from(apartments)
+          .where(sql`${apartments.aptCode} = ${aptCode}`)
+          .limit(1);
+        if (existing[0]) {
+          aptIdMap.set(aptKey, existing[0].id);
+        }
         continue;
       }
       const coord = geoResult.coordinate;
@@ -364,7 +374,7 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
       const batch = validRecords.slice(i, i + BATCH_SIZE);
       const values = batch
         .map((record) => {
-          const aptKey = `${record.regionCode}-${record.aptName}`;
+          const aptKey = `${record.regionCode}-${record.aptName}-${record.address}`;
           const aptId = aptIdMap.get(aptKey);
           if (!aptId) return null;
           return {
@@ -834,14 +844,6 @@ export class MolitAdapter implements DataSourceAdapter<ApartmentTradeRecord> {
       educationFacility: str(d.educationFacility),
       convenientFacility: str(d.convenientFacility),
     };
-
-    // Delete existing row for this kaptCode if it belongs to a different apt_id
-    // (skip for merged K-apt complexes to allow N:1 mapping)
-    await db
-      .delete(apartmentDetails)
-      .where(
-        sql`${apartmentDetails.kaptCode} = ${kaptCode} AND ${apartmentDetails.aptId} != ${aptId}`,
-      );
 
     await db
       .insert(apartmentDetails)

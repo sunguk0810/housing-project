@@ -236,6 +236,7 @@ async function runMolit(
 }
 
 async function runMoe(
+  regions: RegionConfig[],
   dryRun: boolean,
 ): Promise<AdapterResult[]> {
   if (!process.env.MOE_API_KEY) {
@@ -254,11 +255,14 @@ async function runMoe(
   const adapter = new MoeAdapter();
   const results: AdapterResult[] = [];
 
-  // NEIS groups by education office, not by individual region
-  const atptCodes = [
-    { code: "B10", name: "서울" },
-    { code: "J10", name: "경기" },
-  ];
+  // Derive unique atptCodes from regions (NEIS groups by education office)
+  const atptMap = new Map<string, string>();
+  for (const r of regions) {
+    if (!atptMap.has(r.atptCode)) {
+      atptMap.set(r.atptCode, r.sidoCode === "11" ? "서울" : "경기");
+    }
+  }
+  const atptCodes = Array.from(atptMap, ([code, name]) => ({ code, name }));
 
   for (const atpt of atptCodes) {
     const start = Date.now();
@@ -624,7 +628,7 @@ async function main(): Promise<void> {
   }
 
   if (adapterName === "all" || adapterName === "moe") {
-    const results = await runMoe(opts.dryRun);
+    const results = await runMoe(regions, opts.dryRun);
     allResults.push(...results);
   }
 
@@ -651,12 +655,13 @@ async function main(): Promise<void> {
     allResults.push(...results);
   }
 
-  if (adapterName === "poi") {
+  if (adapterName === "all" || adapterName === "poi") {
     const results = await runPoi(opts.dryRun);
     allResults.push(...results);
   }
 
-  if (adapterName === "facility-stats") {
+  // facility-stats runs last (depends on POI data)
+  if (adapterName === "all" || adapterName === "facility-stats") {
     const results = await runFacilityStats(opts.dryRun, opts.radius);
     allResults.push(...results);
   }
