@@ -1,10 +1,16 @@
 // Engine input/output types
 // Source of Truth: docs/PHASE1_design.md > S4
 
+/** Housing ownership status (self-declared) */
+export type BudgetProfileKey = "firstTime" | "noProperty" | "homeowner";
+
+/** Loan program selection */
+export type LoanProgramKey = "bankMortgage" | "bogeumjari";
+
 export interface BudgetInput {
   /** Cash on hand (만원) */
   cash: number;
-  /** Monthly household income (만원) */
+  /** Annual household income (만원/년) */
   income: number;
   /** Existing monthly loan payments (만원) */
   loans: number;
@@ -12,6 +18,10 @@ export interface BudgetInput {
   monthlyBudget: number;
   /** Trade type */
   tradeType: "sale" | "jeonse" | "monthly";
+  /** Budget profile — housing ownership status */
+  budgetProfile: BudgetProfileKey;
+  /** Loan program — bank mortgage or bogeumjari */
+  loanProgram: LoanProgramKey;
 }
 
 export interface BudgetOutput {
@@ -34,14 +44,48 @@ export interface CommuteInput {
   destLabel: string;
 }
 
+export interface CommuteRouteSegment {
+  /** 1=subway, 2=bus, 3=walk */
+  trafficType: 1 | 2 | 3;
+  /** Line/route name (e.g. "2호선", "350번") */
+  lineName: string;
+  /** Number of stations/stops for this segment */
+  stationCount: number;
+  /** Estimated section duration (minutes) */
+  sectionTime?: number;
+  /** Estimated section distance (meters) */
+  distance?: number;
+}
+
+export interface CommuteRouteInfo {
+  /** Public transit path type (1=subway, 2=bus, 3=walk) */
+  pathType?: number | null;
+  /** Total walking distance (minutes) */
+  totalWalk?: number | null;
+  /** Number of bus transfer segments */
+  busTransitCount?: number | null;
+  /** Number of subway transfer segments */
+  subwayTransitCount?: number | null;
+  /** Total station count */
+  totalStationCount?: number | null;
+  /** Total route distance (meters) */
+  totalDistance?: number | null;
+  segments: ReadonlyArray<CommuteRouteSegment>;
+  transferCount: number;
+  summary: string;
+}
+
 export interface CommuteResult {
   timeMinutes: number;
-  source: "grid" | "redis" | "odsay" | "mock";
+  source: "grid" | "mock";
+  routes?: CommuteRouteInfo;
 }
 
 export interface ScoringInput {
-  maxBudget: number;
-  monthlyCost: number;
+  /** Apartment price (만원) */
+  apartmentPrice: number;
+  /** User's maximum affordable price from budget calc (만원) */
+  maxPrice: number;
   commuteTime1: number;
   commuteTime2: number;
   childcareCount800m: number;
@@ -49,6 +93,8 @@ export interface ScoringInput {
   cctvDensity: number;
   shelterCount: number;
   achievementScore: number;
+  /** Total household count for the complex (null = unknown) */
+  householdCount: number | null;
 }
 
 export interface DimensionScores {
@@ -57,6 +103,7 @@ export interface DimensionScores {
   childcare: number;
   safety: number;
   school: number;
+  complexScale: number;
 }
 
 export interface FinalScoreResult {
@@ -66,4 +113,13 @@ export interface FinalScoreResult {
   whyNot: string;
 }
 
-export type WeightProfileKey = "balanced" | "budget_focused" | "commute_focused";
+/** Canonical key array — validators, forms, icons all derive from this */
+export const WEIGHT_PROFILE_KEYS = [
+  "balanced",
+  "budget_focused",
+  "commute_focused",
+  "complex_focused",
+  "value_maximized",
+] as const;
+
+export type WeightProfileKey = (typeof WEIGHT_PROFILE_KEYS)[number];

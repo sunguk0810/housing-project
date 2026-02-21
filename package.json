@@ -11,14 +11,18 @@
     "test:e2e:onboarding": "playwright test tests/e2e/onboarding.flow.spec.ts tests/e2e/onboarding.uiux.spec.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "analyze": "ANALYZE=true next build",
     "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-progress": "^1.1.8",
+    "@radix-ui/react-visually-hidden": "^1.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "csv-parse": "^6.1.0",
     "drizzle-orm": "^0.45.1",
+    "iconv-lite": "^0.7.2",
     "ioredis": "^5.9.3",
     "lucide-react": "^0.564.0",
     "next": "16.1.6",
@@ -32,9 +36,11 @@
     "recharts": "^3.7.0",
     "tailwind-merge": "^3.4.0",
     "vaul": "^1.1.2",
+    "xlsx": "^0.18.5",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.6",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",

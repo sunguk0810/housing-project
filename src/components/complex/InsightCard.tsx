@@ -50,7 +50,7 @@ export function InsightCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-white p-[var(--space-4)] shadow-sm border border-[var(--color-border)]",
+        "rounded-[var(--radius-s7-lg)] bg-[var(--color-surface)] p-[var(--space-4)] shadow-sm border border-[var(--color-border)]",
         className,
       )}
     >

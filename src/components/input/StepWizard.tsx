@@ -15,17 +15,21 @@ import { Step4Priorities } from './steps/Step4Priorities';
 import { Step5Loading } from './steps/Step5Loading';
 import type { ConsentState } from '@/types/ui';
 
+const DEFAULT_CONSENT: ConsentState = { terms: false, privacy: false, marketing: false };
+
 export function StepWizard() {
   const router = useRouter();
   const { form, currentStep, goNext, goPrev, isFirstStep, isLastInputStep, isAnalysisStep } =
     useStepForm();
 
   const [consent, setConsent] = useState<ConsentState>(() => {
-    if (typeof window === 'undefined') return { terms: false, privacy: false, marketing: false };
-    const saved = sessionStorage.getItem(SESSION_KEYS.consent);
-    return saved === 'true'
-      ? { terms: true, privacy: true, marketing: false }
-      : { terms: false, privacy: false, marketing: false };
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem(SESSION_KEYS.consent);
+      if (saved === 'true') {
+        return { terms: true, privacy: true, marketing: false };
+      }
+    }
+    return DEFAULT_CONSENT;
   });
 
   const [keypadOpen, setKeypadOpen] = useState(false);
@@ -40,13 +44,9 @@ export function StepWizard() {
       case 2:
         return values.job1.length > 0 || values.job1Remote;
       case 3:
-        return consent.terms && consent.privacy;
+        return consent.terms && consent.privacy && values.desiredAreas.length >= 1;
       case 4:
-        return (
-          !!values.childPlan &&
-          values.livingAreas.length >= 1 &&
-          !!values.weightProfile
-        );
+        return !!values.weightProfile;
       default:
         return false;
     }
@@ -59,6 +59,9 @@ export function StepWizard() {
   function handleNext() {
     if (currentStep < 5) {
       trackEvent({ name: 'step_complete', step: currentStep });
+    }
+    if (isLastInputStep) {
+      trackEvent({ name: 'min_input_complete' });
     }
     goNext();
   }
@@ -88,7 +91,11 @@ export function StepWizard() {
         {currentStep === 1 && (
           <Step1BasicInfo
             tradeType={values.tradeType}
+            budgetProfile={values.budgetProfile}
+            loanProgram={values.loanProgram}
             onTradeTypeChange={(v) => setValue('tradeType', v)}
+            onBudgetProfileChange={(v) => setValue('budgetProfile', v)}
+            onLoanProgramChange={(v) => setValue('loanProgram', v)}
           />
         )}
         {currentStep === 2 && (
@@ -107,25 +114,22 @@ export function StepWizard() {
           <Step3Finance
             cash={values.cash}
             income={values.income}
-            loans={values.loans}
-            monthlyBudget={values.monthlyBudget}
             onCashChange={(v) => setValue('cash', v)}
             onIncomeChange={(v) => setValue('income', v)}
-            onLoansChange={(v) => setValue('loans', v)}
-            onMonthlyBudgetChange={(v) => setValue('monthlyBudget', v)}
             consent={consent}
             onConsentChange={setConsent}
             onKeypadToggle={handleKeypadToggle}
+            tradeType={values.tradeType}
+            budgetProfile={values.budgetProfile}
+            loanProgram={values.loanProgram}
+            desiredAreas={values.desiredAreas}
+            onDesiredAreasChange={(v) => setValue('desiredAreas', v)}
           />
         )}
         {currentStep === 4 && (
           <Step4Priorities
             weightProfile={values.weightProfile}
-            livingAreas={values.livingAreas}
-            childPlan={values.childPlan}
             onWeightProfileChange={(v) => setValue('weightProfile', v)}
-            onLivingAreasChange={(v) => setValue('livingAreas', v)}
-            onChildPlanChange={(v) => setValue('childPlan', v)}
           />
         )}
       </div>

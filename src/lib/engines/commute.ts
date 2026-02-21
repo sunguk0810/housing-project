@@ -1,35 +1,24 @@
-import type { CommuteInput, CommuteResult } from "@/types/engine";
-import { getRedis } from "@/lib/redis";
-import { sanitizeCacheKey } from "@/lib/sanitize";
-import { findNearestGrid } from "./spatial";
-import { haversine } from "./normalize";
+import type { CommuteInput, CommuteResult } from '@/types/engine';
+import { findNearestGrid, getCommuteTimeWithRouteForGrid } from './spatial';
+import { haversine } from './normalize';
+import { BUSINESS_DISTRICTS } from '@/etl/config/regions';
 
 /**
- * 4-stage commute time lookup.
- * Priority: Grid → Redis → ODsay API → Mock fallback.
+ * 2-stage commute time lookup.
+ * Priority: Grid DB (pre-computed) → Distance-based estimation.
+ *
+ * ODsay API removed from runtime path — pre-computed grid data covers
+ * business districts; other destinations use distance estimation for
+ * relative ranking in the recommend pipeline.
  *
  * Source of Truth: M2 spec Section 5.3
  */
 
-const BUSINESS_DISTRICTS: Record<
-  string,
-  { lon: number; lat: number; column: string }
-> = {
-  GBD: { lon: 127.0276, lat: 37.4979, column: "toGbdTime" },
-  YBD: { lon: 126.9245, lat: 37.5219, column: "toYbdTime" },
-  CBD: { lon: 126.977, lat: 37.57, column: "toCbdTime" },
-  PANGYO: { lon: 127.1112, lat: 37.3948, column: "toPangyoTime" },
-};
-
 const DISTRICT_MATCH_DISTANCE_KM = 2;
-const CACHE_TTL_SECONDS = 86400; // 24 hours
 
-function matchBusinessDistrict(
-  lon: number,
-  lat: number,
-): string | null {
+function matchBusinessDistrict(lon: number, lat: number): string | null {
   for (const [key, bd] of Object.entries(BUSINESS_DISTRICTS)) {
-    const dist = haversine({ x: lon, y: lat }, { x: bd.lon, y: bd.lat });
+    const dist = haversine({ x: lon, y: lat }, { x: bd.lng, y: bd.lat });
     if (dist <= DISTRICT_MATCH_DISTANCE_KM) {
       return key;
     }
@@ -37,86 +26,28 @@ function matchBusinessDistrict(
   return null;
 }
 
-export async function getCommuteTime(
-  input: CommuteInput,
-): Promise<CommuteResult> {
-  // Stage 1: Grid lookup — findNearestGrid uses KNN <-> for closest match
+export async function getCommuteTime(input: CommuteInput): Promise<CommuteResult> {
+  // Stage 1: Grid DB lookup (pre-computed business district commute times)
   const districtKey = matchBusinessDistrict(input.destLon, input.destLat);
   if (districtKey) {
     const grid = await findNearestGrid(input.aptLon, input.aptLat);
     if (grid) {
-      const column =
-        BUSINESS_DISTRICTS[districtKey].column as keyof typeof grid;
-      const time = grid[column];
-      if (typeof time === "number") {
-        return { timeMinutes: time, source: "grid" };
+      const cached = await getCommuteTimeWithRouteForGrid(grid.gridId, districtKey);
+      if (cached != null && cached.timeMinutes !== null) {
+        return {
+          timeMinutes: cached.timeMinutes,
+          source: 'grid',
+          ...(cached.routeSnapshot ? { routes: cached.routeSnapshot } : {}),
+        };
       }
     }
   }
 
-  // Stage 2: Redis cache
-  const redis = getRedis();
-  if (redis) {
-    const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${sanitizeCacheKey(input.destLabel)}`;
-    try {
-      const cached = await redis.get(cacheKey);
-      if (cached !== null) {
-        return { timeMinutes: Number(cached), source: "redis" };
-      }
-    } catch {
-      // Redis unavailable — continue to next stage
-    }
-  }
-
-  // Stage 3: ODsay API (skip if no API key)
-  if (process.env.ODSAY_API_KEY) {
-    try {
-      const odsayTime = await callODsayApi(input);
-      // Cache result
-      if (redis) {
-        const cacheKey = `commute:${input.aptLat}:${input.aptLon}:${sanitizeCacheKey(input.destLabel)}`;
-        redis.setex(cacheKey, CACHE_TTL_SECONDS, String(odsayTime)).catch(() => {
-          // Ignore cache write failures
-        });
-      }
-      return { timeMinutes: odsayTime, source: "odsay" };
-    } catch {
-      // API failed — fall through to mock
-    }
-  }
-
-  // Stage 4: Mock fallback — distance-based estimation
+  // Stage 2: Distance-based estimation (for relative ranking)
   const distKm = haversine(
     { x: input.aptLon, y: input.aptLat },
     { x: input.destLon, y: input.destLat },
   );
-  const mockTime = Math.round(distKm * 3 + 10);
-  return { timeMinutes: mockTime, source: "mock" };
-}
-
-async function callODsayApi(input: CommuteInput): Promise<number> {
-  const apiKey = process.env.ODSAY_API_KEY;
-  if (!apiKey) throw new Error("ODSAY_API_KEY not set");
-
-  const url = new URL("https://api.odsay.com/v1/api/searchPubTransPathT");
-  url.searchParams.set("SX", String(input.aptLon));
-  url.searchParams.set("SY", String(input.aptLat));
-  url.searchParams.set("EX", String(input.destLon));
-  url.searchParams.set("EY", String(input.destLat));
-  url.searchParams.set("apiKey", apiKey);
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 3000);
-
-  try {
-    const res = await fetch(url.toString(), { signal: controller.signal });
-    const data = (await res.json()) as {
-      result?: { path?: Array<{ info?: { totalTime?: number } }> };
-    };
-    const time = data.result?.path?.[0]?.info?.totalTime;
-    if (typeof time !== "number") throw new Error("Invalid ODsay response");
-    return time;
-  } finally {
-    clearTimeout(timeout);
-  }
+  const estimatedTime = Math.round(distKm * 3 + 10);
+  return { timeMinutes: estimatedTime, source: 'mock' };
 }

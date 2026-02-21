@@ -7,8 +7,8 @@
  * Format amount in 만원 to Korean-style display.
  * e.g., 50000 -> "5억", 15000 -> "1억 5,000만"
  */
-export function formatAmount(manwon: number): string {
-  if (manwon <= 0) return "0만원";
+export function formatAmount(manwon: number = 0): string {
+  if (manwon == null || !Number.isFinite(manwon) || manwon <= 0) return "0만원";
 
   const eok = Math.floor(manwon / 10000);
   const remainder = manwon % 10000;
@@ -19,6 +19,7 @@ export function formatAmount(manwon: number): string {
   if (eok > 0) {
     return `${eok}억원`;
   }
+
   return `${manwon.toLocaleString("ko-KR")}만원`;
 }
 
@@ -40,12 +41,27 @@ export function formatDate(dateStr: string): string {
  * e.g., 32000 -> "3억 2,000만", 50000 -> "5억"
  */
 export function formatPrice(manwon: number): string {
-  if (manwon <= 0) return "0";
+  if (manwon == null || !Number.isFinite(manwon) || manwon <= 0) return "0";
   const eok = Math.floor(manwon / 10000);
   const remainder = manwon % 10000;
   if (eok > 0 && remainder > 0) return `${eok}억 ${remainder.toLocaleString("ko-KR")}만`;
   if (eok > 0) return `${eok}억`;
   return `${manwon.toLocaleString("ko-KR")}만`;
+}
+
+/**
+ * Format area range in ㎡.
+ * e.g., (49, 84) -> "49~84㎡", (84, 84) -> "84㎡", (null, 114) -> "~114㎡"
+ * Returns null when both values are null.
+ */
+export function formatAreaRange(areaMin: number | null, areaMax: number | null): string | null {
+  if (areaMin == null && areaMax == null) return null;
+  if (areaMin != null && areaMax != null) {
+    if (areaMin === areaMax) return `${areaMin}㎡`;
+    return `${areaMin}~${areaMax}㎡`;
+  }
+  if (areaMin != null) return `${areaMin}㎡~`;
+  return `~${areaMax}㎡`;
 }
 
 export function formatTradeTypeLabel(tradeType: "sale" | "jeonse" | "monthly"): string {

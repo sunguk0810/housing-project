@@ -16,6 +16,9 @@ const mockItem = (rank: number, score: number, budget: number, commute: number):
   averagePrice: 32000,
   householdCount: 1200,
   areaMin: 84,
+  areaMax: 114,
+  monthlyRentAvg: null,
+  builtYear: 2005,
   monthlyCost: 2000,
   commuteTime1: 30,
   commuteTime2: null,
@@ -25,7 +28,7 @@ const mockItem = (rank: number, score: number, budget: number, commute: number):
   finalScore: score,
   reason: "test",
   whyNot: null,
-  dimensions: { budget, commute, childcare: 0.5, safety: 0.7, school: 0.6 },
+  dimensions: { budget, commute, childcare: 0.5, safety: 0.7, school: 0.6, complexScale: 0.5 },
   sources: { priceDate: "2026-01", safetyDate: "2025-12" },
 });
 

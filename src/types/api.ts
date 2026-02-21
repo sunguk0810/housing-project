@@ -9,8 +9,12 @@
 // Common Types
 // ============================================================
 
+import type { WeightProfileKey } from './engine';
+
 export type TradeType = 'sale' | 'jeonse' | 'monthly';
-export type WeightProfile = 'balanced' | 'budget_focused' | 'commute_focused';
+export type WeightProfile = WeightProfileKey;
+export type BudgetProfile = 'firstTime' | 'noProperty' | 'homeowner';
+export type LoanProgram = 'bankMortgage' | 'bogeumjari';
 
 export interface Coordinate {
   readonly lat: number;
@@ -21,17 +25,22 @@ export interface Coordinate {
 // POST /api/recommend
 // ============================================================
 
+export type DesiredAreaKey = 'small' | 'medium' | 'large';
+
 export interface RecommendRequest {
   readonly cash: number;
   readonly income: number;
-  readonly loans: number;
-  readonly monthlyBudget: number;
+  readonly loans?: number;
+  readonly monthlyBudget?: number;
   readonly job1: string;
   readonly job2?: string;
   readonly job1Remote?: boolean;
   readonly job2Remote?: boolean;
   readonly tradeType: TradeType;
   readonly weightProfile: WeightProfile;
+  readonly budgetProfile: BudgetProfile;
+  readonly loanProgram: LoanProgram;
+  readonly desiredAreas?: readonly DesiredAreaKey[];
 }
 
 export interface SourceInfo {
@@ -50,6 +59,9 @@ export interface RecommendationItem {
   readonly averagePrice: number; // average price in 만원
   readonly householdCount: number | null;
   readonly areaMin: number | null; // min area in ㎡
+  readonly areaMax: number | null;
+  readonly monthlyRentAvg: number | null;
+  readonly builtYear: number | null;
   readonly monthlyCost: number;
   readonly commuteTime1: number;
   readonly commuteTime2: number | null;
@@ -65,6 +77,7 @@ export interface RecommendationItem {
     readonly childcare: number;
     readonly safety: number;
     readonly school: number;
+    readonly complexScale: number;
   };
   readonly sources: SourceInfo;
 }
@@ -83,12 +96,15 @@ export interface RecommendResponse {
 // GET /api/apartments/[id]
 // ============================================================
 
-export interface PriceHistoryItem {
+export interface PriceTradeItem {
+  readonly id: number;                   // DB serial PK (React key)
   readonly tradeType: TradeType;
   readonly year: number;
   readonly month: number;
-  readonly averagePrice: number;
-  readonly dealCount: number;
+  readonly price: number;                // individual trade price (만원)
+  readonly monthlyRent: number | null;   // monthly rent (만원, monthly only)
+  readonly exclusiveArea: number | null; // exclusive area (㎡)
+  readonly floor: number | null;         // floor number
 }
 
 export interface NearbyChildcareItem {
@@ -116,11 +132,63 @@ export interface SafetyDetail {
   readonly dataDate: string | null;
 }
 
+export interface CommuteRouteSegmentInfo {
+  readonly trafficType: 1 | 2 | 3;
+  readonly lineName: string;
+  readonly stationCount: number;
+}
+
+export interface CommuteRouteDetail {
+  readonly segments: ReadonlyArray<CommuteRouteSegmentInfo>;
+  readonly transferCount: number;
+  readonly summary: string;
+}
+
+export interface CommuteDestinationInfo {
+  readonly destinationKey: string;
+  readonly name: string;
+  readonly timeMinutes: number | null;
+  readonly route?: CommuteRouteDetail;
+}
+
 export interface CommuteInfo {
   readonly toGbd: number | null;
   readonly toYbd: number | null;
   readonly toCbd: number | null;
   readonly toPangyo: number | null;
+  readonly destinations: ReadonlyArray<CommuteDestinationInfo>;
+  /**
+   * @deprecated Use destinations[].route instead.
+   * Source: GBD route (GBD unavailable → first valid destination route fallback).
+   * Removal: see PHASE1_design.md 4-gate policy.
+   */
+  readonly routes?: CommuteRouteDetail;
+}
+
+export interface ApartmentDetailInfo {
+  readonly kaptCode: string | null;
+  readonly dongCount: number | null;
+  readonly doroJuso: string | null;
+  readonly useDate: string | null;
+  readonly builder: string | null;
+  readonly heatType: string | null;
+  readonly hallType: string | null;
+  readonly totalArea: number | null;
+  readonly parkingGround: number | null;
+  readonly parkingUnderground: number | null;
+  readonly elevatorCount: number | null;
+  readonly cctvCount: number | null;
+  readonly evChargerGround: number | null;
+  readonly evChargerUnderground: number | null;
+  readonly subwayLine: string | null;
+  readonly subwayStation: string | null;
+  readonly subwayDistance: string | null;
+}
+
+export interface UnitTypeItem {
+  readonly areaSqm: number;
+  readonly areaPyeong: number | null;
+  readonly householdCount: number;
 }
 
 export interface ApartmentDetailResponse {
@@ -133,7 +201,9 @@ export interface ApartmentDetailResponse {
     readonly householdCount: number | null;
     readonly areaMin: number | null;
     readonly areaMax: number | null;
-    readonly prices: ReadonlyArray<PriceHistoryItem>;
+    readonly prices: ReadonlyArray<PriceTradeItem>;
+    readonly details: ApartmentDetailInfo | null;
+    readonly unitTypes: ReadonlyArray<UnitTypeItem>;
   };
   readonly nearby: {
     readonly childcare: {

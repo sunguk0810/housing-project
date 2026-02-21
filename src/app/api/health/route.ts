@@ -65,6 +65,7 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
   const checks = await Promise.all([checkPostgres(), checkRedis()]);
 
   const allOk = checks.every((c) => c.status === "ok");
+  const pgOk = checks.find((c) => c.name === "postgres")?.status === "ok";
 
   const response: HealthResponse = {
     status: allOk ? "healthy" : "degraded",
@@ -73,5 +74,7 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
     checks,
   };
 
-  return NextResponse.json(response, { status: allOk ? 200 : 503 });
+  // DB healthy → 200 (Redis failure = degraded but still operational)
+  // DB down → 503
+  return NextResponse.json(response, { status: pgOk ? 200 : 503 });
 }

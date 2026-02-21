@@ -239,6 +239,10 @@ export default function ResultsPage() {
   // Default: responsive layout
   return (
     <div className="mx-auto max-w-6xl px-6 py-[var(--space-6)]">
+      {/* Screen reader announcement for loaded results */}
+      <div aria-live="polite" className="sr-only">
+        분석 결과 {data.recommendations.length}건이 로드되었습니다.
+      </div>
       {/* Header with back button */}
       <div className="mb-[var(--space-4)] flex items-center gap-[var(--space-3)]">
         <Button

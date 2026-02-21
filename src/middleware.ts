@@ -3,7 +3,8 @@ import type { NextRequest } from "next/server";
 
 /**
  * In-memory sliding window rate limiter.
- * 5 requests per minute for POST /api/recommend.
+ * 5 requests per minute for POST API routes except
+ * /api/recommend (route-level limiter: 10/min).
  */
 
 const WINDOW_MS = 60_000;
@@ -41,6 +42,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const pathname = request.nextUrl.pathname;
+  if (pathname === "/api/recommend" || pathname.startsWith("/api/health")) {
+    return NextResponse.next();
+  }
+
   const now = Date.now();
   cleanupStaleEntries(now);
 
@@ -67,5 +73,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/api/recommend",
+  matcher: "/api/:path*",
 };

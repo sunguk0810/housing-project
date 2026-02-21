@@ -3,7 +3,7 @@
  * Source of Truth: PHASE1 S2 + db/schema.sql
  */
 
-import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 import {
   apartments,
   apartmentPrices,
@@ -11,7 +11,9 @@ import {
   schools,
   safetyStats,
   commuteGrid,
-} from "@/db/schema";
+  commuteDestinations,
+  commuteTimes,
+} from '@/db/schema';
 
 // SELECT result types
 export type Apartment = InferSelectModel<typeof apartments>;
@@ -20,6 +22,8 @@ export type ChildcareCenter = InferSelectModel<typeof childcareCenters>;
 export type School = InferSelectModel<typeof schools>;
 export type SafetyStat = InferSelectModel<typeof safetyStats>;
 export type CommuteGridRow = InferSelectModel<typeof commuteGrid>;
+export type CommuteDestinationRow = InferSelectModel<typeof commuteDestinations>;
+export type CommuteTimeRow = InferSelectModel<typeof commuteTimes>;
 
 // INSERT input types
 export type NewApartment = InferInsertModel<typeof apartments>;
@@ -28,3 +32,5 @@ export type NewChildcareCenter = InferInsertModel<typeof childcareCenters>;
 export type NewSchool = InferInsertModel<typeof schools>;
 export type NewSafetyStat = InferInsertModel<typeof safetyStats>;
 export type NewCommuteGrid = InferInsertModel<typeof commuteGrid>;
+export type NewCommuteDestination = InferInsertModel<typeof commuteDestinations>;
+export type NewCommuteTime = InferInsertModel<typeof commuteTimes>;

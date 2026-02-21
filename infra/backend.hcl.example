@@ -1,0 +1,5 @@
+bucket         = "housing-tfstate-ACCOUNT_ID"
+dynamodb_table = "housing-tflock"
+region         = "ap-northeast-2"
+key            = "prod/terraform.tfstate"
+encrypt        = true

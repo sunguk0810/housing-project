@@ -1,0 +1,5 @@
+domain_name     = "housing.example.com"
+route53_zone_id = "Z0123456789ABCDEF"
+ssh_key_name    = "my-lightsail-key"
+cf_secret_token = "CHANGE_ME_RANDOM_STRING"
+aws_region      = "ap-northeast-2"

@@ -162,9 +162,13 @@
   --color-on-surface: #1c1917;
   --color-on-surface-muted: #78716c;
   --color-border: #e7e5e4;
-  --color-primary: var(--color-brand-500);
-  --color-primary-hover: #0e7490;
+  --color-primary: var(--color-brand-600); /* brand-600 for WCAG AA text contrast (5.7:1 vs white) */
+  --color-primary-hover: var(--color-brand-700);
   --color-on-primary: #ffffff;
+
+  /* CI — monochrome logo tokens */
+  --ci-mark: #18181B;
+  --ci-bg: #FAFAFA;
 }
 
 .dark {
@@ -219,4 +223,8 @@
   --color-safety-lacking-subtle: #37474f;
   --color-safety-lacking-border: #757575;
   --color-safety-lacking-fg: #e0e0e0;
+
+  /* CI — monochrome logo tokens (dark) */
+  --ci-mark: #A1A1AA;
+  --ci-bg: #09090B;
 }

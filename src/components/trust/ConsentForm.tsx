@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { POLICY_VERSION } from "@/lib/constants";
@@ -39,6 +40,11 @@ const CONSENT_ITEMS: Array<{
 ];
 
 export function ConsentForm({ consent, onChange, className }: ConsentFormProps) {
+  // Track consent_shown on mount
+  useEffect(() => {
+    trackEvent({ name: "consent_shown" });
+  }, []);
+
   function handleChange(key: keyof ConsentState, checked: boolean) {
     const next = { ...consent, [key]: checked };
     onChange(next);

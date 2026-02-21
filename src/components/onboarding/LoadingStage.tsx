@@ -41,7 +41,7 @@ export function LoadingStage({
               "flex items-center gap-[var(--space-3)] rounded-[var(--radius-s7-md)] p-[var(--space-3)]",
               "transition-all duration-500",
               isCompleted && "opacity-60",
-              isCurrent && "bg-[var(--color-brand-50)]",
+              isCurrent && "bg-[var(--color-neutral-100)]",
             )}
             style={{ opacity: isPending ? 0.3 : undefined }}
           >
@@ -53,7 +53,7 @@ export function LoadingStage({
                     animation: "checkmark-pop 300ms ease-out",
                   }}
                 >
-                  <Check size={20} className="text-[var(--color-brand-500)]" />
+                  <Check size={20} className="text-[var(--color-neutral-600)]" />
                 </span>
               ) : (
                 <span

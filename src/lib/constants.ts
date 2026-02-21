@@ -12,7 +12,7 @@ import type {
   PriorityKey,
   StepDefinition,
 } from '@/types/ui';
-import type { TradeType } from '@/types/api';
+import type { TradeType, BudgetProfile, LoanProgram } from '@/types/api';
 
 // Disclaimer touch-points (5 total per PHASE0 compliance)
 export const DISCLAIMER_TEXTS = {
@@ -44,6 +44,12 @@ export const SESSION_KEYS = {
 } as const;
 
 export const POLICY_VERSION = '2026-02-16-v1';
+
+// CTA external links (placeholder — replace with actual URLs when ready)
+export const CTA_LINKS = {
+  concierge: 'https://example.com/concierge',
+  inquiry: 'https://example.com/inquiry',
+} as const;
 
 // FORBIDDEN_PHRASES: Defined in test files only (src/__tests__/compliance/)
 // to avoid compliance scan false-positives on the definition itself.
@@ -120,6 +126,17 @@ export const TRADE_OPTIONS_V2: ReadonlyArray<EmojiCardOption<TradeType>> = [
   { value: 'jeonse', label: '전세', emoji: '🏢' },
 ];
 
+export const BUDGET_PROFILE_OPTIONS: ReadonlyArray<EmojiCardOption<BudgetProfile> & { description: string }> = [
+  { value: 'firstTime', label: '생애최초', emoji: '🏠', description: 'LTV 70%, 첫 주택 구입' },
+  { value: 'noProperty', label: '무주택', emoji: '🔑', description: '처분조건부 1주택 포함' },
+  { value: 'homeowner', label: '1주택자', emoji: '📋', description: '규제지역 매매대출 불가' },
+];
+
+export const LOAN_PROGRAM_OPTIONS: ReadonlyArray<EmojiCardOption<LoanProgram> & { description: string }> = [
+  { value: 'bankMortgage', label: '은행 주담대', emoji: '🏦', description: '15억 이하 대출 가능' },
+  { value: 'bogeumjari', label: '보금자리론', emoji: '📋', description: '6억 이하 주택 전용' },
+];
+
 export const PRIORITY_OPTIONS: ReadonlyArray<EmojiCardOption<PriorityKey>> = [
   { value: 'commute', label: '통근', emoji: '🚇' },
   { value: 'childcare', label: '육아', emoji: '👶' },
@@ -149,14 +166,4 @@ export const LIVING_AREA_OPTIONS: ReadonlyArray<{
   { value: 'magok', label: '마곡권' },
   { value: 'gwanghwamun', label: '광화문권' },
   { value: 'jamsil', label: '잠실권' },
-];
-
-export const PRIORITY_SLIDER_OPTIONS: ReadonlyArray<{
-  readonly key: PriorityKey;
-  readonly label: string;
-}> = [
-  { key: 'commute', label: '통근' },
-  { key: 'childcare', label: '육아' },
-  { key: 'safety', label: '안전' },
-  { key: 'budget', label: '가성비' },
 ];

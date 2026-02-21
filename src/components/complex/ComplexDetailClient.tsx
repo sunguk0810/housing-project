@@ -35,7 +35,7 @@ export function ComplexDetailClient({ data }: ComplexDetailClientProps) {
   const [activeTab, setActiveTab] = useState<DetailTabKey>(getInitialTab);
 
   return (
-    <div className="mx-auto max-w-3xl px-[var(--space-4)] pb-28 py-[var(--space-6)]">
+    <div className="mx-auto max-w-3xl lg:max-w-5xl px-[var(--space-4)] lg:px-[var(--space-6)] pb-28 py-[var(--space-6)]">
       <DetailHero
         aptName={apartment.aptName}
         address={apartment.address}
