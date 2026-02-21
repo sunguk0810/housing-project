@@ -36,8 +36,7 @@ function getClientIp(request: NextRequest): string {
   // 3. X-Real-IP: nginx $remote_addr = CloudFront edge IP (least useful, fallback only)
   const cfViewer = request.headers.get("cloudfront-viewer-address");
   if (cfViewer) {
-    // May contain port (e.g. "1.2.3.4:12345"), strip it
-    return cfViewer.split(":")[0].trim();
+    return stripPort(cfViewer);
   }
 
   const xff = request.headers.get("x-forwarded-for");
@@ -49,6 +48,30 @@ function getClientIp(request: NextRequest): string {
   if (realIp) return realIp.trim();
 
   return "unknown";
+}
+
+/**
+ * Strip port from an IP address string, IPv6-safe.
+ * "1.2.3.4:12345"         → "1.2.3.4"
+ * "2406:da14::1234:5678"  → "2406:da14::1234:5678"  (no port, returned as-is)
+ * "[::1]:3000"            → "::1"
+ */
+function stripPort(addr: string): string {
+  const trimmed = addr.trim();
+  // Bracketed IPv6 with port: "[::1]:3000"
+  if (trimmed.startsWith("[")) {
+    const bracketEnd = trimmed.indexOf("]");
+    if (bracketEnd !== -1) {
+      return trimmed.slice(1, bracketEnd);
+    }
+  }
+  // Plain IPv6 (contains multiple colons, no brackets) — return as-is
+  if (trimmed.indexOf(":") !== trimmed.lastIndexOf(":")) {
+    return trimmed;
+  }
+  // IPv4 with port: "1.2.3.4:12345", or plain IPv4
+  const colonIdx = trimmed.lastIndexOf(":");
+  return colonIdx !== -1 ? trimmed.slice(0, colonIdx) : trimmed;
 }
 
 export function middleware(request: NextRequest) {
