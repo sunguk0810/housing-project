@@ -18,6 +18,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Dummy env vars for Next.js build — actual values injected at runtime via .env.production
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ENV REDIS_URL="redis://localhost:6379"
+# NEXT_PUBLIC_* must be present at build time to be embedded in the bundle
+ARG NEXT_PUBLIC_KAKAO_APP_KEY=""
+ENV NEXT_PUBLIC_KAKAO_APP_KEY=${NEXT_PUBLIC_KAKAO_APP_KEY}
 RUN pnpm run build
 
 # ── Stage 3: Runtime ──
