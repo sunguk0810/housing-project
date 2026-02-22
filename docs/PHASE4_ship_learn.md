@@ -5,18 +5,18 @@
 
 ## 1. Release Checklist
 
-| #   | 항목                                              | 상태    |
-| --- | ------------------------------------------------- | ------- |
-| 1   | CloudFront + Lightsail Docker Compose 배포 완료   | pending |
-| 2   | 환경변수 설정 (DB/API 키/Redis)                   | pending |
-| 3   | HTTPS/TLS 적용 확인                               | pending |
-| 4   | 커스텀 도메인 설정 (선택)                         | pending |
-| 5   | DB 마이그레이션 프로덕션 적용                     | pending |
-| 6   | 초기 데이터 적재 완료                             | pending |
-| 7   | 이벤트 트래킹 동작 확인 (→ PHASE0 S2 이벤트 10개) | pending |
-| 8   | 이용약관/개인정보처리방침 페이지 접근 가능        | pending |
-| 9   | 면책 문구/출처 표기 최종 확인                     | pending |
-| 10  | README 최종 업데이트                              | pending |
+| #   | 항목                                              | 상태    | 비고 (2026-02-21)                          |
+| --- | ------------------------------------------------- | ------- | ------------------------------------------ |
+| 1   | Lightsail Docker Compose 배포 완료                | pending | Terraform IaC 코드 작성 완료, apply 대기   |
+| 2   | 환경변수 설정 (DB/API 키/Redis)                   | ready   | .env.production.example + DEPLOY_GUIDE 준비 |
+| 3   | HTTPS/TLS 적용 확인                               | pending | Nginx TLS 설정 포함됨                      |
+| 4   | 커스텀 도메인 설정 (선택)                         | pending |                                            |
+| 5   | DB 마이그레이션 프로덕션 적용                     | pending | 로컬 검증 완료, 프로덕션 미적용            |
+| 6   | 초기 데이터 적재 완료                             | pending | ETL 로컬 실행 완료 (강남구 11680)          |
+| 7   | 이벤트 트래킹 동작 확인 (→ PHASE0 S2 이벤트 11개) | ready   | 코드 구현 완료, 프로덕션 동작 확인 대기    |
+| 8   | 이용약관/개인정보처리방침 페이지 접근 가능        | ready   | 코드 구현 완료                             |
+| 9   | 면책 문구/출처 표기 최종 확인                     | ready   | 컴플라이언스 감사 통과                     |
+| 10  | README 최종 업데이트                              | pending | 배포 후 URL 반영 필요                      |
 
 ## 2. Smoke Test (프로덕션)
 

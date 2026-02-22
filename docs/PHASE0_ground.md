@@ -70,7 +70,7 @@
 | FR-3 | 통근시간 계산  | 2직장 대중교통 통근시간 계산 (사전계산 그리드 + API + 캐시)                |
 | FR-4 | 스코어링 엔진  | 예산/통근/보육/학군/치안 정규화 후 가중치 종합점수 산출 (→ PHASE1 S4 참조) |
 | FR-5 | 결과 페이지    | 지도 + Top10 카드. 외부 매물 아웃링크. 점수 분해/출처/기준일/Why-Not 표시  |
-| FR-6 | 가중치 프로필  | 예산 중심 / 통근 중심 / 균형형 선택                                        |
+| FR-6 | 가중치 프로필  | 균형형 / 예산 중심 / 통근 중심 / 대단지 중심 / 가치 극대화 (5종) 선택      |
 | FR-7 | 동의 분리 UI   | 필수/선택 동의 분리, 정책 버전 기록, 철회/삭제 경로 제공                   |
 
 ### 비기능 요구사항 (NFR)
@@ -94,13 +94,13 @@
 
 | #   | 항목                                | 수준   | 상태    | 구현 시점                 |
 | --- | ----------------------------------- | ------ | ------- | ------------------------- |
-| 1   | 정보 제공 포지셔닝 (중개/알선 금지) | Must   | defined | Phase 2 M3                |
-| 2   | 거래성사형 CPA 금지                 | Must   | defined | 구현 불필요 (기능 미개발) |
-| 3   | 개인정보 비저장 (DB/로그/APM)       | Must   | defined | Phase 2 M2                |
-| 4   | 크롤링 금지, 공공/API/제휴만 허용   | Must   | defined | Phase 2 M2 ETL            |
-| 5   | 동의 분리/정책 버전/파기 정책       | Must   | defined | Phase 2 M3                |
-| 6   | 금지 문구 통제 (중개 오인 방지)     | Must   | defined | Phase 2 M3                |
-| 7   | 공공데이터 출처 표기                | Must   | defined | Phase 2 M3                |
+| 1   | 정보 제공 포지셔닝 (중개/알선 금지) | Must   | implemented | Phase 2 M3 (면책 배너 + 문구 통제) |
+| 2   | 거래성사형 CPA 금지                 | Must   | defined     | 구현 불필요 (기능 미개발)          |
+| 3   | 개인정보 비저장 (DB/로그/APM)       | Must   | implemented | Phase 2 M2 (PII 미저장 확인)      |
+| 4   | 크롤링 금지, 공공/API/제휴만 허용   | Must   | implemented | Phase 2 M2 ETL (공공 API만 사용)  |
+| 5   | 동의 분리/정책 버전/파기 정책       | Must   | implemented | Phase 2 M3 (ConsentForm 구현)     |
+| 6   | 금지 문구 통제 (중개 오인 방지)     | Must   | implemented | Phase 2 M3 (DisclaimerBanner)     |
+| 7   | 공공데이터 출처 표기                | Must   | implemented | Phase 2 M3 (SourceBadge 구현)     |
 | 8   | 공인중개사법 외부 자문              | Should | pending | 포트폴리오 예외 승인      |
 | 9   | 위치정보 신고/약관/동의/보호조치    | Should | pending | GPS 비활성 유지           |
 | 10  | 2025 표시광고 표기 스키마           | Should | pending | Phase 2 M3에서 반영       |
