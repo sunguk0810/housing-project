@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { EmojiCardSelector } from '@/components/onboarding/EmojiCardSelector';
 import { WEIGHT_PROFILE_ICONS } from '@/components/onboarding/card-icons';
 import { CustomWeightSlider } from '@/components/input/CustomWeightSlider';
@@ -82,7 +82,6 @@ export function Step4Priorities({
     (value: WeightProfile) => {
       setIsCustomMode(false);
       onWeightProfileChange(value);
-      // Sync slider values to show what the preset looks like
       onCustomWeightsChange?.(profileToCustomWeights(value));
     },
     [onWeightProfileChange, onCustomWeightsChange],
@@ -90,12 +89,10 @@ export function Step4Priorities({
 
   const handleToggleCustom = useCallback(() => {
     if (isCustomMode) {
-      // Switch back to preset — restore balanced
       setIsCustomMode(false);
       onWeightProfileChange('balanced');
       onCustomWeightsChange?.(profileToCustomWeights('balanced'));
     } else {
-      // Switch to custom — start from current preset values
       setIsCustomMode(true);
       onWeightProfileChange('custom');
       if (!customWeights) {
@@ -118,58 +115,68 @@ export function Step4Priorities({
 
   return (
     <div className="space-y-[var(--space-6)]">
-      <h3 className="text-[length:var(--text-title)] font-semibold">
-        가장 중요한 조건을 알려주세요
-      </h3>
+      <div>
+        <h3 className="text-[length:var(--text-title)] font-semibold">
+          가장 중요한 조건을 알려주세요
+        </h3>
+        <p className="mt-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-on-surface-muted)]">
+          분석 프로필을 선택하거나, 직접 가중치를 설정해보세요
+        </p>
+      </div>
 
-      {/* Preset selector */}
+      {/* Preset selector — 2 cols mobile, larger cards */}
       <EmojiCardSelector
         options={PRESET_OPTIONS}
         value={isCustomMode ? undefined : (weightProfile as Exclude<WeightProfile, 'custom'>)}
         onSelect={handlePresetSelect}
-        columns="4"
+        columns="2"
         ariaLabel="분석 프로필 선택"
-        className="[&>button]:min-h-[120px]"
+        className="[&>button]:min-h-[148px] [&>button]:p-[var(--space-4)]"
       />
 
-      {/* Custom toggle */}
+      {/* Custom toggle — full-width card-like button */}
       <button
         type="button"
         onClick={handleToggleCustom}
-        className={`flex w-full items-center gap-[var(--space-3)] rounded-[var(--radius-s7-lg)] border-[1.5px] px-[var(--space-4)] py-[var(--space-3)] text-left transition-colors ${
+        className={`flex w-full items-center gap-[var(--space-3)] rounded-[var(--radius-s7-xl)] px-[var(--space-5)] py-[var(--space-4)] text-left transition-all duration-200 ${
           isCustomMode
-            ? 'border-[var(--color-brand-400)] bg-[var(--color-brand-50)]'
-            : 'border-[var(--color-border)] bg-transparent hover:border-[var(--color-brand-200)]'
+            ? 'border-2 border-[var(--color-neutral-700)] bg-[var(--color-surface)] shadow-[var(--shadow-s7-sm)]'
+            : 'border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-neutral-300)] hover:bg-[var(--color-neutral-50)]'
         }`}
         aria-expanded={isCustomMode}
         aria-controls="custom-weight-panel"
       >
-        <SlidersHorizontal
-          size={18}
-          className={
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${
             isCustomMode
-              ? 'text-[var(--color-brand-500)]'
-              : 'text-[var(--color-on-surface-muted)]'
-          }
-        />
-        <span className="flex-1 text-[length:var(--text-body)] font-medium">
-          직접 설정하기
-        </span>
-        <span className="text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-          {isCustomMode ? '접기' : '6개 축 가중치를 세밀하게 조절'}
-        </span>
+              ? 'bg-[var(--color-neutral-200)] text-[var(--color-neutral-800)]'
+              : 'bg-[var(--color-neutral-100)] text-[var(--color-neutral-500)]'
+          }`}
+        >
+          <SlidersHorizontal size={20} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="block text-[length:var(--text-body)] font-semibold">
+            직접 설정
+          </span>
+          <span className="block text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
+            6개 축 가중치를 세밀하게 조절해요
+          </span>
+        </div>
+        {isCustomMode ? (
+          <ChevronUp size={18} className="shrink-0 text-[var(--color-neutral-700)]" />
+        ) : (
+          <ChevronDown size={18} className="shrink-0 text-[var(--color-on-surface-muted)]" />
+        )}
       </button>
 
       {/* Custom weight sliders */}
       {isCustomMode && (
         <div
           id="custom-weight-panel"
-          className="rounded-[var(--radius-s7-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-5)]"
+          className="rounded-[var(--radius-s7-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-6)] shadow-[var(--shadow-s7-sm)]"
           style={{ animation: 'fadeSlideUp 200ms var(--ease-out-expo) both' }}
         >
-          <p className="mb-[var(--space-4)] text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">
-            슬라이더를 조절하면 나머지 항목이 자동으로 균형을 맞춥니다. 합계는 항상 100%입니다.
-          </p>
           <CustomWeightSlider
             weights={effectiveCustomWeights}
             onChange={handleCustomWeightsChange}
