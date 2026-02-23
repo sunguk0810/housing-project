@@ -7,6 +7,7 @@ import { isRateLimited, getClientIp } from "@/lib/rate-limit";
  * Only passes through safe, expected fields to the client.
  */
 const kakaoDocumentSchema = z.object({
+  id: z.string(),
   place_name: z.string(),
   address_name: z.string(),
   road_address_name: z.string().optional().default(""),
