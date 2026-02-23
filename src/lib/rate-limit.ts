@@ -49,8 +49,8 @@ export function isRateLimited(key: string, maxRequests: number): boolean {
 function isValidIpFormat(ip: string): boolean {
   // IPv4: 1.2.3.4
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return true;
-  // IPv6 (including compressed forms): ::1, 2001:db8::1, etc.
-  if (/^[0-9a-fA-F:]+$/.test(ip) && ip.includes(':')) return true;
+  // IPv6 (including compressed forms and IPv4-mapped): ::1, 2001:db8::1, ::ffff:203.0.113.5, etc.
+  if (/^[0-9a-fA-F:.]+$/.test(ip) && ip.includes(':')) return true;
   return false;
 }
 
