@@ -5,6 +5,7 @@ upstream app {
 server {
     listen 80;
     server_name _;
+    server_tokens off;
 
     # Gzip compression
     gzip on;
@@ -14,7 +15,11 @@ server {
     gzip_types text/plain text/css text/xml application/json application/javascript application/xml+rss image/svg+xml;
 
     # CF_SECRET_TOKEN injected by envsubst (nginx:alpine /etc/nginx/templates/ auto)
+    # CF_SECRET_BYPASS: set to "true" ONLY for local dev to skip secret check.
+    # SECURITY: fail-secure — if neither CF_SECRET_TOKEN nor CF_SECRET_BYPASS is set,
+    # all non-static requests will be blocked with 403.
     set $cf_secret "${CF_SECRET_TOKEN}";
+    set $cf_bypass "${CF_SECRET_BYPASS}";
 
     # ── Exempt paths (public static assets — browser/SEO required) ──
     # This list is the SoT for CF-Secret exemptions:
@@ -49,19 +54,33 @@ server {
         proxy_pass http://app;
     }
 
-    # ── All other paths: X-CF-Secret required ──
+    # ── All other paths: X-CF-Secret required (fail-secure) ──
     location / {
-        # Skip validation if CF_SECRET_TOKEN is empty (dev/debug mode)
-        if ($cf_secret = "") {
-            set $skip_cf_check "1";
+        # Default: deny all (fail-secure)
+        set $cf_allow "0";
+
+        # Explicit dev bypass (requires CF_SECRET_BYPASS=true in environment)
+        if ($cf_bypass = "true") {
+            set $cf_allow "1";
         }
-        if ($http_x_cf_secret != $cf_secret) {
-            set $cf_deny "1";
+
+        # Check if CF_SECRET_TOKEN is configured
+        if ($cf_secret != "") {
+            set $cf_has_secret "1";
         }
-        if ($skip_cf_check = "1") {
-            set $cf_deny "0";
+
+        # Check if request header matches secret
+        if ($http_x_cf_secret = $cf_secret) {
+            set $cf_match "1";
         }
-        if ($cf_deny = "1") {
+
+        # Allow if secret is configured AND header matches
+        set $cf_auth "${cf_has_secret}:${cf_match}";
+        if ($cf_auth = "1:1") {
+            set $cf_allow "1";
+        }
+
+        if ($cf_allow = "0") {
             return 403;
         }
 

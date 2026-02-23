@@ -9,8 +9,12 @@ interface AddressResult {
 }
 
 function subscribeToSdkLoad(callback: () => void) {
-  // Poll for SDK load status change
-  const interval = setInterval(callback, 1000);
+  const interval = setInterval(() => {
+    callback();
+    if (isKakaoAddressLoaded()) {
+      clearInterval(interval);
+    }
+  }, 1000);
   return () => clearInterval(interval);
 }
 

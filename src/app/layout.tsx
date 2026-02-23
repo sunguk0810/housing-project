@@ -40,7 +40,8 @@ const KAKAO_JS_KEY =
   process.env.NEXT_PUBLIC_KAKAO_JS_KEY?.trim() ||
   process.env.NEXT_PUBLIC_KAKAO_APP_KEY?.trim() ||
   '';
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? '';
+const GTM_ID_RAW = process.env.NEXT_PUBLIC_GTM_ID ?? '';
+const GTM_ID = /^GTM-[A-Z0-9]+$/.test(GTM_ID_RAW) ? GTM_ID_RAW : '';
 
 export default function RootLayout({
   children,
@@ -63,11 +64,11 @@ export default function RootLayout({
         {KAKAO_JS_KEY && (
           <>
             <Script
-              src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false&libraries=services`}
+              src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false&libraries=services`}
               strategy="afterInteractive"
             />
             <Script
-              src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+              src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
               strategy="afterInteractive"
             />
           </>

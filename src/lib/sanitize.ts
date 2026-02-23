@@ -23,11 +23,24 @@ export function escapeHtml(str: string): string {
  */
 export function stripDangerousHtml(html: string): string {
   return html
+    // Dangerous elements
     .replace(/<script[\s>][\s\S]*?<\/script>/gi, "")
     .replace(/<iframe[\s>][\s\S]*?<\/iframe>/gi, "")
+    .replace(/<object[\s>][\s\S]*?<\/object>/gi, "")
+    .replace(/<embed[\s>][\s\S]*?<\/embed>/gi, "")
+    .replace(/<svg[\s>][\s\S]*?<\/svg>/gi, "")
+    .replace(/<math[\s>][\s\S]*?<\/math>/gi, "")
+    .replace(/<base[\s>][^>]*>/gi, "")
+    .replace(/<form[\s>][\s\S]*?<\/form>/gi, "")
+    .replace(/<link[\s>][^>]*>/gi, "")
+    .replace(/<meta[\s>][^>]*>/gi, "")
+    // Event handlers (quoted and unquoted)
     .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, "")
     .replace(/\son\w+\s*=\s*[^\s>]+/gi, "")
-    .replace(/javascript\s*:/gi, "");
+    // Dangerous URI schemes
+    .replace(/javascript\s*:/gi, "")
+    .replace(/vbscript\s*:/gi, "")
+    .replace(/data\s*:\s*text\/html/gi, "");
 }
 
 /**
