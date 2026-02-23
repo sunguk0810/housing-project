@@ -24,6 +24,7 @@ const mockItem: RecommendationItem = {
   lng: 127.0,
   tradeType: "jeonse",
   averagePrice: 32000,
+  representativeArea: null,
   householdCount: 1200,
   areaMin: 84,
   areaMax: 114,

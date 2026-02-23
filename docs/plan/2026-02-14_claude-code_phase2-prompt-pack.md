@@ -1,7 +1,7 @@
 <!-- template v1.1 -->
 ---
 plan-id: "2026-02-14_claude-code_phase2-prompt-pack"
-status: "in_progress"
+status: "done"
 phase: "PHASE2"
 template-version: "1.1"
 work-type: "ops"

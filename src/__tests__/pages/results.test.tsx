@@ -14,6 +14,7 @@ const mockItem = (rank: number, score: number, budget: number, commute: number):
   lng: 127.0,
   tradeType: "jeonse",
   averagePrice: 32000,
+  representativeArea: 84,
   householdCount: 1200,
   areaMin: 84,
   areaMax: 114,
@@ -63,12 +64,17 @@ describe("Results page logic", () => {
   it("reads results from sessionStorage", () => {
     const data: RecommendResponse = {
       recommendations: [mockItem(1, 80, 0.8, 0.9), mockItem(2, 72, 0.7, 0.8)],
-      meta: { totalCandidates: 20, computedAt: "2026-01-01" },
+      meta: {
+        totalCandidates: 20,
+        computedAt: "2026-01-01",
+        sortOrders: { score: [1, 2], budget: [1, 2], commute: [1, 2] },
+      },
     };
     sessionStorage.setItem("hc_results", JSON.stringify(data));
     const parsed: RecommendResponse = JSON.parse(sessionStorage.getItem("hc_results")!);
     expect(parsed.recommendations).toHaveLength(2);
     expect(parsed.meta.totalCandidates).toBe(20);
+    expect(parsed.meta.sortOrders?.score).toEqual([1, 2]);
   });
 
   it("sorts by score (default)", () => {
@@ -88,5 +94,19 @@ describe("Results page logic", () => {
     const items = [mockItem(1, 80, 0.5, 0.3), mockItem(2, 60, 0.4, 0.9)];
     const sorted = sortItems(items, "commute");
     expect(sorted[0].dimensions.commute).toBe(0.9);
+  });
+
+  it("server sortOrders takes precedence over client sort", () => {
+    // Server says budget order is [2, 1] (apt 2 first)
+    const items = [mockItem(1, 80, 0.5, 0.9), mockItem(2, 60, 0.9, 0.3)];
+    const serverOrder = [2, 1];
+    const itemMap = new Map(items.map((r) => [r.aptId, r]));
+    const ordered: RecommendationItem[] = [];
+    for (const aptId of serverOrder) {
+      const item = itemMap.get(aptId);
+      if (item) ordered.push(item);
+    }
+    expect(ordered[0].aptId).toBe(2);
+    expect(ordered[1].aptId).toBe(1);
   });
 });

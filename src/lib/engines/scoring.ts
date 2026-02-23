@@ -48,12 +48,12 @@ export const WEIGHT_PROFILES: Record<
     complexScale: 0.25,
   },
   value_maximized: {
-    budget: 0.00,
-    commute: 0.30,
-    childcare: 0.18,
-    safety: 0.18,
-    school: 0.15,
-    complexScale: 0.19,
+    budget: 0.25,
+    commute: 0.23,
+    childcare: 0.14,
+    safety: 0.14,
+    school: 0.12,
+    complexScale: 0.12,
   },
 };
 
@@ -85,6 +85,19 @@ function normalizeBudget(
   }
   // Linear ramp down: 1.0 at 85% → 0.7 at 100%
   return 1.0 - ((ratio - 0.85) / 0.15) * 0.3;
+}
+
+/**
+ * Budget (linear): price / maxPrice, capped at 1.0.
+ * Used by value_maximized profile — higher price = higher score
+ * (the user wants to maximize budget utilization, not find a sweet spot).
+ */
+function normalizeBudgetLinear(
+  apartmentPrice: number,
+  maxPrice: number,
+): number {
+  if (maxPrice <= 0) return 0;
+  return Math.min(apartmentPrice / maxPrice, 1.0);
 }
 
 /** Commute: max(0, (60 - max(commute1, commute2)) / 60) */
@@ -276,6 +289,13 @@ export function calculateFinalScore(
   weightProfile: WeightProfileKey,
 ): FinalScoreResult {
   const dimensions = normalizeScore(input);
+
+  // value_maximized: linear budget (higher price → higher score)
+  // instead of the default bell curve which penalizes near-cap prices
+  if (weightProfile === 'value_maximized') {
+    dimensions.budget = normalizeBudgetLinear(input.apartmentPrice, input.maxPrice);
+  }
+
   const weights = WEIGHT_PROFILES[weightProfile];
 
   const rawScore =

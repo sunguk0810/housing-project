@@ -158,6 +158,7 @@ async function scoreOneCandidate(
       lng: aptLon,
       tradeType: ctx.tradeType,
       averagePrice: row.averagePrice ?? 0,
+      representativeArea: row.representativeArea,
       householdCount: row.householdCount,
       areaMin: row.areaMin,
       areaMax: row.areaMax,
