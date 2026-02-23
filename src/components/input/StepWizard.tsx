@@ -28,6 +28,10 @@ export function StepWizard() {
       if (saved) {
         try {
           const parsed: unknown = JSON.parse(saved);
+          // Legacy format: plain 'true' string (JSON.parse('true') succeeds with boolean)
+          if (parsed === true) {
+            return { terms: true, privacy: true, marketing: false };
+          }
           if (parsed && typeof parsed === 'object' && 'terms' in parsed && 'privacy' in parsed) {
             const obj = parsed as Record<string, unknown>;
             return {
@@ -37,10 +41,7 @@ export function StepWizard() {
             };
           }
         } catch {
-          // Legacy format: plain 'true' string
-          if (saved === 'true') {
-            return { terms: true, privacy: true, marketing: false };
-          }
+          // Malformed JSON – ignore and fall through to default
         }
       }
     }
