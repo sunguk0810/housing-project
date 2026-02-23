@@ -1,10 +1,7 @@
-import { sql } from 'drizzle-orm';
-import pLimit from 'p-limit';
-import { db } from '@/db/connection';
-import { findNearbyChildcare } from '@/lib/engines/spatial';
-import { getCommuteTime } from '@/lib/engines/commute';
 import { calculateFinalScore } from '@/lib/engines/scoring';
 import { estimateApartmentMonthlyCost } from '@/lib/engines/budget';
+import { enrichCandidates } from '@/lib/engines/enrich-candidates';
+import type { CandidateEnrichment } from '@/lib/engines/enrich-candidates';
 import type { CandidateRow } from '@/lib/queries/fetch-candidates';
 import type { RegionSafetyData } from '@/lib/queries/fetch-safety';
 import type { RecommendationItem, TradeType } from '@/types/api';
@@ -13,6 +10,8 @@ import type { ScoringInput, WeightProfileKey, LoanProgramKey, CustomWeights } fr
 /**
  * Scoring pipeline: enriches candidate apartments with spatial/commute/safety data
  * and computes final weighted scores.
+ *
+ * V2: Batch enrichment (4 DB queries total) replaces N+1 per-candidate queries.
  *
  * Source of Truth: M2 spec Section 6.1 (Steps 6-10)
  */
@@ -43,85 +42,61 @@ export interface ScoredCandidate {
   readonly item: RecommendationItem;
 }
 
-// --- Constants ---
-
-const CONCURRENCY_LIMIT = 5;
-
 // --- Main pipeline ---
 
 /**
- * Score all candidate apartments concurrently.
- * Each candidate is enriched with childcare, school, safety, and commute data,
- * then scored using the 6-dimension weighted engine.
+ * Score all candidate apartments using batch enrichment.
+ * Runs 4 DB queries total for all candidates, then scores in pure JS.
  */
 export async function scoreCandidates(
   input: ScoringPipelineInput,
 ): Promise<ScoredCandidate[]> {
-  const limit = pLimit(CONCURRENCY_LIMIT);
+  const enrichmentMap = await enrichCandidates(
+    input.candidates,
+    input.job1,
+    input.job2,
+  );
 
-  return Promise.all(
-    input.candidates.map((row) =>
-      limit(() => scoreOneCandidate(row, input)),
-    ),
+  return input.candidates.map((row) =>
+    scoreFromEnrichmentRow(row, enrichmentMap.get(row.id), input),
   );
 }
 
-async function scoreOneCandidate(
-  row: CandidateRow,
-  ctx: ScoringPipelineInput,
-): Promise<ScoredCandidate> {
-  const aptLon = row.longitude;
-  const aptLat = row.latitude;
-
-  // Step 6: Childcare within 800m
-  const childcareItems = await findNearbyChildcare(aptLon, aptLat, 800);
-
-  // Step 7: School score
-  const schoolRows = await db.execute(sql`
-    SELECT COALESCE(AVG(CAST(achievement_score AS REAL)), 0) AS "avgScore"
-    FROM schools
-    WHERE ST_DWithin(
-      location::geography,
-      ST_SetSRID(ST_MakePoint(${aptLon}, ${aptLat}), 4326)::geography,
-      1500
-    )
-  `);
-  const avgSchoolScore = Number(
-    (schoolRows[0] as Record<string, unknown>)?.avgScore ?? 0,
+/**
+ * Score candidates from a pre-built enrichment map (no DB calls).
+ * Used by budget-sensitivity to reuse enrichment across 5 budget levels.
+ */
+export function scoreFromEnrichment(
+  candidates: ReadonlyArray<CandidateRow>,
+  enrichmentMap: ReadonlyMap<number, CandidateEnrichment>,
+  ctx: Omit<ScoringPipelineInput, 'candidates'>,
+): ScoredCandidate[] {
+  return candidates.map((row) =>
+    scoreFromEnrichmentRow(row, enrichmentMap.get(row.id), ctx),
   );
+}
 
-  // Step 8: Safety from batch map
+// Re-export for budget-sensitivity to call enrichCandidates directly
+export type { CandidateEnrichment };
+
+// --- Internal ---
+
+function scoreFromEnrichmentRow(
+  row: CandidateRow,
+  enrichment: CandidateEnrichment | undefined,
+  ctx: Omit<ScoringPipelineInput, 'candidates'>,
+): ScoredCandidate {
+  const childcareCount = enrichment?.childcareCount ?? 0;
+  const avgSchoolScore = enrichment?.avgSchoolScore ?? 0;
+  const commuteTime1 = enrichment?.commuteTime1 ?? 0;
+  const commuteTime2 = enrichment?.commuteTime2 ?? 0;
+
+  // Safety from batch map
   const safetyData = row.regionCode
     ? ctx.regionSafetyMap.get(row.regionCode)
     : undefined;
 
-  // Step 9: Commute times
-  const commute1 =
-    !ctx.job1
-      ? { timeMinutes: 0 }
-      : await getCommuteTime({
-          aptId: row.id,
-          aptLon,
-          aptLat,
-          destLon: ctx.job1.lng,
-          destLat: ctx.job1.lat,
-          destLabel: ctx.job1.label,
-        });
-
-  let commute2Time = 0;
-  if (ctx.job2) {
-    const c2 = await getCommuteTime({
-      aptId: row.id,
-      aptLon,
-      aptLat,
-      destLon: ctx.job2.lng,
-      destLat: ctx.job2.lat,
-      destLabel: ctx.job2.label,
-    });
-    commute2Time = c2.timeMinutes;
-  }
-
-  // Step 10: Scoring
+  // Monthly cost
   const monthlyCost = estimateApartmentMonthlyCost(
     row.averagePrice ?? 0,
     ctx.cash,
@@ -136,9 +111,9 @@ async function scoreOneCandidate(
   const scoringInput: ScoringInput = {
     apartmentPrice: row.averagePrice ?? 0,
     maxPrice: ctx.maxPrice,
-    commuteTime1: commute1.timeMinutes,
-    commuteTime2: commute2Time,
-    childcareCount800m: childcareItems.length,
+    commuteTime1,
+    commuteTime2,
+    childcareCount800m: childcareCount,
     crimeLevel: safetyData?.crimeLevel ?? 5,
     cctvDensity: safetyData?.cctvDensity ?? 2,
     shelterCount: safetyData?.shelterCount ?? 3,
@@ -155,8 +130,8 @@ async function scoreOneCandidate(
       aptId: row.id,
       aptName: row.aptName,
       address: row.address,
-      lat: aptLat,
-      lng: aptLon,
+      lat: row.latitude,
+      lng: row.longitude,
       tradeType: ctx.tradeType,
       averagePrice: row.averagePrice ?? 0,
       representativeArea: row.representativeArea,
@@ -166,9 +141,9 @@ async function scoreOneCandidate(
       monthlyRentAvg: row.monthlyRentAvg,
       builtYear: row.builtYear,
       monthlyCost: Math.round(monthlyCost),
-      commuteTime1: commute1.timeMinutes,
-      commuteTime2: ctx.job2 ? commute2Time : null,
-      childcareCount: childcareItems.length,
+      commuteTime1,
+      commuteTime2: ctx.job2 ? commuteTime2 : null,
+      childcareCount,
       schoolScore: Math.round(avgSchoolScore),
       safetyScore:
         Math.round((result.dimensions.safety + Number.EPSILON) * 100) / 100,

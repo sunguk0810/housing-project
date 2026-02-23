@@ -23,7 +23,7 @@ import { PropertyCardSkeleton } from "@/components/feedback/Skeleton";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { LoadMoreButton } from "@/components/results/LoadMoreButton";
 import { ShareButton } from "@/components/results/ShareButton";
-import { BudgetSensitivity } from "@/components/results/BudgetSensitivity";
+import { BudgetSensitivityDrawer } from "@/components/results/BudgetSensitivity";
 import type { ShareableCondition } from "@/lib/share";
 import type { StepFormData } from "@/hooks/useStepForm";
 import type { RecommendResponse, RecommendationItem } from "@/types/api";
@@ -60,6 +60,7 @@ export default function ResultsPage() {
   const [visitedIds, setVisitedIds] = useState<Set<number>>(new Set());
   const [sortBy, setSortBy] = useState<SortOption>("score");
   const [showMap, setShowMap] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [page, setPage] = useState(1);
   const [boundsChanged, setBoundsChanged] = useState(false);
   const [shareCondition, setShareCondition] = useState<ShareableCondition | null>(null);
@@ -68,11 +69,17 @@ export default function ResultsPage() {
 
   useTracking({ name: "result_view", count: data?.recommendations.length ?? 0 });
 
-  // Mobile defaults to map+bottom sheet view (design spec: map-first mobile UX)
+  // Track viewport size — keeps mobile map mode in sync with resize
   useEffect(() => {
-    if (window.matchMedia("(max-width: 1023px)").matches) {
-      setShowMap(true);
-    }
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsMobile(e.matches);
+      // Mobile defaults to map+bottom sheet view (design spec: map-first mobile UX)
+      if (e.matches) setShowMap(true);
+    };
+    handleChange(mql);
+    mql.addEventListener("change", handleChange);
+    return () => mql.removeEventListener("change", handleChange);
   }, []);
 
   // Load results from sessionStorage
@@ -226,9 +233,9 @@ export default function ResultsPage() {
   }
 
   // Mobile fullscreen map mode
-  if (showMap && data) {
+  if (showMap && isMobile && data) {
     return (
-      <div className="relative lg:hidden" style={{ height: "calc(100dvh - 7rem)" }}>
+      <div className="relative" style={{ height: "calc(100dvh - 7rem)" }}>
         {/* Fullscreen map */}
         <KakaoMap
           items={data.recommendations}
@@ -274,6 +281,7 @@ export default function ResultsPage() {
           sortBy={sortBy}
           onSortChange={handleSortChange}
         />
+
       </div>
     );
   }
@@ -315,6 +323,7 @@ export default function ResultsPage() {
       {/* Sort chips + map toggle + desktop compare bar (same row) */}
       <div className="mb-[var(--space-4)] flex items-center gap-[var(--space-3)]">
         <CardSelector value={sortBy} onChange={handleSortChange} />
+        <BudgetSensitivityDrawer formData={savedFormData} />
         <button
           type="button"
           onClick={() => setShowMap(true)}
@@ -381,9 +390,6 @@ export default function ResultsPage() {
             totalCount={sortedItems.length}
             onClick={handleLoadMore}
           />
-
-          {/* Budget sensitivity analysis */}
-          <BudgetSensitivity formData={savedFormData} className="mt-[var(--space-4)]" />
 
           {/* Disclaimer */}
           <p className="mt-[var(--space-6)] border-t border-[var(--color-border)] pt-[var(--space-4)] text-center text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">

@@ -134,7 +134,7 @@ export async function findNearestGrid(
  * stationCount fallback: NaN → 0.
  * All zero valid segments → null return.
  */
-function parseRouteSnapshot(value: unknown): CommuteRouteInfo | null {
+export function parseRouteSnapshot(value: unknown): CommuteRouteInfo | null {
   // Handle JSON string input
   let obj = value;
   if (typeof obj === 'string') {

@@ -6,7 +6,8 @@ import { calculateBudget, estimateApartmentMonthlyCost } from '@/lib/engines/bud
 import { geocodeAddress } from '@/etl/adapters/kakao-geocoding';
 import { fetchCandidateApartments } from '@/lib/queries/fetch-candidates';
 import { batchFetchSafetyByRegions } from '@/lib/queries/fetch-safety';
-import { scoreCandidates } from '@/lib/engines/scoring-pipeline';
+import { enrichCandidates } from '@/lib/engines/enrich-candidates';
+import { scoreFromEnrichment } from '@/lib/engines/scoring-pipeline';
 import type { GeocodedDestination } from '@/lib/engines/scoring-pipeline';
 import {
   invalidJsonError,
@@ -26,7 +27,9 @@ import type { WeightProfileKey, LoanProgramKey, CustomWeights } from '@/types/en
 /**
  * POST /api/budget-sensitivity
  * Returns Top10 results for 5 budget levels (±2500만, ±5000만 from base).
- * Fetches candidates once at the highest budget, then re-scores per level.
+ * Fetches candidates once at the highest budget, enriches once, then re-scores per level.
+ *
+ * V2: enrichment runs once (4 DB queries), then 5 budget levels scored in pure JS.
  *
  * Source of Truth: PHASE2 enhance-proptech-features plan
  */
@@ -120,8 +123,11 @@ export async function POST(
       ? { lng: job2Result.coordinate.lng, lat: job2Result.coordinate.lat, label: input.job2 ?? '' }
       : null;
 
-    // Helper: score one budget level and return its top-K result
-    async function scoreAtOffset(offset: number) {
+    // L3: Enrich ALL candidates once (4 DB queries)
+    const enrichmentMap = await enrichCandidates(candidateRows, job1Dest, job2Dest);
+
+    // Helper: score one budget level using pre-built enrichment (pure JS)
+    function scoreAtOffset(offset: number) {
       const adjustedCash = Math.max(0, input.cash + offset);
       const budget = calculateBudget({
         cash: adjustedCash,
@@ -150,11 +156,10 @@ export async function POST(
             );
 
       if (filtered.length === 0) {
-        return { offset, adjustedCash, topK: [], topIds: new Set<number>() };
+        return { offset, adjustedCash, topK: [] as ReturnType<typeof scoreFromEnrichment>, topIds: new Set<number>() };
       }
 
-      const scored = await scoreCandidates({
-        candidates: filtered,
+      const scored = scoreFromEnrichment(filtered, enrichmentMap, {
         regionSafetyMap,
         job1: job1Dest,
         job2: job2Dest,
@@ -173,15 +178,15 @@ export async function POST(
       return { offset, adjustedCash, topK, topIds };
     }
 
-    // Pass 1: score base level (offset=0) first to establish reference Top-K
-    const baseResult = await scoreAtOffset(0);
+    // Score base level (offset=0) first to establish reference Top-K
+    const baseResult = scoreAtOffset(0);
     const baseTopIds = baseResult.topIds;
 
-    // Pass 2: score all offsets and compute entered/exited against the base
+    // Score all offsets and compute entered/exited against the base
     const levels: BudgetLevelResult[] = [];
 
     for (const offset of offsets) {
-      const result = offset === 0 ? baseResult : await scoreAtOffset(offset);
+      const result = offset === 0 ? baseResult : scoreAtOffset(offset);
 
       const entered = offset === 0 ? [] : [...result.topIds].filter((id) => !baseTopIds.has(id));
       const exited = offset === 0 ? [] : [...baseTopIds].filter((id) => !result.topIds.has(id));

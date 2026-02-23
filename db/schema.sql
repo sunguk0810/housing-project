@@ -187,6 +187,7 @@ CREATE INDEX idx_childcare_location ON childcare_centers USING GIST(location);
 CREATE INDEX idx_schools_location ON schools USING GIST(location);
 CREATE INDEX idx_commute_grid_location ON commute_grid USING GIST(location);
 CREATE INDEX idx_apartment_prices_apt_id ON apartment_prices(apt_id);
+CREATE INDEX idx_apt_prices_trade_ym ON apartment_prices(trade_type, year, month, apt_id);
 CREATE INDEX idx_apartment_unit_types_apt_id ON apartment_unit_types(apt_id);
 CREATE INDEX idx_facility_points_location ON facility_points USING GIST(location);
 CREATE INDEX idx_facility_points_type ON facility_points(type);
