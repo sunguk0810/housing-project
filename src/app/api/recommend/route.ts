@@ -13,7 +13,7 @@ import { getCommuteTime } from '@/lib/engines/commute';
 import { geocodeAddress } from '@/etl/adapters/kakao-geocoding';
 import { diversityRerank, DEFAULT_TOP_K } from '@/lib/engines/diversity';
 import { safeNum } from '@/lib/utils/safe-num';
-import type { RecommendResponse, RecommendationItem, ApiErrorResponse, DesiredAreaKey } from '@/types/api';
+import type { RecommendResponse, RecommendationItem, ApiErrorResponse, DesiredAreaKey, SortOrders } from '@/types/api';
 import type { ScoringInput, WeightProfileKey } from '@/types/engine';
 
 const AREA_RANGES: Record<DesiredAreaKey, { min: number; max: number }> = {
@@ -160,6 +160,27 @@ export async function POST(
       areaFilterSql = sql`AND (${sql.join(conditions, sql` OR `)})`;
     }
 
+    // Build price area filter — narrow price average to desired area ranges
+    let priceAreaFilterNoAlias = sql``;
+    let priceAreaFilterWithAlias = sql``;
+    if (desiredAreas.length < 3) {
+      const noAliasConditions = desiredAreas.map((key) => {
+        const range = AREA_RANGES[key];
+        if (key === 'small') return sql`(exclusive_area < ${range.max + 1})`;
+        if (key === 'large') return sql`(exclusive_area >= ${range.min})`;
+        return sql`(exclusive_area >= ${range.min} AND exclusive_area < ${range.max + 1})`;
+      });
+      priceAreaFilterNoAlias = sql`AND exclusive_area IS NOT NULL AND (${sql.join(noAliasConditions, sql` OR `)})`;
+
+      const aliasConditions = desiredAreas.map((key) => {
+        const range = AREA_RANGES[key];
+        if (key === 'small') return sql`(p.exclusive_area < ${range.max + 1})`;
+        if (key === 'large') return sql`(p.exclusive_area >= ${range.min})`;
+        return sql`(p.exclusive_area >= ${range.min} AND p.exclusive_area < ${range.max + 1})`;
+      });
+      priceAreaFilterWithAlias = sql`AND p.exclusive_area IS NOT NULL AND (${sql.join(aliasConditions, sql` OR `)})`;
+    }
+
     const rawCandidateRows = (await db.execute(sql`
       WITH latest_month AS (
         SELECT apt_id,
@@ -167,6 +188,7 @@ export async function POST(
         FROM apartment_prices
         WHERE trade_type = ${input.tradeType}
           AND (year * 100 + month) >= ${minYearMonth}
+          ${priceAreaFilterNoAlias}
         GROUP BY apt_id
       ),
       latest_agg AS (
@@ -174,6 +196,7 @@ export async function POST(
           p.apt_id,
           AVG(p.price::numeric) as average_price,
           AVG(p.monthly_rent::numeric) FILTER (WHERE p.monthly_rent IS NOT NULL) as monthly_rent_avg,
+          AVG(p.exclusive_area::numeric) AS representative_area,
           COUNT(*) as deal_count,
           MAX(p.year) as price_year,
           MAX(p.month) as price_month
@@ -182,6 +205,7 @@ export async function POST(
           ON p.apt_id = lm.apt_id
           AND (p.year * 100 + p.month) = lm.ym
         WHERE p.trade_type = ${input.tradeType}
+          ${priceAreaFilterWithAlias}
         GROUP BY p.apt_id
         HAVING AVG(p.price::numeric) <= ${budget.maxPrice}
       )
@@ -199,6 +223,7 @@ export async function POST(
         a.area_max AS "areaMax",
         la.average_price AS "averagePrice",
         la.monthly_rent_avg AS "monthlyRentAvg",
+        la.representative_area AS "representativeArea",
         la.deal_count AS "dealCount",
         la.price_year AS "priceYear",
         la.price_month AS "priceMonth"
@@ -220,6 +245,7 @@ export async function POST(
       areaMin: unknown;
       areaMax: unknown;
       averagePrice: unknown;
+      representativeArea: unknown;
       monthlyRentAvg: unknown;
       dealCount: unknown;
       priceYear: number | null;
@@ -258,6 +284,7 @@ export async function POST(
         areaMin: safeNum(r.areaMin),
         areaMax: safeNum(r.areaMax),
         averagePrice: safeNum(r.averagePrice),
+        representativeArea: safeNum(r.representativeArea),
         monthlyRentAvg: safeNum(r.monthlyRentAvg),
         dealCount: safeNum(r.dealCount),
         priceYear: r.priceYear === null ? null : Number(r.priceYear),
@@ -425,6 +452,7 @@ export async function POST(
               lng: aptLon,
               tradeType: input.tradeType,
               averagePrice: row.averagePrice ?? 0,
+              representativeArea: row.representativeArea,
               householdCount: row.householdCount,
               areaMin: row.areaMin,
               areaMax: row.areaMax,
@@ -482,11 +510,27 @@ export async function POST(
       rank: idx + 1,
     }));
 
+    // Build server-side sort orders (aptId arrays for each sort mode)
+    const byScore = ranked.map((r) => r.aptId);
+    const byBudget = [...ranked]
+      .sort((a, b) => (b.dimensions.budget - a.dimensions.budget) || (b.finalScore - a.finalScore))
+      .map((r) => r.aptId);
+    const byCommute = [...ranked]
+      .sort((a, b) => (b.dimensions.commute - a.dimensions.commute) || (b.finalScore - a.finalScore))
+      .map((r) => r.aptId);
+
+    const sortOrders: SortOrders = {
+      score: byScore,
+      budget: byBudget,
+      commute: byCommute,
+    };
+
     const response: RecommendResponse = {
       recommendations: ranked,
       meta: {
         totalCandidates: candidatesForScoring.length,
         computedAt: new Date().toISOString(),
+        sortOrders,
       },
     };
 

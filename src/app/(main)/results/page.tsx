@@ -103,6 +103,18 @@ export default function ResultsPage() {
 
   const sortedItems = useMemo(() => {
     if (!data) return [];
+    // Prefer server-provided sort orders; fall back to client-side sort (old cache)
+    const serverOrder = data.meta.sortOrders?.[sortBy];
+    if (serverOrder && serverOrder.length > 0) {
+      const itemById: Record<number, RecommendationItem> = {};
+      for (const r of data.recommendations) itemById[r.aptId] = r;
+      const ordered: RecommendationItem[] = [];
+      for (const aptId of serverOrder) {
+        const item = itemById[aptId];
+        if (item) ordered.push(item);
+      }
+      return ordered;
+    }
     return sortItems(data.recommendations, sortBy);
   }, [data, sortBy]);
 

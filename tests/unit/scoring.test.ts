@@ -311,15 +311,15 @@ describe("calculateFinalScore", () => {
     expect(expensive.dimensions.budget).toBeGreaterThan(cheap.dimensions.budget);
   });
 
-  // S-32: value_maximized — budget weight=0, budget score does not affect finalScore
-  it("S-32: value_maximized budget weight=0 — budget dimension does not affect finalScore", () => {
+  // S-32: value_maximized — higher price → higher budget score → higher finalScore
+  it("S-32: value_maximized higher price yields higher finalScore (linear budget)", () => {
     const inputLow = makeInput({ apartmentPrice: 10000, maxPrice: 60000 });
-    const inputHigh = makeInput({ apartmentPrice: 51000, maxPrice: 60000 }); // 85% = budget peak
+    const inputHigh = makeInput({ apartmentPrice: 51000, maxPrice: 60000 });
     const resultLow = calculateFinalScore(inputLow, "value_maximized");
     const resultHigh = calculateFinalScore(inputHigh, "value_maximized");
-    // Budget differs significantly but finalScore should be identical (same other dims)
-    expect(resultLow.dimensions.budget).not.toBeCloseTo(resultHigh.dimensions.budget, 1);
-    expect(resultLow.finalScore).toBeCloseTo(resultHigh.finalScore, 5);
+    // Linear budget: 51000/60000=0.85 vs 10000/60000=0.167 → significant gap
+    expect(resultHigh.dimensions.budget).toBeGreaterThan(resultLow.dimensions.budget);
+    expect(resultHigh.finalScore).toBeGreaterThan(resultLow.finalScore);
   });
 
   // S-33: Near-budget-cap apartment with high quality dims scores higher in value_maximized
@@ -354,6 +354,17 @@ describe("calculateFinalScore", () => {
       "value_maximized",
     );
     expect(large.finalScore - small.finalScore).toBeGreaterThan(5);
+  });
+
+  // S-35: Linear budget normalization in value_maximized vs bell curve in balanced
+  it("S-35: 100% utilization — linear=1.0 (value_maximized) vs bell=0.7 (balanced)", () => {
+    const input = makeInput({ apartmentPrice: 60000, maxPrice: 60000 });
+    const vm = calculateFinalScore(input, "value_maximized");
+    const bal = calculateFinalScore(input, "balanced");
+    // value_maximized uses linear: 60000/60000 = 1.0
+    expect(vm.dimensions.budget).toBeCloseTo(1.0, 2);
+    // balanced uses bell curve: 100% utilization → 0.7
+    expect(bal.dimensions.budget).toBeCloseTo(0.7, 2);
   });
 });
 

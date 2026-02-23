@@ -57,6 +57,7 @@ export interface RecommendationItem {
   readonly lng: number; // M3 KakaoMap marker longitude
   readonly tradeType: TradeType;
   readonly averagePrice: number; // average price in 만원
+  readonly representativeArea?: number | null; // avg area (㎡) of trades used for price
   readonly householdCount: number | null;
   readonly areaMin: number | null; // min area in ㎡
   readonly areaMax: number | null;
@@ -82,9 +83,16 @@ export interface RecommendationItem {
   readonly sources: SourceInfo;
 }
 
+export interface SortOrders {
+  readonly score: ReadonlyArray<number>;   // aptId by finalScore DESC
+  readonly budget: ReadonlyArray<number>;  // aptId by dimensions.budget DESC, finalScore tiebreak
+  readonly commute: ReadonlyArray<number>; // aptId by dimensions.commute DESC, finalScore tiebreak
+}
+
 export interface RecommendMeta {
   readonly totalCandidates: number;
   readonly computedAt: string;
+  readonly sortOrders?: SortOrders;
 }
 
 export interface RecommendResponse {
