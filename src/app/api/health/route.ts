@@ -68,7 +68,7 @@ export async function GET(): Promise<NextResponse<HealthResponse>> {
   const response: HealthResponse = {
     status: allOk ? "healthy" : "degraded",
     timestamp: new Date().toISOString(),
-    version: process.env.NODE_ENV === "production" ? undefined : process.env.npm_package_version ?? "0.0.0",
+    version: process.env.NODE_ENV === "development" ? (process.env.npm_package_version ?? "0.0.0") : undefined,
     checks,
   };
 

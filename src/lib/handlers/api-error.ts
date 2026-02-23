@@ -108,7 +108,7 @@ export function logPipelineError(
       error: message,
       code: dbErrorCode,
       cause: dbErrorCause,
-      ...(process.env.NODE_ENV !== 'production' && stack ? { stack } : {}),
+      ...(process.env.NODE_ENV === 'development' && stack ? { stack } : {}),
       timestamp: new Date().toISOString(),
     }),
   );
