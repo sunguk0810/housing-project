@@ -12,6 +12,7 @@ function makeItem(overrides: Partial<RecommendationItem> & { aptId: number }): R
     lng: 127.0,
     tradeType: "jeonse",
     averagePrice: 30000,
+    representativeArea: null,
     householdCount: 500,
     areaMin: 84,
     areaMax: 114,

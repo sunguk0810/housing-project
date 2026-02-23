@@ -89,7 +89,7 @@ describe('useStepForm', () => {
     expect(stored).toBeTruthy();
     if (stored) {
       const parsed = JSON.parse(stored);
-      expect(parsed.schemaVersion).toBe(6);
+      expect(parsed.schemaVersion).toBe(7);
       expect(parsed.data.cash).toBe(5000);
       expect(parsed.data.weightProfile).toBe('balanced');
       expect(parsed.data.budgetProfile).toBe('noProperty');

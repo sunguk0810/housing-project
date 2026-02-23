@@ -56,8 +56,8 @@ export function StepWizard({ sharedConditionParam }: StepWizardProps) {
   });
 
   const [keypadOpen, setKeypadOpen] = useState(false);
-  const [isSharedSession, setIsSharedSession] = useState(false);
   const sharedApplied = useRef(false);
+  const isSharedSession = !!sharedConditionParam && !!decodeShareableCondition(sharedConditionParam);
 
   const { watch, setValue } = form;
 
@@ -83,8 +83,6 @@ export function StepWizard({ sharedConditionParam }: StepWizardProps) {
     if (decoded.customWeights) {
       setValue('customWeights', decoded.customWeights);
     }
-
-    setIsSharedSession(true);
   }, [sharedConditionParam, setValue]);
   const values = watch();
 

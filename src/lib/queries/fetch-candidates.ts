@@ -32,6 +32,7 @@ export interface CandidateRow {
   readonly areaMin: number | null;
   readonly areaMax: number | null;
   readonly averagePrice: number | null;
+  readonly representativeArea: number | null;
   readonly monthlyRentAvg: number | null;
   readonly dealCount: number | null;
   readonly priceYear: number | null;
@@ -69,6 +70,22 @@ function buildAreaFilterSql(desiredAreas: readonly DesiredAreaKey[]) {
   return sql`AND (${sql.join(conditions, sql` OR `)})`;
 }
 
+// Build price-level area filter — narrow price average to desired area ranges
+function buildPriceAreaFilter(desiredAreas: readonly DesiredAreaKey[], alias: string) {
+  if (desiredAreas.length >= 3) return sql``;
+
+  const conditions = desiredAreas.map((key) => {
+    const range = AREA_RANGES[key];
+    const col = alias ? sql.raw(`${alias}.exclusive_area`) : sql.raw('exclusive_area');
+    if (key === 'small') return sql`(${col} < ${range.max + 1})`;
+    if (key === 'large') return sql`(${col} >= ${range.min})`;
+    return sql`(${col} >= ${range.min} AND ${col} < ${range.max + 1})`;
+  });
+
+  const colNotNull = alias ? sql.raw(`${alias}.exclusive_area`) : sql.raw('exclusive_area');
+  return sql`AND ${colNotNull} IS NOT NULL AND (${sql.join(conditions, sql` OR `)})`;
+}
+
 // --- Row validation & transformation ---
 
 interface RawCandidateRow {
@@ -84,6 +101,7 @@ interface RawCandidateRow {
   areaMin: unknown;
   areaMax: unknown;
   averagePrice: unknown;
+  representativeArea: unknown;
   monthlyRentAvg: unknown;
   dealCount: unknown;
   priceYear: number | null;
@@ -131,6 +149,7 @@ function validateAndMapRows(rawRows: RawCandidateRow[]): CandidateRow[] {
       areaMin: safeNum(r.areaMin),
       areaMax: safeNum(r.areaMax),
       averagePrice: safeNum(r.averagePrice),
+      representativeArea: safeNum(r.representativeArea),
       monthlyRentAvg: safeNum(r.monthlyRentAvg),
       dealCount: safeNum(r.dealCount),
       priceYear: r.priceYear === null ? null : Number(r.priceYear),
@@ -155,6 +174,8 @@ export async function fetchCandidateApartments(
   const minYearMonth = minDate.getFullYear() * 100 + (minDate.getMonth() + 1);
 
   const areaFilterSql = buildAreaFilterSql(desiredAreas);
+  const priceAreaFilterNoAlias = buildPriceAreaFilter(desiredAreas, '');
+  const priceAreaFilterWithAlias = buildPriceAreaFilter(desiredAreas, 'p');
 
   const rawRows = (await db.execute(sql`
     WITH latest_month AS (
@@ -163,6 +184,7 @@ export async function fetchCandidateApartments(
       FROM apartment_prices
       WHERE trade_type = ${tradeType}
         AND (year * 100 + month) >= ${minYearMonth}
+        ${priceAreaFilterNoAlias}
       GROUP BY apt_id
     ),
     latest_agg AS (
@@ -170,6 +192,7 @@ export async function fetchCandidateApartments(
         p.apt_id,
         AVG(p.price::numeric) as average_price,
         AVG(p.monthly_rent::numeric) FILTER (WHERE p.monthly_rent IS NOT NULL) as monthly_rent_avg,
+        AVG(p.exclusive_area::numeric) AS representative_area,
         COUNT(*) as deal_count,
         MAX(p.year) as price_year,
         MAX(p.month) as price_month
@@ -178,6 +201,7 @@ export async function fetchCandidateApartments(
         ON p.apt_id = lm.apt_id
         AND (p.year * 100 + p.month) = lm.ym
       WHERE p.trade_type = ${tradeType}
+        ${priceAreaFilterWithAlias}
       GROUP BY p.apt_id
       HAVING AVG(p.price::numeric) <= ${maxPrice}
     )
@@ -195,6 +219,7 @@ export async function fetchCandidateApartments(
       a.area_max AS "areaMax",
       la.average_price AS "averagePrice",
       la.monthly_rent_avg AS "monthlyRentAvg",
+      la.representative_area AS "representativeArea",
       la.deal_count AS "dealCount",
       la.price_year AS "priceYear",
       la.price_month AS "priceMonth"

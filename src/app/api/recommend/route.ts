@@ -17,7 +17,7 @@ import {
   internalError,
   logPipelineError,
 } from '@/lib/handlers/api-error';
-import type { RecommendResponse, ApiErrorResponse } from '@/types/api';
+import type { RecommendResponse, ApiErrorResponse, SortOrders } from '@/types/api';
 import type { WeightProfileKey, LoanProgramKey, CustomWeights } from '@/types/engine';
 
 /**
@@ -165,11 +165,27 @@ export async function POST(
       rank: idx + 1,
     }));
 
+    // Build server-side sort orders (aptId arrays for each sort mode)
+    const byScore = ranked.map((r) => r.aptId);
+    const byBudget = [...ranked]
+      .sort((a, b) => (b.dimensions.budget - a.dimensions.budget) || (b.finalScore - a.finalScore))
+      .map((r) => r.aptId);
+    const byCommute = [...ranked]
+      .sort((a, b) => (b.dimensions.commute - a.dimensions.commute) || (b.finalScore - a.finalScore))
+      .map((r) => r.aptId);
+
+    const sortOrders: SortOrders = {
+      score: byScore,
+      budget: byBudget,
+      commute: byCommute,
+    };
+
     const response: RecommendResponse = {
       recommendations: ranked,
       meta: {
         totalCandidates: candidatesForScoring.length,
         computedAt: new Date().toISOString(),
+        sortOrders,
         ...(job1Dest ? { job1Coord: { lat: job1Dest.lat, lng: job1Dest.lng, label: input.job1 } } : {}),
         ...(job2Dest ? { job2Coord: { lat: job2Dest.lat, lng: job2Dest.lng, label: input.job2 ?? '' } } : {}),
       },

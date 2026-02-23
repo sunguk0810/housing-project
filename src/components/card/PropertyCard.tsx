@@ -157,6 +157,11 @@ export const PropertyCard = memo(function PropertyCard({
           {/* Price line */}
           <p className="mt-0.5 text-[length:var(--text-body-sm)] font-bold tabular-nums">
             {formatTradeTypeLabel(item.tradeType)} {formatPrice(item.averagePrice)}
+            {item.representativeArea != null && (
+              <span className="ml-1 text-[length:var(--text-caption)] font-normal text-[var(--color-on-surface-muted)]">
+                ({Math.round(item.representativeArea)}㎡ 기준)
+              </span>
+            )}
           </p>
           {/* Monthly cost sub-line */}
           {item.monthlyCost > 0 && (

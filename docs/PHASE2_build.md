@@ -43,51 +43,51 @@
 | **M3 Frontend**    | Week 4-5 | 3단 퍼널, 결과 페이지, 신뢰 UI, 컴플라이언스 페이지          | Codex       |
 | **M4 Polish**      | Week 6   | 반응형, 성능, 이벤트 트래킹 구현, README                     | Claude Code |
 
-### M1 Foundation (Week 1)
+### M1 Foundation (Week 1) — 완료
 
-- [ ] `npx create-next-app@latest` + TypeScript strict 모드
-- [ ] Tailwind CSS + shadcn/ui 설정
-- [ ] 디자인 토큰 적용 (→ PHASE1 S7 참조)
-- [ ] PostgreSQL + PostGIS 초기화
-- [ ] `db/schema.sql` 생성 (→ PHASE1 S2에서 파생)
-- [ ] 스키마 마이그레이션 스크립트
-- [ ] `.env.example` + 환경변수 구조
-- [ ] ESLint + Prettier 설정
-- [ ] Husky + pre-commit hook 설정 (SoT 검사 포함)
+- [x] Next.js 16.x + TypeScript strict 모드
+- [x] Tailwind CSS v4 + shadcn/ui 설정
+- [x] 디자인 토큰 적용 (→ PHASE1 S7 참조)
+- [x] PostgreSQL + PostGIS Docker 초기화
+- [x] `db/schema.sql` 생성 (→ PHASE1 S2에서 파생)
+- [x] Drizzle ORM 스키마 마이그레이션
+- [x] `.env.example` + 환경변수 구조
+- [x] ESLint + Prettier 설정
+- [x] Husky + pre-commit hook 설정 (SoT 검사 포함)
 
-### M2 Data+Engine (Week 2-3)
+### M2 Data+Engine (Week 2-3) — 완료
 
-- [ ] ETL 수집 스크립트 (Python): 실거래가, 어린이집, 학교, CCTV
-- [ ] 지오코딩 전처리 (Kakao Geocoding API)
-- [ ] PostGIS 적재 스크립트
-- [ ] 예산 계산 모듈 (LTV/DTI)
-- [ ] 스코어링 엔진 구현 (→ PHASE1 S4 참조)
-- [ ] 통근시간 모듈 (사전 계산 그리드 + ODsay API + Redis 캐시)
-- [ ] `POST /api/recommend` 엔드포인트
-- [ ] `GET /api/apartments/:id` 엔드포인트
-- [ ] 입력값 검증 + PII 비저장 확인
+- [x] ETL 수집 스크립트 (TypeScript/tsx): 실거래가, 어린이집, 학교, CCTV, 건축물대장, unit-mix, POI, facility-stats
+- [x] 지오코딩 전처리 (Kakao Geocoding API)
+- [x] PostGIS 적재 (Drizzle ORM UPSERT)
+- [x] 예산 계산 모듈 (LTV/DTI + 월세 환산)
+- [x] 스코어링 엔진 구현 (→ PHASE1 S4 참조) — 6차원 (budget/commute/childcare/safety/school/complexScale)
+- [x] 통근시간 모듈 (사전 계산 그리드 + ODsay API + Redis 캐시 + 정규화 1:N)
+- [x] `POST /api/recommend` 엔드포인트
+- [x] `GET /api/apartments/:id` 엔드포인트
+- [x] 입력값 검증 + PII 비저장 확인
 
-### M3 Frontend (Week 4-5)
+### M3 Frontend (Week 4-5) — 완료
 
-- [ ] 랜딩 페이지 (서비스 소개 + 면책 고지)
-- [ ] StepForm 3단계 입력 (최소/정밀 분리)
-- [ ] ConsentForm (필수/선택 동의 분리)
-- [ ] 결과 페이지 (KakaoMap + ResultCardList)
-- [ ] ScoreBreakdown 컴포넌트
-- [ ] SourceBadge (출처/기준일 표시)
-- [ ] OutlinkButton (외부 이동 고지)
-- [ ] 컨시어지 리포트 페이지
-- [ ] 이용약관/개인정보처리방침 페이지
-- [ ] DisclaimerBanner + footer 링크
+- [x] 랜딩 페이지 (7섹션 + 면책 고지)
+- [x] StepForm 5단계 입력 (간소화 + 면적 선택)
+- [x] ConsentForm (필수/선택 동의 분리)
+- [x] 결과 페이지 (KakaoMap + ResultCardList + 컴팩트 카드)
+- [x] ScoreBreakdown 컴포넌트
+- [x] SourceBadge (출처/기준일 표시)
+- [x] OutlinkButton (외부 이동 고지)
+- [x] 컨시어지 리포트 페이지 (CTA + 문의 연결)
+- [x] 이용약관/개인정보처리방침 페이지
+- [x] DisclaimerBanner + footer 링크
 
-### M4 Polish (Week 6)
+### M4 Polish (Week 6) — 완료
 
-- [ ] 반응형 UI 검증 (mobile/tablet/desktop)
-- [ ] 성능 최적화 (Redis 캐시, 이미지 최적화)
-- [ ] 이벤트 트래킹 구현 (→ PHASE0 S2 이벤트 10개 참조)
-- [ ] 접근성 검증 (키보드 탐색, 색약 팔레트)
-- [ ] README 작성
-- [ ] 코드 리뷰 (Claude Code code-review 스킬)
+- [x] 반응형 UI 검증 (mobile/tablet/desktop)
+- [x] 성능 최적화 (Cache-Control, dynamic import, memo, bundle-analyzer)
+- [x] 이벤트 트래킹 구현 (→ PHASE0 S2 이벤트 11개 참조)
+- [x] 접근성 검증 (aria-live, aria-label, 색 대비, 키보드 탐색)
+- [x] README 작성
+- [x] 코드 리뷰 (Claude Code code-review 스킬)
 
 ## 3. SoT 준수 체크리스트
 

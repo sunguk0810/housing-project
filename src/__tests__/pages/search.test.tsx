@@ -9,8 +9,8 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/search',
 }));
 
-// Must import after mocks
-const { default: SearchPage } = await import('@/app/(main)/search/page');
+// Render StepWizard directly — SearchPage is an async server component
+const { StepWizard } = await import('@/components/input/StepWizard');
 
 describe('SearchPage', () => {
   beforeEach(() => {
@@ -20,14 +20,14 @@ describe('SearchPage', () => {
   });
 
   it('renders StepWizard with step 1', () => {
-    render(<SearchPage />);
+    render(<StepWizard />);
     expect(
       screen.getByRole('heading', { name: '어떤 형태의 집을 찾고 계세요' }),
     ).toBeInTheDocument();
   });
 
   it('renders trade type options (sale and jeonse only)', () => {
-    render(<SearchPage />);
+    render(<StepWizard />);
     expect(screen.getByText('매매')).toBeInTheDocument();
     expect(screen.getByText('전세')).toBeInTheDocument();
     expect(screen.queryByText('월세')).not.toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('SearchPage', () => {
 
   it('advances to step 2 after trade type selection and next click', async () => {
     const user = userEvent.setup();
-    render(<SearchPage />);
+    render(<StepWizard />);
     const tradeGroup = screen.getByRole('radiogroup', { name: '주거 형태 선택' });
     await user.click(within(tradeGroup).getByRole('radio', { name: /매매/ }));
     await user.click(screen.getByRole('button', { name: /다음/ }));
