@@ -30,7 +30,8 @@ export function AmountInput({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value.replace(/[^0-9]/g, "");
       const num = raw === "" ? 0 : parseInt(raw, 10);
-      if (num >= 0) onChange(num);
+      // Cap at 10,000,000 만원 (1조원) to prevent overflow
+      if (num >= 0 && num <= 10_000_000) onChange(num);
     },
     [onChange],
   );

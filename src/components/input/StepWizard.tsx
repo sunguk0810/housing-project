@@ -25,8 +25,23 @@ export function StepWizard() {
   const [consent, setConsent] = useState<ConsentState>(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem(SESSION_KEYS.consent);
-      if (saved === 'true') {
-        return { terms: true, privacy: true, marketing: false };
+      if (saved) {
+        try {
+          const parsed: unknown = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object' && 'terms' in parsed && 'privacy' in parsed) {
+            const obj = parsed as Record<string, unknown>;
+            return {
+              terms: obj.terms === true,
+              privacy: obj.privacy === true,
+              marketing: obj.marketing === true,
+            };
+          }
+        } catch {
+          // Legacy format: plain 'true' string
+          if (saved === 'true') {
+            return { terms: true, privacy: true, marketing: false };
+          }
+        }
       }
     }
     return DEFAULT_CONSENT;

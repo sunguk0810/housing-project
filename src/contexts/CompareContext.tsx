@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from "react";
+import { createContext, useContext, useReducer, useEffect, useCallback, useMemo, useState } from "react";
 import { SESSION_KEYS } from "@/lib/constants";
 
 export interface CompareItem {
@@ -48,28 +48,33 @@ const CompareContext = createContext<CompareContextValue | null>(null);
 
 export function CompareProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(compareReducer, { items: [] });
+  const [hydrated, setHydrated] = useState(false);
 
   // Hydrate from sessionStorage on mount
   useEffect(() => {
     try {
       const stored = sessionStorage.getItem(SESSION_KEYS.compareItems);
       if (stored) {
-        const parsed: CompareItem[] = JSON.parse(stored);
-        dispatch({ type: "HYDRATE", items: parsed });
+        const parsed: unknown = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          dispatch({ type: "HYDRATE", items: parsed as CompareItem[] });
+        }
       }
     } catch {
       // Ignore parse errors
     }
+    setHydrated(true); // eslint-disable-line react-hooks/set-state-in-effect -- hydration flag set once on mount
   }, []);
 
-  // Sync to sessionStorage on change
+  // Sync to sessionStorage on change — skip until hydration is complete
   useEffect(() => {
+    if (!hydrated) return;
     try {
       sessionStorage.setItem(SESSION_KEYS.compareItems, JSON.stringify(state.items));
     } catch {
       // Ignore storage errors
     }
-  }, [state.items]);
+  }, [state.items, hydrated]);
 
   const addItem = useCallback((item: CompareItem) => {
     dispatch({ type: "ADD", item });

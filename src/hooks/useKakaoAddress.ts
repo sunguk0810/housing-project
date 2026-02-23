@@ -8,9 +8,17 @@ interface AddressResult {
   jibunAddress: string;
 }
 
+const MAX_POLL_ATTEMPTS = 30; // Stop polling after 30 seconds
+
 function subscribeToSdkLoad(callback: () => void) {
-  // Poll for SDK load status change
-  const interval = setInterval(callback, 1000);
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts++;
+    callback();
+    if (attempts >= MAX_POLL_ATTEMPTS || isKakaoAddressLoaded()) {
+      clearInterval(interval);
+    }
+  }, 1000);
   return () => clearInterval(interval);
 }
 
