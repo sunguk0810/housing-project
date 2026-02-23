@@ -120,11 +120,8 @@ export async function POST(
       ? { lng: job2Result.coordinate.lng, lat: job2Result.coordinate.lat, label: input.job2 ?? '' }
       : null;
 
-    // Score at each budget level
-    const levels: BudgetLevelResult[] = [];
-    let baseTopIds: Set<number> = new Set();
-
-    for (const offset of offsets) {
+    // Helper: score one budget level and return its top-K result
+    async function scoreAtOffset(offset: number) {
       const adjustedCash = Math.max(0, input.cash + offset);
       const budget = calculateBudget({
         cash: adjustedCash,
@@ -136,7 +133,6 @@ export async function POST(
         loanProgram: input.loanProgram,
       });
 
-      // Filter candidates within this budget level
       const filtered =
         input.tradeType === 'monthly'
           ? candidateRows.filter((row) => {
@@ -154,14 +150,7 @@ export async function POST(
             );
 
       if (filtered.length === 0) {
-        levels.push({
-          offset,
-          adjustedCash,
-          top: [],
-          entered: [],
-          exited: [],
-        });
-        continue;
+        return { offset, adjustedCash, topK: [], topIds: new Set<number>() };
       }
 
       const scored = await scoreCandidates({
@@ -181,25 +170,33 @@ export async function POST(
       const topK = scored.slice(0, TOP_K);
       const topIds = new Set(topK.map((c) => c.item.aptId));
 
-      // Track base level for entered/exited calculation
-      if (offset === 0) {
-        baseTopIds = topIds;
-      }
+      return { offset, adjustedCash, topK, topIds };
+    }
 
-      const entered = [...topIds].filter((id) => !baseTopIds.has(id));
-      const exited = [...baseTopIds].filter((id) => !topIds.has(id));
+    // Pass 1: score base level (offset=0) first to establish reference Top-K
+    const baseResult = await scoreAtOffset(0);
+    const baseTopIds = baseResult.topIds;
+
+    // Pass 2: score all offsets and compute entered/exited against the base
+    const levels: BudgetLevelResult[] = [];
+
+    for (const offset of offsets) {
+      const result = offset === 0 ? baseResult : await scoreAtOffset(offset);
+
+      const entered = offset === 0 ? [] : [...result.topIds].filter((id) => !baseTopIds.has(id));
+      const exited = offset === 0 ? [] : [...baseTopIds].filter((id) => !result.topIds.has(id));
 
       levels.push({
         offset,
-        adjustedCash,
-        top: topK.map((c) => ({
+        adjustedCash: result.adjustedCash,
+        top: result.topK.map((c) => ({
           aptId: c.item.aptId,
           aptName: c.item.aptName,
           finalScore: c.item.finalScore,
           averagePrice: c.item.averagePrice,
         })),
-        entered: offset === 0 ? [] : entered,
-        exited: offset === 0 ? [] : exited,
+        entered,
+        exited,
       });
     }
 
