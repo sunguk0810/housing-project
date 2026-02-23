@@ -111,6 +111,23 @@ function log(event: string, data: object = {}): void {
   );
 }
 
+/**
+ * Check if daily API limit is exhausted and log a stop event.
+ * Returns true if exhausted (caller should break).
+ */
+function checkDailyLimitAndLog(
+  context: string,
+  extra: Record<string, unknown> = {},
+): boolean {
+  if (!DATA_GO_KR_LIMITER.isExhausted) return false;
+  log(`${context}_daily_limit_stop`, {
+    used: DATA_GO_KR_LIMITER.usedDaily,
+    message: "내일 같은 명령어로 재실행하세요",
+    ...extra,
+  });
+  return true;
+}
+
 // ─── Adapter runners ───
 
 async function runMolit(
@@ -127,15 +144,10 @@ async function runMolit(
     regionIdx++;
 
     // Check daily limit before each region
-    if (DATA_GO_KR_LIMITER.isExhausted) {
-      log("molit_daily_limit_stop", {
-        used: DATA_GO_KR_LIMITER.usedDaily,
-        completedRegions: regionIdx - 1,
-        totalRegions: regions.length,
-        message: "내일 같은 명령어로 재실행하세요 (upsert로 이어서 적재)",
-      });
-      break;
-    }
+    if (checkDailyLimitAndLog("molit", {
+      completedRegions: regionIdx - 1,
+      totalRegions: regions.length,
+    })) break;
 
     log("molit_region_start", {
       region: region.name,
@@ -148,14 +160,9 @@ async function runMolit(
     let regionRecords = 0;
 
     for (const month of months) {
-      if (DATA_GO_KR_LIMITER.isExhausted) {
-        log("molit_daily_limit_stop", {
-          used: DATA_GO_KR_LIMITER.usedDaily,
-          stoppedAt: `${region.name}/${month}`,
-          message: "내일 같은 명령어로 재실행하세요",
-        });
-        break;
-      }
+      if (checkDailyLimitAndLog("molit", {
+        stoppedAt: `${region.name}/${month}`,
+      })) break;
 
       const start = Date.now();
       try {
@@ -374,15 +381,10 @@ async function runUnitMix(
   for (const region of regions) {
     regionIdx++;
 
-    if (DATA_GO_KR_LIMITER.isExhausted) {
-      log("unit_mix_daily_limit_stop", {
-        used: DATA_GO_KR_LIMITER.usedDaily,
-        completedRegions: regionIdx - 1,
-        totalRegions: regions.length,
-        message: "내일 같은 명령어로 재실행하세요 (멱등 upsert)",
-      });
-      break;
-    }
+    if (checkDailyLimitAndLog("unit_mix", {
+      completedRegions: regionIdx - 1,
+      totalRegions: regions.length,
+    })) break;
 
     const start = Date.now();
     try {

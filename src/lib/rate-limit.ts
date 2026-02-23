@@ -42,6 +42,18 @@ export function isRateLimited(key: string, maxRequests: number): boolean {
   return false;
 }
 
+/**
+ * Validate that a string looks like an IP address (IPv4 or IPv6).
+ * Rejects obviously crafted values that could be used to bypass rate limiting.
+ */
+function isValidIpFormat(ip: string): boolean {
+  // IPv4: 1.2.3.4
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return true;
+  // IPv6 (including compressed forms and IPv4-mapped): ::1, 2001:db8::1, ::ffff:203.0.113.5, etc.
+  if (/^[0-9a-fA-F:.]+$/.test(ip) && ip.includes(':')) return true;
+  return false;
+}
+
 export function getClientIp(request: NextRequest): string {
   // Production topology: Viewer → CloudFront → nginx → app
   // 1. CloudFront-Viewer-Address: set by CloudFront, contains viewer IP (most trusted)
@@ -49,16 +61,21 @@ export function getClientIp(request: NextRequest): string {
   // 3. X-Real-IP: nginx $remote_addr = CloudFront edge IP (least useful, fallback only)
   const cfViewer = request.headers.get('cloudfront-viewer-address');
   if (cfViewer) {
-    return stripPort(cfViewer);
+    const ip = stripPort(cfViewer);
+    if (isValidIpFormat(ip)) return ip;
   }
 
   const xff = request.headers.get('x-forwarded-for');
   if (xff) {
-    return xff.split(',')[0].trim();
+    const ip = xff.split(',')[0].trim();
+    if (isValidIpFormat(ip)) return ip;
   }
 
   const realIp = request.headers.get('x-real-ip');
-  if (realIp) return realIp.trim();
+  if (realIp) {
+    const trimmed = realIp.trim();
+    if (isValidIpFormat(trimmed)) return trimmed;
+  }
 
   return 'unknown';
 }
