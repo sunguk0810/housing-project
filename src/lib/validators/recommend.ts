@@ -8,6 +8,13 @@ import { WEIGHT_PROFILE_KEYS } from '@/types/engine';
  * Units: cash/income/loans in 만원 (integer), monthlyBudget in 만원/월 (integer)
  */
 
+// Strip zero-width and invisible Unicode characters that could bypass length/content checks
+const ZERO_WIDTH_RE = /[\u200B-\u200F\u2028-\u202F\uFEFF\u00AD]/g;
+const sanitizedString = (maxLen: number, fieldName?: string) =>
+  z.string().transform((s) => s.replace(ZERO_WIDTH_RE, '').trim()).pipe(
+    z.string().max(maxLen, { message: fieldName ? `${fieldName}은 ${maxLen}자 이하여야 합니다.` : `${maxLen}자 이하여야 합니다.` }),
+  );
+
 export const tradeTypeSchema = z.enum(['sale', 'jeonse', 'monthly'], {
   errorMap: () => ({
     message: 'tradeType은 sale, jeonse, monthly만 허용됩니다.',
@@ -62,11 +69,9 @@ export const recommendRequestSchema = z
       .optional()
       .default(0),
 
-    job1: z
-      .string({ required_error: 'job1은 필수입니다.' })
-      .max(200, { message: 'job1은 200자 이하여야 합니다.' }),
+    job1: sanitizedString(200, 'job1'),
 
-    job2: z.string().max(200, { message: 'job2는 200자 이하여야 합니다.' }).optional().default(''),
+    job2: sanitizedString(200, 'job2').optional().default(''),
 
     job1Remote: z.boolean().optional().default(false),
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getClientIp } from "@/lib/rate-limit";
 
 /**
  * In-memory sliding window rate limiter.
@@ -29,14 +30,6 @@ function cleanupStaleEntries(now: number) {
   }
 }
 
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown"
-  );
-}
-
 export function middleware(request: NextRequest) {
   if (request.method !== "POST") {
     return NextResponse.next();
@@ -55,6 +48,15 @@ export function middleware(request: NextRequest) {
   const windowTimestamps = timestamps.filter((t) => now - t < WINDOW_MS);
 
   if (windowTimestamps.length >= MAX_REQUESTS) {
+    console.warn(
+      JSON.stringify({
+        event: "rate_limit_exceeded",
+        route: pathname,
+        ip,
+        count: windowTimestamps.length,
+        timestamp: new Date().toISOString(),
+      }),
+    );
     return NextResponse.json(
       {
         error: {

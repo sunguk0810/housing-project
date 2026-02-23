@@ -16,7 +16,11 @@ export function useSessionStorage<T>(
     if (typeof window === "undefined") return initialValue;
     try {
       const item = sessionStorage.getItem(prefixedKey);
-      return item ? (JSON.parse(item) as T) : initialValue;
+      if (!item) return initialValue;
+      const parsed: unknown = JSON.parse(item);
+      // Basic type guard: reject if top-level type doesn't match initialValue
+      if (typeof parsed !== typeof initialValue) return initialValue;
+      return parsed as T;
     } catch {
       return initialValue;
     }

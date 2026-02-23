@@ -42,10 +42,64 @@ export function isRateLimited(key: string, maxRequests: number): boolean {
   return false;
 }
 
+/**
+ * Validate that a string looks like an IP address (IPv4 or IPv6).
+ * Rejects obviously crafted values that could be used to bypass rate limiting.
+ */
+function isValidIpFormat(ip: string): boolean {
+  // IPv4: 1.2.3.4
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return true;
+  // IPv6 (including compressed forms and IPv4-mapped): ::1, 2001:db8::1, ::ffff:203.0.113.5, etc.
+  if (/^[0-9a-fA-F:.]+$/.test(ip) && ip.includes(':')) return true;
+  return false;
+}
+
 export function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    request.headers.get('x-real-ip') ??
-    'unknown'
-  );
+  // Production topology: Viewer → CloudFront → nginx → app
+  // 1. CloudFront-Viewer-Address: set by CloudFront, contains viewer IP (most trusted)
+  // 2. X-Forwarded-For first entry: viewer IP added by CloudFront before nginx appends
+  // 3. X-Real-IP: nginx $remote_addr = CloudFront edge IP (least useful, fallback only)
+  const cfViewer = request.headers.get('cloudfront-viewer-address');
+  if (cfViewer) {
+    const ip = stripPort(cfViewer);
+    if (isValidIpFormat(ip)) return ip;
+  }
+
+  const xff = request.headers.get('x-forwarded-for');
+  if (xff) {
+    const ip = xff.split(',')[0].trim();
+    if (isValidIpFormat(ip)) return ip;
+  }
+
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) {
+    const trimmed = realIp.trim();
+    if (isValidIpFormat(trimmed)) return trimmed;
+  }
+
+  return 'unknown';
+}
+
+/**
+ * Strip port from an IP address string, IPv6-safe.
+ * "1.2.3.4:12345"         → "1.2.3.4"
+ * "2406:da14::1234:5678"  → "2406:da14::1234:5678"  (no port, returned as-is)
+ * "[::1]:3000"            → "::1"
+ */
+function stripPort(addr: string): string {
+  const trimmed = addr.trim();
+  // Bracketed IPv6 with port: "[::1]:3000"
+  if (trimmed.startsWith('[')) {
+    const bracketEnd = trimmed.indexOf(']');
+    if (bracketEnd !== -1) {
+      return trimmed.slice(1, bracketEnd);
+    }
+  }
+  // Plain IPv6 (contains multiple colons, no brackets) — return as-is
+  if (trimmed.indexOf(':') !== trimmed.lastIndexOf(':')) {
+    return trimmed;
+  }
+  // IPv4 with port: "1.2.3.4:12345", or plain IPv4
+  const colonIdx = trimmed.lastIndexOf(':');
+  return colonIdx !== -1 ? trimmed.slice(0, colonIdx) : trimmed;
 }

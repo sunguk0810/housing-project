@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { Coordinate } from "@/types/api";
 import { getRedis } from "@/lib/redis";
 
@@ -64,7 +65,7 @@ export async function geocodeAddress(
   const redis = getRedis();
   if (redis) {
     try {
-      const cacheKey = `geocode:${normalized}`;
+      const cacheKey = `geocode:${createHash("sha256").update(normalized).digest("hex")}`;
       const cached = await redis.get(cacheKey);
       if (cached) {
         const coord = JSON.parse(cached) as Coordinate;
@@ -136,7 +137,7 @@ async function geocodeKakao(
   // Cache result
   const redis = getRedis();
   if (redis) {
-    const cacheKey = `geocode:${address}`;
+    const cacheKey = `geocode:${createHash("sha256").update(address).digest("hex")}`;
     redis.setex(cacheKey, CACHE_TTL_SECONDS, JSON.stringify(coordinate)).catch(() => {
       // Ignore cache write failures
     });

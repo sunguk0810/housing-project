@@ -20,6 +20,13 @@ if (!connectionString) {
   );
 }
 
+if (!/^postgres(ql)?:\/\/.+/.test(connectionString)) {
+  throw new Error(
+    "DATABASE_URL must start with postgres:// or postgresql://. " +
+      "See .env.example for the expected format.",
+  );
+}
+
 // postgres.js pool instance
 export const sql = postgres(connectionString, {
   max: 10,

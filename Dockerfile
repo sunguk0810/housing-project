@@ -40,6 +40,10 @@ COPY --from=build /app/public ./public
 # Drizzle migrations (for runtime migrate)
 COPY --from=build /app/drizzle ./drizzle
 
+# Run as non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 EXPOSE 3000
 
 CMD ["node", "server.js"]

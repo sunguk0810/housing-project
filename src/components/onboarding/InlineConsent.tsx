@@ -41,6 +41,21 @@ export function InlineConsent({
     if (typeof window === "undefined") return;
     try {
       const saved = sessionStorage.getItem(SESSION_KEYS.consent);
+      if (!saved) return;
+      try {
+        const parsed: unknown = JSON.parse(saved);
+        if (parsed && typeof parsed === "object" && "terms" in parsed && "privacy" in parsed) {
+          const obj = parsed as Record<string, unknown>;
+          onChange({
+            terms: obj.terms === true,
+            privacy: obj.privacy === true,
+            marketing: obj.marketing === true,
+          });
+          return;
+        }
+      } catch {
+        // Legacy format fallback
+      }
       if (saved === "true") {
         onChange({ terms: true, privacy: true, marketing: consent.marketing });
       }
@@ -58,7 +73,7 @@ export function InlineConsent({
     onChange(newConsent);
     if (checked) {
       trackEvent({ name: "consent_accepted", policyVersion: POLICY_VERSION });
-      sessionStorage.setItem(SESSION_KEYS.consent, "true");
+      sessionStorage.setItem(SESSION_KEYS.consent, JSON.stringify(newConsent));
     }
   }
 
@@ -67,7 +82,7 @@ export function InlineConsent({
     onChange(next);
     if (next.terms && next.privacy) {
       trackEvent({ name: "consent_accepted", policyVersion: POLICY_VERSION });
-      sessionStorage.setItem(SESSION_KEYS.consent, "true");
+      sessionStorage.setItem(SESSION_KEYS.consent, JSON.stringify(next));
     }
   }
 

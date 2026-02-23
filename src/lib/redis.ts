@@ -24,7 +24,15 @@ export function getRedis(): Redis | null {
       connectTimeout: 2000,
       lazyConnect: true,
     });
-    redisClient.on("error", () => {
+    redisClient.on("error", (err: Error) => {
+      // Log safely without exposing connection URL or credentials
+      console.error(
+        JSON.stringify({
+          event: "redis_connection_error",
+          message: err.message.replace(/redis:\/\/[^\s]+/gi, "redis://***"),
+          timestamp: new Date().toISOString(),
+        }),
+      );
       redisClient = null; // graceful degradation
     });
   }
