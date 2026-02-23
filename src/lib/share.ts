@@ -21,8 +21,8 @@ export interface ShareableCondition {
 }
 
 /**
- * Encode shareable conditions to a URL-safe base64 string.
- * Uses a compact JSON representation.
+ * Encode shareable conditions to a URL-safe base64url string.
+ * Uses base64url (RFC 4648 §5) to avoid +/= corruption in query strings.
  */
 export function encodeShareableCondition(
   condition: ShareableCondition,
@@ -41,13 +41,13 @@ export function encodeShareableCondition(
   };
 
   const json = JSON.stringify(compact);
-  // Use btoa for base64 encoding, handle Unicode with encodeURIComponent
+  // Standard base64, then convert to base64url (+ → -, / → _, strip padding)
   const base64 = btoa(
     encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1: string) =>
       String.fromCharCode(parseInt(p1, 16)),
     ),
   );
-  return base64;
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 /**
@@ -58,8 +58,13 @@ export function decodeShareableCondition(
   encoded: string,
 ): ShareableCondition | null {
   try {
+    // Restore base64url → standard base64 (- → +, _ → /, re-pad)
+    let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = b64.length % 4;
+    if (pad) b64 += '='.repeat(4 - pad);
+
     const json = decodeURIComponent(
-      Array.from(atob(encoded))
+      Array.from(atob(b64))
         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join(''),
     );

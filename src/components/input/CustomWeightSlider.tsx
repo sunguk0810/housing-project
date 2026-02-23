@@ -61,7 +61,7 @@ export function CustomWeightSlider({
           if (leftover > 0) leftover--;
         }
       } else {
-        // Proportional redistribution
+        // Proportional redistribution (floor to prevent rounding overflow)
         const newOtherSum = 100 - clamped;
         let distributed = 0;
 
@@ -72,7 +72,7 @@ export function CustomWeightSlider({
             next[k] = Math.max(0, newOtherSum - distributed);
           } else {
             const proportion = weights[k] / otherSum;
-            const adjusted = Math.max(0, Math.round(newOtherSum * proportion));
+            const adjusted = Math.max(0, Math.floor(newOtherSum * proportion));
             next[k] = adjusted;
             distributed += adjusted;
           }
