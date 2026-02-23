@@ -8,7 +8,7 @@ import { estimateApartmentMonthlyCost } from '@/lib/engines/budget';
 import type { CandidateRow } from '@/lib/queries/fetch-candidates';
 import type { RegionSafetyData } from '@/lib/queries/fetch-safety';
 import type { RecommendationItem, TradeType } from '@/types/api';
-import type { ScoringInput, WeightProfileKey, LoanProgramKey } from '@/types/engine';
+import type { ScoringInput, WeightProfileKey, LoanProgramKey, CustomWeights } from '@/types/engine';
 
 /**
  * Scoring pipeline: enriches candidate apartments with spatial/commute/safety data
@@ -35,6 +35,7 @@ export interface ScoringPipelineInput {
   readonly maxPrice: number;
   readonly weightProfile: WeightProfileKey;
   readonly loanProgram: LoanProgramKey;
+  readonly customWeights?: CustomWeights;
 }
 
 export interface ScoredCandidate {
@@ -145,7 +146,7 @@ async function scoreOneCandidate(
     householdCount: row.householdCount,
   };
 
-  const result = calculateFinalScore(scoringInput, ctx.weightProfile);
+  const result = calculateFinalScore(scoringInput, ctx.weightProfile, ctx.customWeights);
 
   return {
     score: result.finalScore,

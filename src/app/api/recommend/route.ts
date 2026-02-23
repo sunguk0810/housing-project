@@ -18,7 +18,7 @@ import {
   logPipelineError,
 } from '@/lib/handlers/api-error';
 import type { RecommendResponse, ApiErrorResponse } from '@/types/api';
-import type { WeightProfileKey, LoanProgramKey } from '@/types/engine';
+import type { WeightProfileKey, LoanProgramKey, CustomWeights } from '@/types/engine';
 
 /**
  * POST /api/recommend — 10-step analysis pipeline.
@@ -138,6 +138,7 @@ export async function POST(
       maxPrice: budget.maxPrice,
       weightProfile: input.weightProfile as WeightProfileKey,
       loanProgram: input.loanProgram as LoanProgramKey,
+      customWeights: input.customWeights as CustomWeights | undefined,
     });
 
     // Sort by score descending, then apply diversity reranking for value_maximized
@@ -169,6 +170,8 @@ export async function POST(
       meta: {
         totalCandidates: candidatesForScoring.length,
         computedAt: new Date().toISOString(),
+        ...(job1Dest ? { job1Coord: { lat: job1Dest.lat, lng: job1Dest.lng, label: input.job1 } } : {}),
+        ...(job2Dest ? { job2Coord: { lat: job2Dest.lat, lng: job2Dest.lng, label: input.job2 ?? '' } } : {}),
       },
     };
 

@@ -32,6 +32,15 @@ export const loanProgramSchema = z.enum(['bankMortgage', 'bogeumjari'], {
   }),
 });
 
+const customWeightsSchema = z.object({
+  budget: z.number().int().min(0).max(100),
+  commute: z.number().int().min(0).max(100),
+  childcare: z.number().int().min(0).max(100),
+  safety: z.number().int().min(0).max(100),
+  school: z.number().int().min(0).max(100),
+  complexScale: z.number().int().min(0).max(100),
+});
+
 export const recommendRequestSchema = z
   .object({
     cash: z
@@ -86,6 +95,8 @@ export const recommendRequestSchema = z
       .max(3, { message: 'desiredAreas는 최대 3개까지 선택 가능합니다.' })
       .optional()
       .default(['small', 'medium', 'large']),
+
+    customWeights: customWeightsSchema.optional(),
   })
   .superRefine((value, ctx) => {
     if (!value.job1Remote && value.job1.trim().length === 0) {
@@ -94,6 +105,30 @@ export const recommendRequestSchema = z
         path: ['job1'],
         message: 'job1은 비어있을 수 없습니다.',
       });
+    }
+    if (value.weightProfile === 'custom') {
+      if (!value.customWeights) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['customWeights'],
+          message: 'custom 프로필 선택 시 customWeights는 필수입니다.',
+        });
+      } else {
+        const sum =
+          value.customWeights.budget +
+          value.customWeights.commute +
+          value.customWeights.childcare +
+          value.customWeights.safety +
+          value.customWeights.school +
+          value.customWeights.complexScale;
+        if (sum !== 100) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['customWeights'],
+            message: `customWeights 합계는 100이어야 합니다. (현재: ${sum})`,
+          });
+        }
+      }
     }
   });
 

@@ -11,6 +11,9 @@ declare global {
         LatLng: new (lat: number, lng: number) => KakaoLatLng;
         Map: new (container: HTMLElement, options: KakaoMapOptions) => KakaoMapInstance;
         CustomOverlay: new (options: KakaoOverlayOptions) => KakaoCustomOverlay;
+        Polyline: new (options: KakaoPolylineOptions) => KakaoPolyline;
+        LatLngBounds: new () => KakaoLatLngBounds;
+        Marker: new (options: KakaoMarkerOptions) => KakaoMarker;
         event: {
           addListener: (target: unknown, type: string, callback: () => void) => void;
         };
@@ -55,6 +58,32 @@ export interface KakaoCustomOverlay {
   setMap(map: KakaoMapInstance | null): void;
   setPosition(position: KakaoLatLng): void;
   getPosition(): KakaoLatLng;
+}
+
+export interface KakaoPolylineOptions {
+  map?: KakaoMapInstance;
+  path: KakaoLatLng[];
+  strokeWeight?: number;
+  strokeColor?: string;
+  strokeOpacity?: number;
+  strokeStyle?: string;
+}
+
+export interface KakaoPolyline {
+  setMap(map: KakaoMapInstance | null): void;
+}
+
+export interface KakaoLatLngBounds {
+  extend(latlng: KakaoLatLng): void;
+}
+
+export interface KakaoMarkerOptions {
+  map?: KakaoMapInstance;
+  position: KakaoLatLng;
+}
+
+export interface KakaoMarker {
+  setMap(map: KakaoMapInstance | null): void;
 }
 
 export interface DaumPostcodeOptions {

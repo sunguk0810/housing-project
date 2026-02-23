@@ -120,6 +120,17 @@ export const WEIGHT_PROFILE_KEYS = [
   "commute_focused",
   "complex_focused",
   "value_maximized",
+  "custom",
 ] as const;
 
 export type WeightProfileKey = (typeof WEIGHT_PROFILE_KEYS)[number];
+
+/** Custom weight values for 6 dimensions (each 0-100, sum = 100) */
+export interface CustomWeights {
+  budget: number;
+  commute: number;
+  childcare: number;
+  safety: number;
+  school: number;
+  complexScale: number;
+}

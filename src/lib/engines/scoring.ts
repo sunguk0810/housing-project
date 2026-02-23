@@ -3,6 +3,7 @@ import type {
   DimensionScores,
   FinalScoreResult,
   WeightProfileKey,
+  CustomWeights,
 } from "@/types/engine";
 
 /**
@@ -11,6 +12,7 @@ import type {
  * Source of Truth: PHASE1 S4 (normalization formulas updated for V2)
  */
 
+/** Preset weight profiles. 'custom' is a placeholder — actual weights come from customWeights param. */
 export const WEIGHT_PROFILES: Record<
   WeightProfileKey,
   Record<keyof DimensionScores, number>
@@ -54,6 +56,14 @@ export const WEIGHT_PROFILES: Record<
     safety: 0.18,
     school: 0.15,
     complexScale: 0.19,
+  },
+  custom: {
+    budget: 0.28,
+    commute: 0.24,
+    childcare: 0.14,
+    safety: 0.14,
+    school: 0.12,
+    complexScale: 0.08,
   },
 };
 
@@ -266,17 +276,37 @@ function generateWhyNot(
 
 // --- Main scoring function ---
 
+/** Convert CustomWeights (0-100 per dim, sum=100) to normalized weights (0-1 per dim, sum=1) */
+function toNormalizedWeights(
+  cw: CustomWeights,
+): Record<keyof DimensionScores, number> {
+  return {
+    budget: cw.budget / 100,
+    commute: cw.commute / 100,
+    childcare: cw.childcare / 100,
+    safety: cw.safety / 100,
+    school: cw.school / 100,
+    complexScale: cw.complexScale / 100,
+  };
+}
+
 /**
  * Calculate final weighted score.
  * Formula (PHASE1 S4):
  *   final_score = round(100 * Σ(W_dim * dim_norm), 1)
+ *
+ * When weightProfile is 'custom', customWeights must be provided.
  */
 export function calculateFinalScore(
   input: ScoringInput,
   weightProfile: WeightProfileKey,
+  customWeights?: CustomWeights,
 ): FinalScoreResult {
   const dimensions = normalizeScore(input);
-  const weights = WEIGHT_PROFILES[weightProfile];
+  const weights =
+    weightProfile === "custom" && customWeights
+      ? toNormalizedWeights(customWeights)
+      : WEIGHT_PROFILES[weightProfile] ?? WEIGHT_PROFILES.balanced;
 
   const rawScore =
     weights.budget * dimensions.budget +

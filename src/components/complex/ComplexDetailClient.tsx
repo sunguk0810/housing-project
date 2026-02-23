@@ -85,6 +85,9 @@ export function ComplexDetailClient({ data }: ComplexDetailClientProps) {
             <CommutePanel
               commute={commute}
               session={session}
+              aptLat={session.aptLat ?? undefined}
+              aptLng={session.aptLng ?? undefined}
+              aptName={apartment.aptName}
             />
           )}
         </div>

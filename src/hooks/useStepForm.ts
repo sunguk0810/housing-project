@@ -9,9 +9,18 @@ import { prioritiesToPriorityWeights, priorityWeightsToWeightProfile } from '@/l
 import { WEIGHT_PROFILE_KEYS } from '@/types/engine';
 import type { PriorityWeights } from '@/types/ui';
 
-const FORM_SCHEMA_VERSION = 6;
+const FORM_SCHEMA_VERSION = 7;
 
 const DESIRED_AREA_KEYS = ['small', 'medium', 'large'] as const;
+
+const customWeightsSchema = z.object({
+  budget: z.number().int().min(0).max(100),
+  commute: z.number().int().min(0).max(100),
+  childcare: z.number().int().min(0).max(100),
+  safety: z.number().int().min(0).max(100),
+  school: z.number().int().min(0).max(100),
+  complexScale: z.number().int().min(0).max(100),
+}).optional();
 
 const stepFormSchema = z.object({
   tradeType: z.enum(['sale', 'jeonse', 'monthly']).optional(),
@@ -25,6 +34,7 @@ const stepFormSchema = z.object({
   budgetProfile: z.enum(['firstTime', 'noProperty', 'homeowner']),
   loanProgram: z.enum(['bankMortgage', 'bogeumjari']),
   desiredAreas: z.array(z.enum(DESIRED_AREA_KEYS)).min(1).max(3),
+  customWeights: customWeightsSchema,
 });
 
 export type StepFormData = z.infer<typeof stepFormSchema>;
@@ -43,7 +53,23 @@ const DEFAULT_VALUES: StepFormData = {
   budgetProfile: 'noProperty',
   loanProgram: 'bankMortgage',
   desiredAreas: ['small', 'medium', 'large'],
+  customWeights: undefined,
 };
+
+// v6 schema (previous version without customWeights)
+const v6DataSchema = z.object({
+  tradeType: z.enum(['sale', 'jeonse', 'monthly']).optional(),
+  job1: z.string(),
+  job2: z.string(),
+  job1Remote: z.boolean(),
+  job2Remote: z.boolean(),
+  cash: z.number().int().min(0).max(5_000_000),
+  income: z.number().int().min(0).max(1_200_000),
+  weightProfile: z.enum(WEIGHT_PROFILE_KEYS),
+  budgetProfile: z.enum(['firstTime', 'noProperty', 'homeowner']),
+  loanProgram: z.enum(['bankMortgage', 'bogeumjari']),
+  desiredAreas: z.array(z.enum(DESIRED_AREA_KEYS)).min(1).max(3),
+});
 
 // v5 schema (previous version without desiredAreas)
 const v5DataSchema = z.object({
@@ -144,6 +170,11 @@ const stepFormSessionSchema = z.object({
   data: stepFormSchema,
 });
 
+const v6SessionSchema = z.object({
+  schemaVersion: z.literal(6),
+  data: v6DataSchema,
+});
+
 interface UseStepFormReturn {
   form: UseFormReturn<StepFormData>;
   currentStep: number;
@@ -162,13 +193,18 @@ function migrateV2ToV3(weights: PriorityWeights): StepFormData['weightProfile'] 
   return priorityWeightsToWeightProfile(weights);
 }
 
-/** Add desiredAreas default for v5 → v6 */
-function migrateV5ToV6(d: z.infer<typeof v5DataSchema>): StepFormData {
-  return { ...d, desiredAreas: DEFAULT_VALUES.desiredAreas };
+/** Add customWeights default for v6 → v7 */
+function migrateV6ToV7(d: z.infer<typeof v6DataSchema>): StepFormData {
+  return { ...d, customWeights: undefined };
 }
 
-/** Remove fields and convert monthly income → annual income for v4 → v6 */
-function migrateV4ToV6(d: z.infer<typeof v4DataSchema>): StepFormData {
+/** Add desiredAreas default for v5 → v6 → v7 */
+function migrateV5ToV7(d: z.infer<typeof v5DataSchema>): StepFormData {
+  return { ...d, desiredAreas: DEFAULT_VALUES.desiredAreas, customWeights: undefined };
+}
+
+/** Remove fields and convert monthly income → annual income for v4 → v7 */
+function migrateV4ToV7(d: z.infer<typeof v4DataSchema>): StepFormData {
   return {
     tradeType: d.tradeType,
     job1: d.job1,
@@ -181,12 +217,13 @@ function migrateV4ToV6(d: z.infer<typeof v4DataSchema>): StepFormData {
     budgetProfile: d.budgetProfile,
     loanProgram: d.loanProgram,
     desiredAreas: DEFAULT_VALUES.desiredAreas,
+    customWeights: undefined,
   };
 }
 
-/** Add budgetProfile/loanProgram defaults to v3 data, then migrate to v6 */
-function migrateV3ToV6(d: z.infer<typeof v3DataSchema>): StepFormData {
-  return migrateV4ToV6({
+/** Add budgetProfile/loanProgram defaults to v3 data, then migrate to v7 */
+function migrateV3ToV7(d: z.infer<typeof v3DataSchema>): StepFormData {
+  return migrateV4ToV7({
     ...d,
     budgetProfile: DEFAULT_VALUES.budgetProfile,
     loanProgram: DEFAULT_VALUES.loanProgram,
@@ -200,39 +237,47 @@ function restoreFromSession(): StepFormData | null {
     if (!item) return null;
     const raw = JSON.parse(item) as unknown;
 
-    // v6: current schema
-    const v6Result = stepFormSessionSchema.safeParse(raw);
-    if (v6Result.success) return v6Result.data.data;
+    // v7: current schema
+    const v7Result = stepFormSessionSchema.safeParse(raw);
+    if (v7Result.success) return v7Result.data.data;
 
-    // v6 direct (no wrapper)
-    const directV6Result = stepFormSchema.safeParse(raw);
-    if (directV6Result.success) return directV6Result.data;
+    // v7 direct (no wrapper)
+    const directV7Result = stepFormSchema.safeParse(raw);
+    if (directV7Result.success) return directV7Result.data;
 
-    // v5 wrapped → v6 migration
+    // v6 wrapped → v7 migration
+    const v6Wrapped = v6SessionSchema.safeParse(raw);
+    if (v6Wrapped.success) return migrateV6ToV7(v6Wrapped.data.data);
+
+    // v6 direct
+    const directV6Result = v6DataSchema.safeParse(raw);
+    if (directV6Result.success) return migrateV6ToV7(directV6Result.data);
+
+    // v5 wrapped → v7 migration
     const v5Wrapped = z.object({ schemaVersion: z.literal(5), data: v5DataSchema }).safeParse(raw);
-    if (v5Wrapped.success) return migrateV5ToV6(v5Wrapped.data.data);
+    if (v5Wrapped.success) return migrateV5ToV7(v5Wrapped.data.data);
 
     // v5 direct
     const directV5Result = v5DataSchema.safeParse(raw);
-    if (directV5Result.success) return migrateV5ToV6(directV5Result.data);
+    if (directV5Result.success) return migrateV5ToV7(directV5Result.data);
 
-    // v4 wrapped → v6 migration
+    // v4 wrapped → v7 migration
     const v4Wrapped = z.object({ schemaVersion: z.literal(4), data: v4DataSchema }).safeParse(raw);
-    if (v4Wrapped.success) return migrateV4ToV6(v4Wrapped.data.data);
+    if (v4Wrapped.success) return migrateV4ToV7(v4Wrapped.data.data);
 
     // v4 direct
     const directV4Result = v4DataSchema.safeParse(raw);
-    if (directV4Result.success) return migrateV4ToV6(directV4Result.data);
+    if (directV4Result.success) return migrateV4ToV7(directV4Result.data);
 
-    // v3 wrapped → v6 migration
+    // v3 wrapped → v7 migration
     const v3Wrapped = z.object({ schemaVersion: z.literal(3), data: v3DataSchema }).safeParse(raw);
-    if (v3Wrapped.success) return migrateV3ToV6(v3Wrapped.data.data);
+    if (v3Wrapped.success) return migrateV3ToV7(v3Wrapped.data.data);
 
     // v3 direct
     const directV3Result = v3DataSchema.safeParse(raw);
-    if (directV3Result.success) return migrateV3ToV6(directV3Result.data);
+    if (directV3Result.success) return migrateV3ToV7(directV3Result.data);
 
-    // v2: priorityWeights → weightProfile migration → v6
+    // v2: priorityWeights → weightProfile migration → v7
     const v2Wrapped = z.object({ schemaVersion: z.literal(2), data: v2DataSchema }).safeParse(raw);
     if (v2Wrapped.success) {
       const d = v2Wrapped.data.data;
@@ -248,6 +293,7 @@ function restoreFromSession(): StepFormData | null {
         budgetProfile: DEFAULT_VALUES.budgetProfile,
         loanProgram: DEFAULT_VALUES.loanProgram,
         desiredAreas: DEFAULT_VALUES.desiredAreas,
+        customWeights: undefined,
       };
     }
 
@@ -267,10 +313,11 @@ function restoreFromSession(): StepFormData | null {
         budgetProfile: DEFAULT_VALUES.budgetProfile,
         loanProgram: DEFAULT_VALUES.loanProgram,
         desiredAreas: DEFAULT_VALUES.desiredAreas,
+        customWeights: undefined,
       };
     }
 
-    // v1: legacy priorities[] → priorityWeights → weightProfile → v6
+    // v1: legacy priorities[] → priorityWeights → weightProfile → v7
     const legacyResult = legacyStepFormSchema.safeParse(raw);
     if (legacyResult.success) {
       const legacy = legacyResult.data;
@@ -287,6 +334,7 @@ function restoreFromSession(): StepFormData | null {
         budgetProfile: DEFAULT_VALUES.budgetProfile,
         loanProgram: DEFAULT_VALUES.loanProgram,
         desiredAreas: DEFAULT_VALUES.desiredAreas,
+        customWeights: undefined,
       };
     }
     return null;

@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   description: "소득, 자산, 직장 위치 정보를 입력하고 나에게 맞는 단지를 분석합니다.",
 };
 
-export default function SearchPage() {
-  return <StepWizard />;
+interface SearchPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams;
+  const sharedParam = typeof params.s === 'string' ? params.s : undefined;
+  return <StepWizard sharedConditionParam={sharedParam} />;
 }

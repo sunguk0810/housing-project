@@ -27,6 +27,15 @@ export interface Coordinate {
 
 export type DesiredAreaKey = 'small' | 'medium' | 'large';
 
+export interface CustomWeightsInput {
+  readonly budget: number;
+  readonly commute: number;
+  readonly childcare: number;
+  readonly safety: number;
+  readonly school: number;
+  readonly complexScale: number;
+}
+
 export interface RecommendRequest {
   readonly cash: number;
   readonly income: number;
@@ -41,6 +50,7 @@ export interface RecommendRequest {
   readonly budgetProfile: BudgetProfile;
   readonly loanProgram: LoanProgram;
   readonly desiredAreas?: readonly DesiredAreaKey[];
+  readonly customWeights?: CustomWeightsInput;
 }
 
 export interface SourceInfo {
@@ -82,9 +92,17 @@ export interface RecommendationItem {
   readonly sources: SourceInfo;
 }
 
+export interface JobCoordinate {
+  readonly lat: number;
+  readonly lng: number;
+  readonly label: string;
+}
+
 export interface RecommendMeta {
   readonly totalCandidates: number;
   readonly computedAt: string;
+  readonly job1Coord?: JobCoordinate;
+  readonly job2Coord?: JobCoordinate;
 }
 
 export interface RecommendResponse {
@@ -218,6 +236,35 @@ export interface ApartmentDetailResponse {
     readonly priceDate: string;
     readonly safetyDate: string | null;
   };
+}
+
+// ============================================================
+// POST /api/budget-sensitivity
+// ============================================================
+
+export interface BudgetSensitivityRequest extends RecommendRequest {
+  /** Budget offset levels in 만원 (e.g. [-5000, -2500, 0, 2500, 5000]) */
+  readonly offsets?: readonly number[];
+}
+
+export interface BudgetLevelResult {
+  readonly offset: number;
+  readonly adjustedCash: number;
+  readonly top: ReadonlyArray<{
+    readonly aptId: number;
+    readonly aptName: string;
+    readonly finalScore: number;
+    readonly averagePrice: number;
+  }>;
+  /** Apartment IDs that entered the Top10 compared to the base (offset=0) level */
+  readonly entered: readonly number[];
+  /** Apartment IDs that exited the Top10 compared to the base (offset=0) level */
+  readonly exited: readonly number[];
+}
+
+export interface BudgetSensitivityResponse {
+  readonly levels: ReadonlyArray<BudgetLevelResult>;
+  readonly meta: RecommendMeta;
 }
 
 // ============================================================

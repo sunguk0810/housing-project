@@ -1,23 +1,30 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { SESSION_KEYS } from '@/lib/constants';
 import { trackEvent } from '@/lib/tracking';
 import { useStepForm } from '@/hooks/useStepForm';
+import { decodeShareableCondition } from '@/lib/share';
 import { ProgressBar } from '@/components/onboarding/ProgressBar';
 import { BottomCTA } from '@/components/onboarding/BottomCTA';
+import { SharedConditionBanner } from '@/components/input/SharedConditionBanner';
 import { Step1BasicInfo } from './steps/Step1BasicInfo';
 import { Step2Workplace } from './steps/Step2Workplace';
 import { Step3Finance } from './steps/Step3Finance';
 import { Step4Priorities } from './steps/Step4Priorities';
 import { Step5Loading } from './steps/Step5Loading';
 import type { ConsentState } from '@/types/ui';
+import type { WeightProfileKey } from '@/types/engine';
 
 const DEFAULT_CONSENT: ConsentState = { terms: false, privacy: false, marketing: false };
 
-export function StepWizard() {
+interface StepWizardProps {
+  sharedConditionParam?: string;
+}
+
+export function StepWizard({ sharedConditionParam }: StepWizardProps) {
   const router = useRouter();
   const { form, currentStep, goNext, goPrev, isFirstStep, isLastInputStep, isAnalysisStep } =
     useStepForm();
@@ -33,8 +40,36 @@ export function StepWizard() {
   });
 
   const [keypadOpen, setKeypadOpen] = useState(false);
+  const [isSharedSession, setIsSharedSession] = useState(false);
+  const sharedApplied = useRef(false);
 
   const { watch, setValue } = form;
+
+  // Apply shared condition from URL parameter
+  useEffect(() => {
+    if (!sharedConditionParam || sharedApplied.current) return;
+    sharedApplied.current = true;
+
+    const decoded = decodeShareableCondition(sharedConditionParam);
+    if (!decoded) return;
+
+    if (decoded.tradeType) setValue('tradeType', decoded.tradeType);
+    if (decoded.job1) setValue('job1', decoded.job1);
+    if (decoded.job2) setValue('job2', decoded.job2);
+    setValue('job1Remote', decoded.job1Remote);
+    setValue('job2Remote', decoded.job2Remote);
+    setValue('weightProfile', decoded.weightProfile as WeightProfileKey);
+    setValue('budgetProfile', decoded.budgetProfile as 'firstTime' | 'noProperty' | 'homeowner');
+    setValue('loanProgram', decoded.loanProgram as 'bankMortgage' | 'bogeumjari');
+    if (decoded.desiredAreas.length > 0) {
+      setValue('desiredAreas', decoded.desiredAreas as ('small' | 'medium' | 'large')[]);
+    }
+    if (decoded.customWeights) {
+      setValue('customWeights', decoded.customWeights);
+    }
+
+    setIsSharedSession(true);
+  }, [sharedConditionParam, setValue]);
   const values = watch();
 
   const canProceed = useCallback((): boolean => {
@@ -45,8 +80,20 @@ export function StepWizard() {
         return values.job1.length > 0 || values.job1Remote;
       case 3:
         return consent.terms && consent.privacy && values.desiredAreas.length >= 1;
-      case 4:
-        return !!values.weightProfile;
+      case 4: {
+        if (!values.weightProfile) return false;
+        if (values.weightProfile === 'custom' && values.customWeights) {
+          const sum =
+            values.customWeights.budget +
+            values.customWeights.commute +
+            values.customWeights.childcare +
+            values.customWeights.safety +
+            values.customWeights.school +
+            values.customWeights.complexScale;
+          return sum === 100;
+        }
+        return values.weightProfile !== 'custom';
+      }
       default:
         return false;
     }
@@ -73,6 +120,11 @@ export function StepWizard() {
 
   return (
     <div className="mx-auto max-w-lg px-[var(--space-4)] py-[var(--space-6)] pb-24">
+      {/* Shared condition banner */}
+      {isSharedSession && currentStep === 1 && (
+        <SharedConditionBanner className="mb-[var(--space-4)]" />
+      )}
+
       {/* Progress bar */}
       <ProgressBar currentStep={currentStep} totalSteps={4} className="mb-[var(--space-6)]" />
 
@@ -130,6 +182,8 @@ export function StepWizard() {
           <Step4Priorities
             weightProfile={values.weightProfile}
             onWeightProfileChange={(v) => setValue('weightProfile', v)}
+            customWeights={values.customWeights}
+            onCustomWeightsChange={(v) => setValue('customWeights', v)}
           />
         )}
       </div>

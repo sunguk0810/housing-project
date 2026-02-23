@@ -22,6 +22,10 @@ import { RefreshPill } from "@/components/map/RefreshPill";
 import { PropertyCardSkeleton } from "@/components/feedback/Skeleton";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { LoadMoreButton } from "@/components/results/LoadMoreButton";
+import { ShareButton } from "@/components/results/ShareButton";
+import { BudgetSensitivity } from "@/components/results/BudgetSensitivity";
+import type { ShareableCondition } from "@/lib/share";
+import type { StepFormData } from "@/hooks/useStepForm";
 import type { RecommendResponse, RecommendationItem } from "@/types/api";
 import type { SortOption } from "@/types/ui";
 
@@ -58,6 +62,8 @@ export default function ResultsPage() {
   const [showMap, setShowMap] = useState(false);
   const [page, setPage] = useState(1);
   const [boundsChanged, setBoundsChanged] = useState(false);
+  const [shareCondition, setShareCondition] = useState<ShareableCondition | null>(null);
+  const [savedFormData, setSavedFormData] = useState<StepFormData | null>(null);
   const cardListRef = useRef<HTMLDivElement>(null);
 
   useTracking({ name: "result_view", count: data?.recommendations.length ?? 0 });
@@ -93,6 +99,30 @@ export default function ResultsPage() {
       const visitedStored = sessionStorage.getItem(SESSION_KEYS.visitedApts);
       if (visitedStored) {
         setVisitedIds(new Set(JSON.parse(visitedStored) as number[]));
+      }
+
+      // Build shareable condition from saved form data (excluding financial info)
+      const formStored = sessionStorage.getItem(SESSION_KEYS.formData);
+      if (formStored) {
+        try {
+          const formRaw = JSON.parse(formStored) as Record<string, unknown>;
+          const formData = (formRaw.data ?? formRaw) as StepFormData;
+          setSavedFormData(formData);
+          setShareCondition({
+            tradeType: formData.tradeType,
+            job1: formData.job1,
+            job2: formData.job2,
+            job1Remote: formData.job1Remote,
+            job2Remote: formData.job2Remote,
+            weightProfile: formData.weightProfile,
+            budgetProfile: formData.budgetProfile,
+            loanProgram: formData.loanProgram,
+            desiredAreas: formData.desiredAreas,
+            customWeights: formData.customWeights,
+          });
+        } catch {
+          // Ignore parse errors
+        }
       }
     } catch {
       router.replace("/search");
@@ -257,6 +287,7 @@ export default function ResultsPage() {
           <BarChart3 className="size-5 text-[var(--color-on-surface)]" />
           분석 결과 <span className="text-[var(--color-brand-500)] tabular-nums">{data.recommendations.length}</span>건
         </h1>
+        {shareCondition && <ShareButton condition={shareCondition} />}
       </div>
 
       {/* Data source — compact single-line disclaimer */}
@@ -338,6 +369,9 @@ export default function ResultsPage() {
             totalCount={sortedItems.length}
             onClick={handleLoadMore}
           />
+
+          {/* Budget sensitivity analysis */}
+          <BudgetSensitivity formData={savedFormData} className="mt-[var(--space-4)]" />
 
           {/* Disclaimer */}
           <p className="mt-[var(--space-6)] border-t border-[var(--color-border)] pt-[var(--space-4)] text-center text-[length:var(--text-caption)] text-[var(--color-on-surface-muted)]">

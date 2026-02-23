@@ -22,6 +22,15 @@ export interface DetailSessionData {
   readonly job2: string | null;
   readonly job1Remote: boolean;
   readonly job2Remote: boolean;
+  /** Apartment coordinates (from recommendation item) */
+  readonly aptLat: number | null;
+  readonly aptLng: number | null;
+  /** Job 1 geocoded coordinates (from response meta) */
+  readonly job1Lat: number | null;
+  readonly job1Lng: number | null;
+  /** Job 2 geocoded coordinates (from response meta) */
+  readonly job2Lat: number | null;
+  readonly job2Lng: number | null;
 }
 
 const EMPTY_SESSION: DetailSessionData = {
@@ -33,6 +42,12 @@ const EMPTY_SESSION: DetailSessionData = {
   job2: null,
   job1Remote: false,
   job2Remote: false,
+  aptLat: null,
+  aptLng: null,
+  job1Lat: null,
+  job1Lng: null,
+  job2Lat: null,
+  job2Lng: null,
 };
 
 interface DimensionsShape {
@@ -62,6 +77,15 @@ interface RecommendationMatch {
   finalScore: number;
   commuteTime1: number;
   commuteTime2: number | null;
+  aptLat: number | null;
+  aptLng: number | null;
+}
+
+interface JobCoordinates {
+  job1Lat: number | null;
+  job1Lng: number | null;
+  job2Lat: number | null;
+  job2Lng: number | null;
 }
 
 function extractFromResults(aptId: number): RecommendationMatch | null {
@@ -91,9 +115,39 @@ function extractFromResults(aptId: number): RecommendationMatch | null {
       finalScore: typeof match.finalScore === "number" ? match.finalScore : 0,
       commuteTime1: typeof match.commuteTime1 === "number" ? match.commuteTime1 : 0,
       commuteTime2: typeof match.commuteTime2 === "number" ? match.commuteTime2 : null,
+      aptLat: typeof match.lat === "number" ? match.lat : null,
+      aptLng: typeof match.lng === "number" ? match.lng : null,
     };
   } catch {
     return null;
+  }
+}
+
+function extractJobCoordinates(): JobCoordinates {
+  const fallback: JobCoordinates = { job1Lat: null, job1Lng: null, job2Lat: null, job2Lng: null };
+  try {
+    const stored = sessionStorage.getItem(SESSION_KEYS.results);
+    if (!stored) return fallback;
+
+    const raw: unknown = JSON.parse(stored);
+    if (!raw || typeof raw !== "object") return fallback;
+    if (!("meta" in raw)) return fallback;
+
+    const meta = (raw as Record<string, unknown>).meta;
+    if (!meta || typeof meta !== "object") return fallback;
+
+    const m = meta as Record<string, unknown>;
+    const j1 = m.job1Coord as Record<string, unknown> | undefined;
+    const j2 = m.job2Coord as Record<string, unknown> | undefined;
+
+    return {
+      job1Lat: j1 && typeof j1.lat === "number" ? j1.lat : null,
+      job1Lng: j1 && typeof j1.lng === "number" ? j1.lng : null,
+      job2Lat: j2 && typeof j2.lat === "number" ? j2.lat : null,
+      job2Lng: j2 && typeof j2.lng === "number" ? j2.lng : null,
+    };
+  } catch {
+    return fallback;
   }
 }
 
@@ -141,6 +195,7 @@ export function readDetailSession(aptId: number): DetailSessionData {
 
   const results = extractFromResults(aptId);
   const formData = extractFromFormData();
+  const jobCoords = extractJobCoordinates();
 
   return {
     dimensions: results?.dimensions ?? null,
@@ -151,5 +206,11 @@ export function readDetailSession(aptId: number): DetailSessionData {
     job2: formData.job2,
     job1Remote: formData.job1Remote,
     job2Remote: formData.job2Remote,
+    aptLat: results?.aptLat ?? null,
+    aptLng: results?.aptLng ?? null,
+    job1Lat: jobCoords.job1Lat,
+    job1Lng: jobCoords.job1Lng,
+    job2Lat: jobCoords.job2Lat,
+    job2Lng: jobCoords.job2Lng,
   };
 }

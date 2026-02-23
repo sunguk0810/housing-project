@@ -1,17 +1,29 @@
 "use client";
 
-import { Train, Briefcase } from "lucide-react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { Train, Briefcase, MapPin } from "lucide-react";
 import { DataSourceTag } from "@/components/trust/DataSourceTag";
 import { ProgressiveDisclosure } from "@/components/complex/ProgressiveDisclosure";
 import { InsightCard } from "@/components/complex/InsightCard";
+import { Button } from "@/components/ui/button";
 import { formatCommuteTime } from "@/lib/format";
 import { getScoreGrade, GRADE_LABELS } from "@/lib/score-utils";
 import type { CommuteInfo, CommuteRouteDetail } from "@/types/api";
 import type { DetailSessionData } from "@/lib/detail-session";
 
+const CommuteRouteMap = dynamic(
+  () => import("@/components/map/CommuteRouteMap").then((m) => ({ default: m.CommuteRouteMap })),
+  { ssr: false },
+);
+
 interface CommutePanelProps {
   commute: CommuteInfo;
   session: DetailSessionData;
+  /** Apartment coordinates for route map */
+  aptLat?: number;
+  aptLng?: number;
+  aptName?: string;
 }
 
 const DESTINATION_LABELS: Record<string, string> = {
@@ -62,7 +74,8 @@ function RouteBadges({ routes }: { routes: CommuteRouteDetail }) {
   );
 }
 
-export function CommutePanel({ commute, session }: CommutePanelProps) {
+export function CommutePanel({ commute, session, aptLat, aptLng, aptName }: CommutePanelProps) {
+  const [showRouteMap, setShowRouteMap] = useState(false);
   const hasWorkplaceData = session.job1 !== null || session.job1Remote;
 
   // [R1] Single criterion: destinations array existence
@@ -135,6 +148,49 @@ export function CommutePanel({ commute, session }: CommutePanelProps) {
           </p>
         )}
       </div>
+
+      {/* Route map toggle */}
+      {hasWorkplaceData && aptLat !== undefined && aptLng !== undefined && (
+        <div className="space-y-[var(--space-3)]">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowRouteMap((prev) => !prev)}
+            className="w-full"
+          >
+            <MapPin size={14} />
+            {showRouteMap ? "경로 지도 접기" : "통근 경로 지도로 보기"}
+          </Button>
+          {showRouteMap && (
+            <CommuteRouteMap
+              origin={{
+                lat: aptLat,
+                lng: aptLng,
+                label: aptName ?? "단지",
+              }}
+              destinations={[
+                ...(session.job1 && !session.job1Remote && session.job1Lat != null && session.job1Lng != null
+                  ? [{
+                      lat: session.job1Lat,
+                      lng: session.job1Lng,
+                      label: "직장 1",
+                      timeMinutes: session.commuteTime1,
+                    }]
+                  : []),
+                ...(session.job2 && !session.job2Remote && session.job2Lat != null && session.job2Lng != null
+                  ? [{
+                      lat: session.job2Lat,
+                      lng: session.job2Lng,
+                      label: "직장 2",
+                      timeMinutes: session.commuteTime2,
+                    }]
+                  : []),
+              ]}
+              className="h-[280px] w-full"
+            />
+          )}
+        </div>
+      )}
 
       {/* Region commute (API-based) */}
       <div className="rounded-[var(--radius-s7-lg)] border border-[var(--color-border)] p-[var(--space-4)]">
